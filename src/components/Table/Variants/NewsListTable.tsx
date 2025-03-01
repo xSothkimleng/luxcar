@@ -6,13 +6,13 @@ import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
-import NewsDetail from '@/components/NewsDetail';
+// import NewsDetail from '@/components/CarDetail';
 import { format } from 'date-fns';
 import { NewsItem } from '@/services/news-service';
 
 const NewsListTable = () => {
   const [openNewsDialog, setOpenNewsDialog] = useState(false);
-  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  // const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
   const { data: newsData, isLoading } = useNews();
@@ -34,7 +34,7 @@ const NewsListTable = () => {
   );
 
   const handleViewNews = (news: NewsItem) => {
-    setSelectedNews(news);
+    // setSelectedNews(news);
     setOpenNewsDialog(true);
   };
 
@@ -106,7 +106,7 @@ const NewsListTable = () => {
           </Box>
         </DialogTitle>
         <DialogContent>
-          {selectedNews ? <NewsDetail news={selectedNews} /> : <Typography>No news available.</Typography>}
+          {/* {selectedNews ? <NewsDetail news={selectedNews} /> : <Typography>No news available.</Typography>} */}
         </DialogContent>
       </Dialog>
 

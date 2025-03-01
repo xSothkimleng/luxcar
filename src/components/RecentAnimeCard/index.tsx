@@ -7,8 +7,8 @@ interface ImageCardProps {
 }
 
 const RecentAnimeCard: React.FC<ImageCardProps> = ({ title, posterUrl }) => {
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
-  const imageUrl = posterUrl ? `${BASE_URL}/${posterUrl.replace(/\\/g, '/')}` : '/assets/images/poster.png';
+  // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
+  // const imageUrl = posterUrl ? `${BASE_URL}/${posterUrl.replace(/\\/g, '/')}` : '/assets/images/poster.png';
 
   return (
     <Box
@@ -29,19 +29,19 @@ const RecentAnimeCard: React.FC<ImageCardProps> = ({ title, posterUrl }) => {
           position: 'relative',
           width: '100%',
           height: '300px',
-          borderRadius: 4,
+          borderRadius: 0,
           overflow: 'hidden',
           boxShadow: 3,
           transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
         }}>
-        <Image src={imageUrl} alt={title} fill style={{ objectFit: 'cover' }} />
+        <Image src={posterUrl} alt={title} fill style={{ objectFit: 'cover' }} />
       </Box>
       <Typography
         className='title'
-        variant='h6'
+        variant='body1'
         sx={{
           mt: 1.5,
-          fontWeight: 'bold',
+          fontWeight: '500',
           textAlign: 'left',
           overflow: 'hidden',
           textOverflow: 'ellipsis',

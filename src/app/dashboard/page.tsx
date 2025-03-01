@@ -1,35 +1,77 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { Box, Typography } from '@mui/material';
-import MovieIcon from '@mui/icons-material/Movie';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import GroupIcon from '@mui/icons-material/Group';
+import CategoryIcon from '@mui/icons-material/Category';
+import ToysIcon from '@mui/icons-material/Toys';
 import StatsCard from '@/components/StatsCard';
 import Grid from '@mui/material/Grid2';
-import { useDashboardStats } from '@/hooks/useDashboard';
 import { Skeleton } from '@mui/material';
 import RecentAnimeCard from '@/components/RecentAnimeCard';
+import { useEffect, useState } from 'react';
+
+const dummyData = {
+  data: {
+    totals: {
+      anime: 3542,
+      episodes: 72819,
+      users: 15834,
+    },
+    recent: {
+      anime: [
+        {
+          _id: '1',
+          title: 'McLaren 720S GT3 Evo Pfaff Motorsports 2024 IMSA Daytona 24 Hrs',
+          posterUrl: '/assets/images/sampleCar.jpg',
+        },
+        {
+          _id: '2',
+          title: 'Nissan Skyline GT-R (R33) Imai Racing V1',
+          posterUrl: '/assets/images/sampleCar.jpg',
+        },
+        {
+          _id: '3',
+          title: 'Honda NSX (NA1) Kaido WORKS V2',
+          posterUrl: '/assets/images/sampleCar.jpg',
+        },
+        {
+          _id: '4',
+          title: 'Chevrolet Silverado “Sumatran Rhino” KAIDO x MIZU Diecast',
+          posterUrl: '/assets/images/sampleCar.jpg',
+        },
+      ],
+    },
+  },
+};
 
 const Dashboard = () => {
-  const { data: dashboardData, isLoading, error } = useDashboardStats();
+  type DashboardData = typeof dummyData | null;
+  const [dashboardData, setDashboardData] = useState<DashboardData>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        setDashboardData(dummyData);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const statsData = [
     {
-      title: 'Total Anime',
-      value: dashboardData?.data.totals.anime.toLocaleString() || '0',
-      icon: <MovieIcon sx={{ fontSize: 32, color: 'white' }} />,
-      gradient: 'linear-gradient(45deg, #FF1F8F 30%, #FF8C00 90%)',
+      title: 'Total Car Product',
+      value: 1000,
+      icon: <ToysIcon sx={{ fontSize: 32, color: 'white' }} />,
     },
     {
-      title: 'Total Episodes',
-      value: dashboardData?.data.totals.episodes.toLocaleString() || '0',
-      icon: <PlayCircleIcon sx={{ fontSize: 32, color: 'white' }} />,
-      gradient: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-    },
-    {
-      title: 'Total Users',
-      value: dashboardData?.data.totals.users.toLocaleString() || '0',
-      icon: <GroupIcon sx={{ fontSize: 32, color: 'white' }} />,
-      gradient: 'linear-gradient(45deg, #7E57C2 30%, #B388FF 90%)',
+      title: 'Total Categories ',
+      value: 200,
+      icon: <CategoryIcon sx={{ fontSize: 32, color: 'white' }} />,
     },
   ];
 
@@ -40,14 +82,13 @@ const Dashboard = () => {
           Dashboard
         </Typography>
         <Typography variant='h6' sx={{ fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>
-          Overview of all Anime Content
+          Overview Of Inventory
         </Typography>
       </Box>
 
       {/* Stats Cards Grid */}
       <Grid container spacing={3} sx={{ mb: '1rem' }}>
         {isLoading ? (
-          // Show loading skeletons
           [...Array(3)].map((_, index) => (
             <Grid size={4} key={index}>
               <Skeleton
@@ -61,7 +102,6 @@ const Dashboard = () => {
             </Grid>
           ))
         ) : error ? (
-          // Show error message
           <Grid size={12}>
             <Typography color='error' align='center'>
               Failed to load dashboard statistics
@@ -71,7 +111,7 @@ const Dashboard = () => {
           // Show stats cards
           statsData.map((stat, index) => (
             <Grid size={4} key={index}>
-              <StatsCard title={stat.title} value={stat.value} icon={stat.icon} gradient={stat.gradient} />
+              <StatsCard title={stat.title} value={stat.value} icon={stat.icon} />
             </Grid>
           ))
         )}

@@ -4,45 +4,26 @@ interface StatsCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  gradient: string;
 }
 
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, gradient }) => (
+const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon }) => (
   <Paper
     elevation={0}
     sx={{
       p: 3,
-      borderRadius: 4,
-      background: gradient,
+      borderRadius: 0,
+      background: 'white',
       transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
       '&:hover': {
         transform: 'translateY(-5px)',
         boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
       },
     }}>
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-      <Box>
-        <Typography
-          variant='h4'
-          sx={{
-            fontWeight: 'bold',
-            color: 'white',
-            mb: 1,
-          }}>
-          {value}
-        </Typography>
-        <Typography
-          variant='body1'
-          sx={{
-            color: 'rgba(255, 255, 255, 0.8)',
-            fontWeight: 'medium',
-          }}>
-          {title}
-        </Typography>
-      </Box>
+    <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 2 }}>
       <Box
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
           borderRadius: '50%',
           p: 1,
           display: 'flex',
@@ -50,6 +31,24 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, gradient }) =
           justifyContent: 'center',
         }}>
         {icon}
+      </Box>
+      <Box>
+        <Typography
+          variant='h4'
+          sx={{
+            fontWeight: 'bold',
+            mb: 1,
+          }}>
+          {value}
+        </Typography>
+        <Typography
+          variant='body1'
+          sx={{
+            color: 'rgba(0,0,0,0.6)',
+            fontWeight: 'bold',
+          }}>
+          {title}
+        </Typography>
       </Box>
     </Box>
   </Paper>

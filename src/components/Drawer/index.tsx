@@ -26,7 +26,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 const DRAWER_WIDTH = 320;
 const MENU_ITEMS = [
   { text: 'Dashboard', icon: DashboardIcon, path: '/dashboard' },
-  { text: 'Content Management', icon: ContentIcon, path: '/dashboard/content-management' },
+  { text: 'Inventory Management', icon: ContentIcon, path: '/dashboard/inventory-management' },
   { text: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },
 ];
 
@@ -93,19 +93,16 @@ const DashboardDrawer: React.FC<MiniDrawerProps> = ({ children }) => {
       <Drawer variant='permanent' open={open}>
         <DrawerHeader>
           <Box sx={{ display: open ? 'flex' : 'none', margin: 'auto', alignItems: 'center', mt: 2 }}>
-            <Image src='/assets/images/logo.png' alt='logo' width={80} height={80} style={{ marginRight: '0.5rem' }} />
+            <Image src='/assets/images/lux-logo.png' alt='logo' width={80} height={80} style={{ marginRight: '0.5rem' }} />
             <Typography
               variant='h6'
               sx={{
-                fontWeight: 'bold',
-                letterSpacing: 2,
+                fontSize: '1.5rem',
                 padding: '0.3rem 0.5rem',
                 borderRadius: '16px',
               }}>
-              <span style={{ color: 'rgba(255, 31, 143,1)' }}>New</span>
-              <span style={{ color: 'rgba(255, 140, 0,1)' }}>s</span>
-              <br />
-              <span style={{ fontSize: '14px' }}>New News Everyday</span>
+              <span style={{ color: 'rgba(0, 0, 0,1)', fontWeight: 'bolder', fontSize: '1.8rem' }}>LUX</span>
+              <span style={{ color: 'rgba(0,0, 0,1)', fontWeight: 'bold', fontSize: '1.8rem' }}>CARS</span>
             </Typography>
           </Box>
           <IconButton
@@ -149,10 +146,10 @@ const DashboardDrawer: React.FC<MiniDrawerProps> = ({ children }) => {
                     letterSpacing: active ? 2 : 0,
                     fontWeight: 'bold',
                     transition: 'all 0.2s',
-                    backgroundColor: active ? 'rgba(255, 140, 0,1)' : 'transparent',
+                    backgroundColor: active ? 'rgba(96, 91, 255, 0.8)' : 'transparent',
                     color: active ? 'white' : 'inherit',
                     '&:hover': {
-                      backgroundColor: 'rgba(255, 140, 0,1)',
+                      backgroundColor: 'rgba(96, 91, 255, 0.5)',
                       color: 'white',
                       letterSpacing: 2,
                     },
