@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Box, Dialog, Grid, IconButton, Paper, Typography, Container } from '@mui/material';
+import { Box, Dialog, Grid, IconButton, Paper, Typography, Container, DialogTitle, DialogContent } from '@mui/material';
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
 import { Car } from '@/types/car';
@@ -74,29 +74,28 @@ const ShopCollectionPage = () => {
       </Grid>
 
       {/* Car Detail Dialog */}
-      <Dialog fullWidth maxWidth='lg' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
-        <Box sx={{ position: 'relative' }}>
+      <Dialog fullWidth maxWidth='xl' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <IconButton
             onClick={() => setOpenCarDialog(false)}
             sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
+              zIndex: 1,
               bgcolor: 'rgba(0,0,0,0.5)',
               color: 'white',
-              zIndex: 1,
               '&:hover': {
                 bgcolor: 'rgba(0,0,0,0.7)',
               },
             }}>
             <CloseIcon />
           </IconButton>
+        </DialogTitle>
+        <DialogContent>
           {selectedCar ? (
             <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
           ) : (
             <Typography p={4}>No car selected.</Typography>
           )}
-        </Box>
+        </DialogContent>
       </Dialog>
     </Container>
   );

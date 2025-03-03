@@ -5,7 +5,7 @@ const carTypes = ['All Types', 'Luxury', 'Sports', 'Sedan', 'Electric', 'Hybrid'
 
 const Footer = () => {
   return (
-    <Box sx={{ bgcolor: '#111', color: 'white', mt: 6, py: 4 }}>
+    <Box sx={{ bgcolor: '#111', color: 'white', py: 4 }}>
       <Container>
         <Grid container spacing={4}>
           <Grid item xs={12} md={4}>
