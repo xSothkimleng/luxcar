@@ -1,10 +1,11 @@
 'use client';
-import Image from 'next/image';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
+import * as React from 'react';
 import { useState } from 'react';
+import Image from 'next/image';
 import { Car } from '@/types/car';
 import CloseIcon from '@mui/icons-material/Close';
 import CarDetail from '@/components/CarDetail';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
 
 interface CarThumbnailProps {
   car: Car;

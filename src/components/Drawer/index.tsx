@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { styled, Theme, CSSObject } from '@mui/material/styles';
 import Image from 'next/image';
@@ -94,8 +95,8 @@ const Drawer = styled(MuiDrawer, {
 const DashboardDrawer: React.FC<MiniDrawerProps> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const [open, setOpen] = React.useState(true);
-  const [subMenuOpen, setSubMenuOpen] = React.useState<{ [key: string]: boolean }>({});
+  const [open, setOpen] = useState(true);
+  const [subMenuOpen, setSubMenuOpen] = useState<{ [key: string]: boolean }>({});
 
   React.useEffect(() => {
     // Open submenu if current path is within a submenu

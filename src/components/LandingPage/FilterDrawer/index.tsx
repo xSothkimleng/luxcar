@@ -1,3 +1,8 @@
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import SearchIcon from '@mui/icons-material/Search';
+import { Car } from '@/types/car';
+import { carBrands } from '@/data/cars';
 import {
   Box,
   Button,
@@ -10,10 +15,6 @@ import {
   TextField,
   InputAdornment,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { useEffect, useState } from 'react';
-import { Car } from '@/types/car';
-import { carBrands } from '@/data/cars';
 
 interface FilterDrawerProps {
   cars: Car[];

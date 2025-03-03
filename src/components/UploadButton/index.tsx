@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Typography, Paper, IconButton } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Theme } from '@mui/material/styles';
 
 interface FileUploadProps {
   onFilesSelected?: (file: File | null) => void;
@@ -24,23 +24,12 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const StyledPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
-  textAlign: 'center',
-  cursor: 'pointer',
-  // border: '1px solid black',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 'none',
-  transition: theme.transitions.create(['background-color', 'box-shadow']),
-  // '&:hover': {
-  //   backgroundColor: theme.palette.action.hover,
-  // },
-}));
-
+// Removed the explicit Theme type which was causing issues
 const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 export default function FileUpload({ onFilesSelected, maxSize = DEFAULT_MAX_SIZE, accept }: FileUploadProps): React.JSX.Element {
-  const [isDragging, setIsDragging] = React.useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
@@ -104,52 +93,58 @@ export default function FileUpload({ onFilesSelected, maxSize = DEFAULT_MAX_SIZE
   };
 
   return (
-    <StyledPaper
-      component='label'
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      elevation={isDragging ? 3 : 1}
-      sx={{
-        p: 3,
-        borderColor: theme =>
-          isDragging ? theme.palette.primary.main : selectedFile ? theme.palette.success.light : theme.palette.grey[300],
-        borderRadius: 2,
-      }}>
-      {!selectedFile ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-          <CloudUploadIcon color='primary' sx={{ fontSize: 40 }} />
-          <Typography variant='body1'>Drag your file or click to browse</Typography>
-          <Typography variant='caption' color='text.secondary'>
-            Max {maxSize / (1024 * 1024)}MB files are allowed
-          </Typography>
-          <VisuallyHiddenInput type='file' onChange={handleFileInput} accept={accept} />
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            width: '100%',
-            bgcolor: 'background.paper',
-            borderRadius: 1,
-            p: 1,
-          }}>
-          <CheckCircleIcon color='success' />
-          <Box sx={{ flex: 1, overflow: 'hidden' }}>
-            <Typography variant='body2' noWrap>
-              {selectedFile.name}
-            </Typography>
+    <label>
+      <Paper
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        elevation={isDragging ? 3 : 1}
+        sx={{
+          p: 3,
+          textAlign: 'center',
+          cursor: 'pointer',
+          backgroundColor: theme => theme.palette.background.default,
+          boxShadow: 'none',
+          transition: theme => theme.transitions.create(['background-color', 'box-shadow']),
+          borderColor: theme =>
+            isDragging ? theme.palette.primary.main : selectedFile ? theme.palette.success.light : theme.palette.grey[300],
+          borderRadius: 2,
+        }}>
+        {!selectedFile ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <CloudUploadIcon color='primary' sx={{ fontSize: 40 }} />
+            <Typography variant='body1'>Drag your file or click to browse</Typography>
             <Typography variant='caption' color='text.secondary'>
-              {formatFileSize(selectedFile.size)}
+              Max {maxSize / (1024 * 1024)}MB files are allowed
             </Typography>
+            <VisuallyHiddenInput type='file' onChange={handleFileInput} accept={accept} />
           </Box>
-          <IconButton onClick={handleRemoveFile} size='small' sx={{ '&:hover': { color: 'error.main' } }}>
-            <DeleteIcon />
-          </IconButton>
-        </Box>
-      )}
-    </StyledPaper>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              width: '100%',
+              bgcolor: 'background.paper',
+              borderRadius: 1,
+              p: 1,
+            }}>
+            <CheckCircleIcon color='success' />
+            <Box sx={{ flex: 1, overflow: 'hidden' }}>
+              <Typography variant='body2' noWrap>
+                {selectedFile.name}
+              </Typography>
+              <Typography variant='caption' color='text.secondary'>
+                {formatFileSize(selectedFile.size)}
+              </Typography>
+            </Box>
+            <IconButton onClick={handleRemoveFile} size='small' sx={{ '&:hover': { color: 'error.main' } }}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        )}
+      </Paper>
+    </label>
   );
 }

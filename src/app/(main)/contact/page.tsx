@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { Box, Container, Grid, Typography, Paper, Card, CardContent, Link, IconButton, Snackbar, Alert } from '@mui/material';
 import Image from 'next/image';
 import FacebookIcon from '@mui/icons-material/Facebook';

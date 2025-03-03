@@ -1,9 +1,10 @@
-import { Box, Typography, Divider, Chip, Grid, Paper } from '@mui/material';
+import * as React from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import { useState } from 'react';
+import { Box, Typography, Divider, Chip, Grid, Paper } from '@mui/material';
 
 // Define the Car type
 interface Car {

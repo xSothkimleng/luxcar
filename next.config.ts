@@ -23,15 +23,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '500mb',
     },
-    serverExternalPackages: ['next-auth'], // Changed from serverComponentsExternalPackages
   },
-  webpack: (config: { experiments: { [key: string]: boolean } }) => {
-    config.experiments = {
-      ...config.experiments,
-      topLevelAwait: true,
-    };
-    return config;
-  },
+
   async headers() {
     return [
       {

@@ -1,3 +1,5 @@
+import * as React from 'react';
+import { useState } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -17,7 +19,6 @@ import {
 } from '@mui/material';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
-import { useState } from 'react';
 import ImageIcon from '@mui/icons-material/Image';
 
 interface MenuBarProps {

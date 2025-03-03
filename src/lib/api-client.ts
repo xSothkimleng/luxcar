@@ -1,11 +1,11 @@
 // lib/api-client.ts
 'use server';
 
-import { OPTIONS } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
-  const session = await getServerSession(OPTIONS);
+  const session = await getServerSession(authOptions);
 
   const headersRecord: Record<string, string> = {
     ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),

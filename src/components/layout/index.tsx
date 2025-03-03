@@ -14,9 +14,10 @@ interface LayoutProviderProps {
   session: Session | null;
 }
 
+// Create client outside component to prevent re-initialization
 const queryClient = new QueryClient();
 
-const LayoutProvider = ({ children, session }: LayoutProviderProps) => {
+export default function LayoutProvider({ children, session }: LayoutProviderProps) {
   return (
     <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
@@ -30,6 +31,4 @@ const LayoutProvider = ({ children, session }: LayoutProviderProps) => {
       </QueryClientProvider>
     </SessionProvider>
   );
-};
-
-export default LayoutProvider;
+}

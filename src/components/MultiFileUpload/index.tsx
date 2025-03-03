@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Typography, Paper, IconButton, Grid } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Theme } from '@mui/material/styles';
 import Image from 'next/image';
 
 interface FileUploadProps {
@@ -26,14 +26,6 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const StyledPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
-  textAlign: 'center',
-  cursor: 'pointer',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 'none',
-  transition: theme.transitions.create(['background-color', 'box-shadow']),
-}));
-
 const ImagePreview = styled(Box)(({ theme }) => ({
   width: '100%',
   height: '100px',
@@ -52,22 +44,39 @@ export default function MultiFileUpload({
   multiple = false,
   files = [],
 }: FileUploadProps): React.JSX.Element {
-  const [isDragging, setIsDragging] = React.useState<boolean>(false);
-  const [selectedFiles, setSelectedFiles] = React.useState<File[]>(files);
-  const [previews, setPreviews] = React.useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>(files);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   // Update previews when files change
   React.useEffect(() => {
-    // Revoke old preview URLs to avoid memory leaks
-    previews.forEach(url => URL.revokeObjectURL(url));
+    // Clear old preview URLs to avoid memory leaks
+    previews.forEach(url => {
+      if (url) URL.revokeObjectURL(url);
+    });
 
-    // Create new preview URLs
-    const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
-    setPreviews(newPreviews);
+    if (selectedFiles.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    // Create new preview URLs only for image files
+    const newPreviews = selectedFiles.map(file => {
+      try {
+        return URL.createObjectURL(file);
+      } catch (error) {
+        console.error('Error creating object URL:', error);
+        return null;
+      }
+    });
+
+    setPreviews(newPreviews.filter(Boolean) as string[]);
 
     // Cleanup function
     return () => {
-      newPreviews.forEach(url => URL.revokeObjectURL(url));
+      newPreviews.forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
     };
   }, [selectedFiles]);
 
@@ -149,14 +158,30 @@ export default function MultiFileUpload({
             <Grid item xs={6} sm={4} md={3} key={index}>
               <Box sx={{ position: 'relative' }}>
                 <ImagePreview>
-                  <Image
-                    src={previews[index]}
-                    alt={`Preview ${index}`}
-                    fill
-                    sizes='(max-width: 768px) 100vw, 33vw'
-                    style={{ objectFit: 'cover' }}
-                    priority={index < 4} // Prioritize loading the first few images
-                  />
+                  {previews[index] ? (
+                    <Image
+                      src={previews[index]}
+                      alt={`Preview ${index}`}
+                      fill
+                      sizes='(max-width: 768px) 100vw, 33vw'
+                      style={{ objectFit: 'cover' }}
+                      priority={index < 4}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'grey.100',
+                      }}>
+                      <Typography variant='caption' color='text.secondary'>
+                        Preview unavailable
+                      </Typography>
+                    </Box>
+                  )}
                 </ImagePreview>
                 <IconButton
                   size='small'
@@ -181,36 +206,40 @@ export default function MultiFileUpload({
       )}
 
       {/* Upload area */}
-      <StyledPaper
-        component='label'
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        elevation={isDragging ? 3 : 1}
-        sx={{
-          //   p: 3,
-          //   borderStyle: 'dashed',
-          //   borderWidth: 2,
-          borderColor: theme =>
-            isDragging
-              ? theme.palette.primary.main
-              : selectedFiles.length > 0
-              ? theme.palette.success.light
-              : theme.palette.grey[300],
-          borderRadius: 2,
-        }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-          <CloudUploadIcon color='primary' sx={{ fontSize: 40 }} />
-          <Typography variant='body1'>
-            {multiple ? 'Drag your images or click to browse' : 'Drag your image or click to browse'}
-          </Typography>
-          <Typography variant='caption' color='text.secondary'>
-            Max {maxSize / (1024 * 1024)}MB {multiple ? 'per file' : 'file'} |{' '}
-            {accept?.replace(/image\//g, '').replace(/,/g, ', ')} formats
-          </Typography>
-          <VisuallyHiddenInput type='file' onChange={handleFileInput} accept={accept} multiple={multiple} />
-        </Box>
-      </StyledPaper>
+      <label>
+        <Paper
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          elevation={isDragging ? 3 : 1}
+          sx={{
+            textAlign: 'center',
+            cursor: 'pointer',
+            backgroundColor: theme => theme.palette.background.default,
+            boxShadow: 'none',
+            transition: theme => theme.transitions.create(['background-color', 'box-shadow']),
+            borderColor: theme =>
+              isDragging
+                ? theme.palette.primary.main
+                : selectedFiles.length > 0
+                ? theme.palette.success.light
+                : theme.palette.grey[300],
+            borderRadius: 2,
+            padding: 2, // Add some padding
+          }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <CloudUploadIcon color='primary' sx={{ fontSize: 40 }} />
+            <Typography variant='body1'>
+              {multiple ? 'Drag your images or click to browse' : 'Drag your image or click to browse'}
+            </Typography>
+            <Typography variant='caption' color='text.secondary'>
+              Max {maxSize / (1024 * 1024)}MB {multiple ? 'per file' : 'file'} |{' '}
+              {accept?.replace(/image\//g, '').replace(/,/g, ', ')} formats
+            </Typography>
+            <VisuallyHiddenInput type='file' onChange={handleFileInput} accept={accept} multiple={multiple} />
+          </Box>
+        </Paper>
+      </label>
     </Box>
   );
 }

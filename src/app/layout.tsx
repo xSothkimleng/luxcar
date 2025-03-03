@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import LayoutProvider from '@/components/layout';
 import { getServerSession } from 'next-auth';
-import { OPTIONS } from './api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export const metadata: Metadata = {
   title: 'Anime D Verse',
@@ -14,12 +14,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(OPTIONS);
+  const session = await getServerSession(authOptions);
 
   return (
     <html lang='en'>
       <body>
-        <LayoutProvider session={session}>{children}</LayoutProvider>
+        <LayoutProvider session={JSON.parse(JSON.stringify(session))}>{children}</LayoutProvider>
       </body>
     </html>
   );

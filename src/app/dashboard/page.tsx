@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
-import { Box, Typography, Button, InputBase, Paper, Divider, Tab, Tabs } from '@mui/material';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CategoryIcon from '@mui/icons-material/Category';
 import ToysIcon from '@mui/icons-material/Toys';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -8,8 +9,7 @@ import StatsCard from '@/components/StatsCard';
 import Grid from '@mui/material/Grid';
 import { Skeleton } from '@mui/material';
 import RecentCarCard from '@/components/RecentCarCard';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Box, Typography, Button, Paper, Divider } from '@mui/material';
 
 const dummyData = {
   data: {
@@ -54,11 +54,11 @@ const dummyData = {
 
 const Dashboard = () => {
   const router = useRouter();
-
   type DashboardData = typeof dummyData | null;
+
   const [dashboardData, setDashboardData] = useState<DashboardData>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -67,6 +67,7 @@ const Dashboard = () => {
         setIsLoading(false);
       } catch (err) {
         setIsLoading(false);
+        setError(err);
       }
     }, 500);
 
