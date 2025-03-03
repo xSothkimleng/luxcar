@@ -34,6 +34,19 @@ const CAR_COLORS = [
   { value: 'other', label: 'Other' },
 ];
 
+const CAR_BRANDS = [
+  { value: 'toyota', label: 'Toyota' },
+  { value: 'honda', label: 'Honda' },
+  { value: 'ford', label: 'Ford' },
+  { value: 'chevrolet', label: 'Chevrolet' },
+  { value: 'nissan', label: 'Nissan' },
+  { value: 'hyundai', label: 'Hyundai' },
+  { value: 'kia', label: 'Kia' },
+  { value: 'bmw', label: 'BMW' },
+  { value: 'mercedes-benz', label: 'Mercedes-Benz' },
+  { value: 'audi', label: 'Audi' },
+];
+
 const CarForm = ({ onClose }: { onClose: () => void }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -153,6 +166,20 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
               {CAR_COLORS.map(colorOption => (
                 <MenuItem key={colorOption.value} value={colorOption.value}>
                   {colorOption.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12}>
+          {/* Car Color Dropdown */}
+          <FormControl fullWidth className='mb-4'>
+            <InputLabel id='car-color-label'>Brand</InputLabel>
+            <Select required labelId='car-color-label' id='car-color' value={color} label='Color' onChange={handleColorChange}>
+              {CAR_BRANDS.map(brandOption => (
+                <MenuItem key={brandOption.value} value={brandOption.value}>
+                  {brandOption.label}
                 </MenuItem>
               ))}
             </Select>

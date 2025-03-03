@@ -8,4 +8,6 @@ export interface Car {
   featured?: boolean;
   brand?: string;
   type?: string;
+  status?: string;
+  dateAdded?: string;
 }
