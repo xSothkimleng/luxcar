@@ -37,7 +37,7 @@ const ShopCollectionPage = () => {
     <Container maxWidth='xl' sx={{ py: 4, position: 'relative' }}>
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' fontWeight='bold' gutterBottom>
+        <Typography variant='h4' fontWeight='bold' gutterBottom component='div'>
           Our Collection
         </Typography>
         <Typography variant='body1' color='text.secondary' gutterBottom>
@@ -47,7 +47,7 @@ const ShopCollectionPage = () => {
 
       {/* Main Content - Filters and Products */}
       <Grid container spacing={3}>
-        {/* Left Sidebar - Filters - Hidden on mobile */}
+        {/* Left Sidebar - Filters - Only on desktop */}
         {!isMobile && (
           <Grid item xs={12} md={3} lg={2.5}>
             <Paper
@@ -74,7 +74,7 @@ const ShopCollectionPage = () => {
                 bgcolor: 'rgba(0,0,0,0.03)',
                 borderRadius: 2,
               }}>
-              <Typography variant='h6' color='text.secondary'>
+              <Typography variant='h6' color='text.secondary' component='div'>
                 No cars found matching your criteria
               </Typography>
             </Paper>
@@ -90,10 +90,12 @@ const ShopCollectionPage = () => {
         </Grid>
       </Grid>
 
-      {/* Mobile Filter Drawer - Always rendered but controlled by CSS */}
-      <Box sx={{ display: 'contents' }}>
-        <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
-      </Box>
+      {/* Mobile Filter Drawer - Only on mobile */}
+      {isMobile && (
+        <Box>
+          <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
+        </Box>
+      )}
 
       {/* Car Detail Dialog */}
       <Dialog fullWidth maxWidth='xl' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
