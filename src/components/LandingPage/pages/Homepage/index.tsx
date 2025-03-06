@@ -9,14 +9,14 @@ const Homepage = () => {
   const router = useRouter();
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f2f2f2' }}>
       {/* Promotional Banner */}
       <MessageBanner />
       {/* Carousel */}
       <Box sx={{ mt: 0 }}>
         <SwiperSlideCarShowCase />
       </Box>
-      <Box sx={{ width: '100%', bgcolor: '#f5f5f5', height: '100%' }}>
+      <Box sx={{ width: '100%', height: '100%' }}>
         <PopularCar />
       </Box>
       <Box sx={{ pb: 6 }}>

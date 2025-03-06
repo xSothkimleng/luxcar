@@ -1,5 +1,4 @@
 import { Car } from '@/types/car';
-
 export const carBrands = ['Tesla', 'BMW', 'Mercedes-Benz', 'Audi', 'Toyota', 'Honda', 'Lexus', 'Ford', 'Chevrolet', 'Porsche'];
 
 // Create dummy car data

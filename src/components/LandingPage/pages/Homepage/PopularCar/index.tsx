@@ -4,7 +4,7 @@ import { dummyCars } from '@/data/cars';
 
 const PopularCar = () => {
   return (
-    <Box sx={{ py: 6, px: 6, bgcolor: '#f8f8f8' }}>
+    <Box sx={{ py: 6, px: 6, bgcolor: '#f2f2f2' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant='h4' fontWeight='bold' gutterBottom>
           Popular Models

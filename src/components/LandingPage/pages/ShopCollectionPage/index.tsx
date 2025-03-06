@@ -1,7 +1,19 @@
 'use client';
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Dialog, Grid, IconButton, Paper, Typography, Container, DialogTitle, DialogContent } from '@mui/material';
+import {
+  Box,
+  Dialog,
+  Grid,
+  IconButton,
+  Paper,
+  Typography,
+  Container,
+  DialogTitle,
+  DialogContent,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
 import { Car } from '@/types/car';
@@ -10,6 +22,8 @@ import FilterDrawer from '@/components/LandingPage/FilterDrawer';
 import CarCard from '../../CarCard';
 
 const ShopCollectionPage = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openCarDialog, setOpenCarDialog] = useState(false);
   const [filteredCars, setFilteredCars] = useState<Car[]>(dummyCars);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
@@ -20,7 +34,7 @@ const ShopCollectionPage = () => {
   };
 
   return (
-    <Container maxWidth='xl' sx={{ py: 4 }}>
+    <Container maxWidth='xl' sx={{ py: 4, position: 'relative' }}>
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant='h4' fontWeight='bold' gutterBottom>
@@ -33,21 +47,23 @@ const ShopCollectionPage = () => {
 
       {/* Main Content - Filters and Products */}
       <Grid container spacing={3}>
-        {/* Left Sidebar - Filters */}
-        <Grid item xs={12} md={3} lg={2.5}>
-          <Paper
-            elevation={1}
-            sx={{
-              height: '100%',
-              position: 'sticky',
-              top: '80px',
-              borderRadius: 2,
-            }}>
-            <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
-          </Paper>
-        </Grid>
+        {/* Left Sidebar - Filters - Hidden on mobile */}
+        {!isMobile && (
+          <Grid item xs={12} md={3} lg={2.5}>
+            <Paper
+              elevation={1}
+              sx={{
+                height: '100%',
+                position: 'sticky',
+                top: '80px',
+                borderRadius: 2,
+              }}>
+              <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
+            </Paper>
+          </Grid>
+        )}
 
-        {/* Right Side - Product List */}
+        {/* Right Side - Product List - Full width on mobile */}
         <Grid item xs={12} md={9} lg={9.5}>
           {filteredCars.length === 0 ? (
             <Paper
@@ -73,6 +89,11 @@ const ShopCollectionPage = () => {
           )}
         </Grid>
       </Grid>
+
+      {/* Mobile Filter Drawer - Always rendered but controlled by CSS */}
+      <Box sx={{ display: 'contents' }}>
+        <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
+      </Box>
 
       {/* Car Detail Dialog */}
       <Dialog fullWidth maxWidth='xl' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
