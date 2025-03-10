@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -24,7 +24,10 @@ type FormErrors = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<IFormInput>({ username: '', password: '' }); // Changed from email
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
+  const [formData, setFormData] = useState<IFormInput>({ username: '', password: '' });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -76,7 +79,8 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/dashboard');
+      // Use the callback URL from the query parameter if available
+      router.push(decodeURIComponent(callbackUrl));
       router.refresh();
     } catch (error) {
       console.error(error);

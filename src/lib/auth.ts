@@ -1,26 +1,26 @@
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 declare module 'next-auth' {
   interface User {
-    id?: number;
+    id: string;
     username: string;
-    access?: string;
-    refresh?: string;
+    email: string;
+    role: string;
   }
 
   interface Session {
     user: User;
-    access?: string;
-    refresh?: string;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    access?: string;
-    refresh?: string;
-    username?: string;
+    id: string;
+    username: string;
+    email: string;
+    role: string;
   }
 }
 
@@ -38,40 +38,29 @@ const authOptions: NextAuthOptions = {
         }
 
         try {
-          const apiUrl = process.env.API_URL;
-          if (!apiUrl) {
-            throw new Error('API_URL not configured');
-          }
-
-          const res = await fetch(`${apiUrl}/login`, {
+          console.log('Authenticating user:', credentials.username);
+          console.log('Authenticating password:', credentials.password);
+          // Use the API route to authenticate
+          const response = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/login`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               username: credentials.username,
               password: credentials.password,
             }),
-            cache: 'no-store',
           });
 
-          if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+          // Check if the response is OK first
+          if (!response.ok) {
+            const error = await response.json();
+            console.error('Auth failed:', error);
+            throw new Error(error.message || 'Authentication failed');
           }
 
-          const response = await res.json();
-
-          if (!response.access || !response.refresh) {
-            throw new Error('Invalid response format from server');
-          }
-
-          return {
-            username: credentials.username,
-            access: response.access,
-            refresh: response.refresh,
-          };
+          // Only parse the response once
+          const user = await response.json();
+          console.log('Authentication successful for:', credentials.username);
+          return user;
         } catch (error) {
           console.error('Auth error:', error);
           throw new Error(error instanceof Error ? error.message : 'Authentication failed');
@@ -86,17 +75,19 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.access = user.access;
-        token.refresh = user.refresh;
+        token.id = user.id;
         token.username = user.username;
+        token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.access = token.access;
-        session.refresh = token.refresh;
-        session.user.username = token.username as string;
+        session.user.id = token.id;
+        session.user.username = token.username;
+        session.user.email = token.email;
+        session.user.role = token.role;
       }
       return session;
     },

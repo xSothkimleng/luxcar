@@ -20,7 +20,7 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   ContentPaste as ContentIcon,
-  // Person as ProfileIcon,
+  Person as ProfileIcon,
   ExpandLess,
   ExpandMore,
 } from '@mui/icons-material';
@@ -40,7 +40,7 @@ const MENU_ITEMS = [
       { text: 'Color', icon: ContentIcon, path: '/dashboard/inventory-management/color' },
     ],
   },
-  // { text: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },
+  { text: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },
 ];
 
 interface MiniDrawerProps {

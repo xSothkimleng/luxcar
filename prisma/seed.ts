@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { scryptSync, randomBytes } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -263,19 +264,22 @@ async function main() {
 
   // Create an admin user
   console.log('Creating admin user...');
+  const salt = randomBytes(16).toString('hex');
+  const hashedPassword = scryptSync('password123', salt, 64).toString('hex');
+  const passwordWithSalt = `${hashedPassword}:${salt}`;
+
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
     update: {},
     create: {
       email: 'admin@example.com',
       username: 'admin',
-      password: '$2a$10$ixfm5qOzMDj5GkPUM.9pZeCE/hHWMhVW6TM2FHXnRge3D0hK2T9XS', // "password123" hashed
+      password: passwordWithSalt,
       role: 'ADMIN',
     },
   });
 
-  console.log(`Created admin user: ${adminUser.username}`);
-  console.log('Seed completed successfully!');
+  console.log(`Created admin user: ${adminUser}`);
 }
 
 main()
