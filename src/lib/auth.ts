@@ -68,7 +68,6 @@ const authOptions: NextAuthOptions = {
           }
 
           return {
-            // id: credentials.username,
             username: credentials.username,
             access: response.access,
             refresh: response.refresh,

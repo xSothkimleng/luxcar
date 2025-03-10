@@ -15,6 +15,8 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [openCarDialog, setOpenCarDialog] = useState(false);
 
+  const imageUrl = car.thumbnailImage?.url || '/assets/images/placeholder.jpg';
+
   return (
     <Box
       sx={{
@@ -23,6 +25,8 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
         position: 'relative',
         overflow: 'hidden',
         cursor: 'pointer',
+        borderRadius: '8px',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
@@ -37,9 +41,11 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           transform: isHovered ? 'scale(1.05)' : 'scale(1)',
         }}>
         <Image
-          src={car.images[0]}
+          priority
+          src={imageUrl}
           alt={car.name}
           fill
+          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
           style={{
             objectFit: 'cover',
           }}
@@ -121,7 +127,7 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           {car ? (
             <CarDetail car={car} onBack={() => setOpenCarDialog(false)} />
           ) : (
-            <Typography p={4}>Sth Wrong for real.</Typography>
+            <Typography p={4}>Something went wrong.</Typography>
           )}
         </DialogContent>
       </Dialog>

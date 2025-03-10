@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Car {
+  id              String         @id @default(uuid())
+  name            String
+  price           Decimal        @db.Decimal(10, 2)
+  scale           String
+  description     String         @db.Text // For richText storage
+  colorId         String         @map("color_id")
+  brandId         String         @map("brand_id")
+  modelId         String         @map("model_id")
+  thumbnailImageId String?       @map("thumbnail_image_id")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  color           Color          @relation(fields: [colorId], references: [id])
+  brand           Brand          @relation(fields: [brandId], references: [id])
+  model           Model          @relation(fields: [modelId], references: [id])
+  thumbnailImage  ThumbnailImage? @relation(fields: [thumbnailImageId], references: [id])
+  variantImages   VariantImage[] // One-to-many relationship
+
+  @@map("cars")
+}
+
+model Color {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  rgb       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cars      Car[]
+
+  @@map("colors")
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cars      Car[]
+
+  @@map("brands")
+}
+
+model Model {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cars      Car[]
+
+  @@map("models")
+}
+
+model ThumbnailImage {
+  id        String   @id @default(uuid())
+  url       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cars      Car[]
+
+  @@map("thumbnail_images")
+}
+
+model VariantImage {
+  id        String   @id @default(uuid())
+  url       String
+  carId     String   @map("car_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  car       Car      @relation(fields: [carId], references: [id])
+
+  @@map("variant_images")
+}
+
+enum Role {
+  USER
+  ADMIN
+}

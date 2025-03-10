@@ -5,19 +5,10 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { Box, Typography, Divider, Chip, Grid, Paper } from '@mui/material';
-
-// Define the Car type
-interface Car {
-  id: string;
-  name: string;
-  price: number;
-  color: string;
-  description: string;
-  images: string[];
-}
+import { Car } from '@/types/car';
 
 interface CarDetailProps {
-  car: Car;
+  car: Car | null;
   onBack?: () => void;
 }
 
@@ -31,6 +22,14 @@ const CarDetail = ({ car }: CarDetailProps) => {
       </Box>
     );
   }
+
+  // Get color name from either the legacy format or the new Prisma schema format
+  const colorName = typeof car.color === 'string' ? car.color : car.color?.name || 'Unknown';
+
+  // Create images array from either the legacy format or the new Prisma schema format
+  const imageUrls = car.thumbnailImage?.url
+    ? [car.thumbnailImage.url, ...(car.variantImages?.map(img => img.url) || [])]
+    : ['/assets/images/placeholder.jpg'];
 
   // Color displayed based on the car's color
   const getColorChip = (color: string) => {
@@ -49,7 +48,10 @@ const CarDetail = ({ car }: CarDetailProps) => {
       gold: '#FFD700',
     };
 
-    const bgColor = colorMap[color.toLowerCase()] || '#CCCCCC';
+    // Try to use the RGB value from Prisma if available
+    const rgbValue = typeof car.color === 'object' && car.color?.rgb;
+    const bgColor = rgbValue || colorMap[color.toLowerCase()] || '#CCCCCC';
+
     const textColor = ['white', 'yellow', 'silver', 'gold'].includes(color.toLowerCase()) ? '#000000' : '#FFFFFF';
 
     return (
@@ -68,6 +70,9 @@ const CarDetail = ({ car }: CarDetailProps) => {
     );
   };
 
+  // Display brand and model if available
+  const brandModel = car.brand?.name && car.model?.name ? `${car.brand.name} ${car.model.name}` : car.name;
+
   return (
     <Box className='mx-auto'>
       <Grid container spacing={4}>
@@ -82,12 +87,13 @@ const CarDetail = ({ car }: CarDetailProps) => {
                 height: '500px',
                 backgroundColor: '#f5f5f5',
               }}>
-              {car.images && car.images.length > 0 ? (
+              {imageUrls && imageUrls.length > 0 ? (
                 <Image
-                  src={car.images[activeImage]}
-                  alt={`${car.name} - Image ${activeImage + 1}`}
                   fill
-                  style={{ objectFit: 'fill' }}
+                  sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                  src={imageUrls[activeImage]}
+                  alt={`${car.name} - Image ${activeImage + 1}`}
+                  style={{ objectFit: 'cover' }}
                   priority
                 />
               ) : (
@@ -104,7 +110,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
             </Box>
 
             {/* Thumbnail Gallery */}
-            {car.images && car.images.length > 0 && (
+            {imageUrls && imageUrls.length > 0 && (
               <Box
                 sx={{
                   display: 'flex',
@@ -118,7 +124,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     borderRadius: '4px',
                   },
                 }}>
-                {car.images.map((image, index) => (
+                {imageUrls.map((image, index) => (
                   <Box
                     key={index}
                     onClick={() => setActiveImage(index)}
@@ -137,7 +143,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                         opacity: 1,
                       },
                     }}>
-                    <Image src={image} alt={`Thumbnail ${index}`} fill sizes='80px' style={{ objectFit: 'fill' }} />
+                    <Image src={image} alt={`Thumbnail ${index}`} fill sizes='80px' style={{ objectFit: 'cover' }} />
                   </Box>
                 ))}
               </Box>
@@ -158,8 +164,16 @@ const CarDetail = ({ car }: CarDetailProps) => {
             {/* Car Name & Price */}
             <Box sx={{ mb: 2 }}>
               <Typography variant='h4' fontWeight='bold' gutterBottom>
-                {car.name}
+                {brandModel}
               </Typography>
+
+              {/* Scale information if available */}
+              {car.scale && (
+                <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 1 }}>
+                  Scale: {car.scale}
+                </Typography>
+              )}
+
               <Typography
                 variant='h5'
                 fontWeight='bold'
@@ -168,7 +182,13 @@ const CarDetail = ({ car }: CarDetailProps) => {
                   alignItems: 'center',
                   gap: 1,
                 }}>
-                <LocalOfferIcon />${car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <LocalOfferIcon />$
+                {typeof car.price === 'number'
+                  ? car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  : parseFloat(car.price).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
               </Typography>
             </Box>
             <Divider sx={{ my: 2 }} />
@@ -177,7 +197,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
               <Typography variant='subtitle1' fontWeight='bold' gutterBottom>
                 Color
               </Typography>
-              {getColorChip(car.color)}
+              {getColorChip(colorName)}
             </Box>
 
             {/* Description */}
@@ -190,6 +210,8 @@ const CarDetail = ({ car }: CarDetailProps) => {
                 sx={{
                   borderRadius: 2,
                   maxHeight: '220px',
+                  overflow: 'auto',
+                  p: 2,
                 }}>
                 <div className='car-description' dangerouslySetInnerHTML={{ __html: car.description }} />
               </Paper>
