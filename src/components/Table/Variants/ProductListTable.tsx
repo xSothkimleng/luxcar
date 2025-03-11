@@ -25,9 +25,11 @@ import GridTable from '@/components/Table';
 import CarDetail from '@/components/CarDetail';
 import { Car } from '@/types/car';
 import { useCars } from '@/hooks/useCar';
+import CarEditForm from '@/components/Form/CarEditForm';
 
 const ProductListTable = () => {
   const [openCarDialog, setOpenCarDialog] = useState(false);
+  const [openEditCarDialog, setOpenEditCarDialog] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success');
@@ -36,6 +38,11 @@ const ProductListTable = () => {
   const handleViewCar = (car: Car) => {
     setSelectedCar(car);
     setOpenCarDialog(true);
+  };
+
+  const handleEditCar = (car: Car) => {
+    setSelectedCar(car);
+    setOpenEditCarDialog(true);
   };
 
   const handleDeleteCar = (id: string) => {
@@ -159,6 +166,10 @@ const ProductListTable = () => {
               <Button
                 variant='contained'
                 size='small'
+                onClick={() => {
+                  const car = cars?.find(c => c.id === params.row.id);
+                  if (car) handleEditCar(car);
+                }}
                 sx={{
                   minWidth: '36px',
                   width: '36px',
@@ -242,6 +253,39 @@ const ProductListTable = () => {
         <DialogContent>
           {selectedCar ? (
             <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
+          ) : (
+            <Typography sx={{ p: 3 }}>No car selected.</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Form  */}
+      <Dialog
+        fullWidth
+        maxWidth='lg'
+        open={openEditCarDialog}
+        onClose={() => setOpenEditCarDialog(false)}
+        TransitionComponent={Fade}
+        PaperProps={{
+          sx: {
+            borderRadius: '16px',
+            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+          },
+        }}>
+        <DialogTitle>
+          <Box display='flex' justifyContent='space-between' alignItems='center'>
+            <Typography variant='h6' sx={{ fontWeight: 600, color: '#2D3748' }}>
+              Edit Car Details
+            </Typography>
+            <IconButton onClick={() => setOpenEditCarDialog(false)} sx={{ color: '#A0AEC0' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {selectedCar ? (
+            <CarEditForm carId={selectedCar.id} onClose={() => setOpenEditCarDialog(false)} />
           ) : (
             <Typography sx={{ p: 3 }}>No car selected.</Typography>
           )}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -146,6 +146,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ editor }) => {
 };
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
+  // Initialize the editor with the content passed in via props
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -160,12 +161,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange }) => {
         placeholder: 'Write your content here...',
       }),
     ],
-    content: value,
+    content: value || '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       onChange(html);
     },
   });
+
+  // Update editor content when value prop changes
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value || '', false);
+    }
+  }, [editor, value]);
 
   return (
     <Paper elevation={0}>
