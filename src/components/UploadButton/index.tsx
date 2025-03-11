@@ -24,7 +24,6 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-// Removed the explicit Theme type which was causing issues
 const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 
 export default function FileUpload({ onFilesSelected, maxSize = DEFAULT_MAX_SIZE, accept }: FileUploadProps): React.JSX.Element {

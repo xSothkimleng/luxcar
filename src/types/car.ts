@@ -8,8 +8,8 @@ export interface Car {
   brandId: string;
   modelId: string;
   thumbnailImageId: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 
   color?: {
     id: string;

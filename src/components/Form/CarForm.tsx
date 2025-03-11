@@ -17,43 +17,30 @@ import {
 import CoolButton from '@/components/CustomButton';
 import MultiFileUpload from '@/components/MultiFileUpload';
 import RichTextEditor from '../RichTextEditor';
-
-// Car color options
-const CAR_COLORS = [
-  { value: 'black', label: 'Black' },
-  { value: 'white', label: 'White' },
-  { value: 'silver', label: 'Silver' },
-  { value: 'gray', label: 'Gray' },
-  { value: 'red', label: 'Red' },
-  { value: 'blue', label: 'Blue' },
-  { value: 'green', label: 'Green' },
-  { value: 'yellow', label: 'Yellow' },
-  { value: 'orange', label: 'Orange' },
-  { value: 'purple', label: 'Purple' },
-  { value: 'brown', label: 'Brown' },
-  { value: 'gold', label: 'Gold' },
-  { value: 'other', label: 'Other' },
-];
-
-const CAR_BRANDS = [
-  { value: 'toyota', label: 'Toyota' },
-  { value: 'honda', label: 'Honda' },
-  { value: 'ford', label: 'Ford' },
-  { value: 'chevrolet', label: 'Chevrolet' },
-  { value: 'nissan', label: 'Nissan' },
-  { value: 'hyundai', label: 'Hyundai' },
-  { value: 'kia', label: 'Kia' },
-  { value: 'bmw', label: 'BMW' },
-  { value: 'mercedes-benz', label: 'Mercedes-Benz' },
-  { value: 'audi', label: 'Audi' },
-];
+import FileUpload from '../UploadButton';
+import { useBrands } from '@/hooks/useBrand';
+import { useColors } from '@/hooks/useColor';
+import { useModels } from '@/hooks/useModel';
+import { useCreateCar } from '@/hooks/useCar';
+import { uploadImage } from '@/services/carService';
 
 const CarForm = ({ onClose }: { onClose: () => void }) => {
+  // Fetch data from API
+  const { data: brands, isLoading: brandsLoading } = useBrands();
+  const { data: colors, isLoading: colorsLoading } = useColors();
+  const { data: models, isLoading: modelsLoading } = useModels();
+  const { mutateAsync: createCar } = useCreateCar();
+
+  // Form state
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [color, setColor] = useState('');
+  const [scale, setScale] = useState('');
+  const [colorId, setColorId] = useState('');
+  const [brandId, setBrandId] = useState('');
+  const [modelId, setModelId] = useState('');
   const [description, setDescription] = useState('');
-  const [carImages, setCarImages] = useState<File[]>([]);
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null);
+  const [variantImages, setVariantImages] = useState<File[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,13 +49,18 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
     e.preventDefault();
 
     // Validate form fields
-    if (!name || !price || !color || !description) {
+    if (!name || !price || !scale || !colorId || !brandId || !modelId || !description) {
       setError('Please fill in all required fields');
       return;
     }
 
-    if (carImages.length === 0) {
-      setError('Please upload at least one car image');
+    if (!thumbnailImage) {
+      setError('Please upload a thumbnail image');
+      return;
+    }
+
+    if (variantImages.length === 0) {
+      setError('Please upload at least one variant image');
       return;
     }
 
@@ -81,16 +73,23 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
     try {
       setIsSubmitting(true);
 
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // 1. Upload thumbnail first
+      const thumbnailUpload = await uploadImage(thumbnailImage, 'thumbnail');
 
-      console.log('Submitting car data:', {
+      // 2. Create car with thumbnail ID
+      const newCar = await createCar({
         name,
         price: Number(price),
-        color,
+        scale,
         description,
-        images: carImages.map(img => img.name),
+        colorId,
+        brandId,
+        modelId,
+        thumbnailImageId: thumbnailUpload.id,
       });
+
+      // 3. Upload all variant images associated with this car
+      await Promise.all(variantImages.map(file => uploadImage(file, 'variant', newCar.id)));
 
       // Show success message
       setSuccessMessage('Car added successfully!');
@@ -111,14 +110,27 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
     setDescription(newContent);
   };
 
-  const handleImagesChange = (files: File[]) => {
-    console.log('Car images selected:', files);
-    setCarImages(files);
+  const handleVariantImagesChange = (files: File[]) => {
+    setVariantImages(files);
     setError(null);
   };
 
+  const handleThumbnailChange = (file: File | null) => {
+    setThumbnailImage(file);
+    setError(null);
+  };
+
+  // Handle dropdown changes
   const handleColorChange = (event: SelectChangeEvent) => {
-    setColor(event.target.value);
+    setColorId(event.target.value);
+  };
+
+  const handleBrandChange = (event: SelectChangeEvent) => {
+    setBrandId(event.target.value);
+  };
+
+  const handleModelChange = (event: SelectChangeEvent) => {
+    setModelId(event.target.value);
   };
 
   return (
@@ -159,28 +171,77 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
           />
         </Grid>
 
-        <Grid item xs={12}>
-          {/* Car Color Dropdown */}
+        <Grid item xs={12} md={6}>
+          {/* Car Scale */}
+          <CoolButton
+            required
+            label='Scale (e.g. 1:18)'
+            value={scale}
+            onChange={e => setScale(e.target.value)}
+            fullWidth
+            variant='filled'
+            type='text'
+            className='mb-4'
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          {/* Color Dropdown */}
           <FormControl fullWidth className='mb-4'>
             <InputLabel id='car-color-label'>Color</InputLabel>
-            <Select required labelId='car-color-label' id='car-color' value={color} label='Color' onChange={handleColorChange}>
-              {CAR_COLORS.map(colorOption => (
-                <MenuItem key={colorOption.value} value={colorOption.value}>
-                  {colorOption.label}
+            <Select
+              required
+              labelId='car-color-label'
+              id='car-color'
+              value={colorId}
+              label='Color'
+              onChange={handleColorChange}
+              disabled={colorsLoading || !colors?.length}>
+              {colors?.map(color => (
+                <MenuItem key={color.id} value={color.id}>
+                  {color.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Grid>
 
-        <Grid item xs={12}>
-          {/* Car Color Dropdown */}
+        <Grid item xs={12} md={6}>
+          {/* Brand Dropdown */}
           <FormControl fullWidth className='mb-4'>
-            <InputLabel id='car-color-label'>Brand</InputLabel>
-            <Select required labelId='car-color-label' id='car-color' value={color} label='Color' onChange={handleColorChange}>
-              {CAR_BRANDS.map(brandOption => (
-                <MenuItem key={brandOption.value} value={brandOption.value}>
-                  {brandOption.label}
+            <InputLabel id='car-brand-label'>Brand</InputLabel>
+            <Select
+              required
+              labelId='car-brand-label'
+              id='car-brand'
+              value={brandId}
+              label='Brand'
+              onChange={handleBrandChange}
+              disabled={brandsLoading || !brands?.length}>
+              {brands?.map(brand => (
+                <MenuItem key={brand.id} value={brand.id}>
+                  {brand.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          {/* Model Dropdown */}
+          <FormControl fullWidth className='mb-4'>
+            <InputLabel id='car-model-label'>Model</InputLabel>
+            <Select
+              required
+              labelId='car-model-label'
+              id='car-model'
+              value={modelId}
+              label='Model'
+              onChange={handleModelChange}
+              disabled={modelsLoading || !models?.length}>
+              {models?.map(model => (
+                <MenuItem key={model.id} value={model.id}>
+                  {model.name}
                 </MenuItem>
               ))}
             </Select>
@@ -188,14 +249,25 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         </Grid>
 
         <Grid item xs={12}>
-          {/* Car Images with Preview */}
+          <Typography variant='body1'>Thumbnail</Typography>
+          <Box style={{ border: '1px solid rgba(0, 0, 0, 0.25)', borderRadius: 4 }}>
+            <FileUpload
+              onFilesSelected={handleThumbnailChange}
+              maxSize={5 * 1024 * 1024} // 5MB
+              accept='image/jpeg,image/png,image/webp'
+            />
+          </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant='body1'>Images Variants</Typography>
           <Box className='mb-4' style={{ border: '1px solid rgba(0, 0, 0, 0.25)', borderRadius: 4 }}>
             <MultiFileUpload
-              maxSize={5 * 1024 * 1024}
+              maxSize={10 * 1024 * 1024}
               accept='image/jpeg,image/png,image/webp'
-              onFilesSelected={handleImagesChange}
+              onFilesSelected={handleVariantImagesChange}
               multiple={true}
-              files={carImages}
+              files={variantImages}
             />
           </Box>
         </Grid>
@@ -219,7 +291,18 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         <Button
           variant='contained'
           type='submit'
-          disabled={isSubmitting || !name || !price || !color || !description || carImages.length === 0}>
+          disabled={
+            isSubmitting ||
+            !name ||
+            !price ||
+            !scale ||
+            !colorId ||
+            !brandId ||
+            !modelId ||
+            !description ||
+            !thumbnailImage ||
+            variantImages.length === 0
+          }>
           {isSubmitting ? 'Adding Car...' : 'Add Car'}
         </Button>
       </Box>
