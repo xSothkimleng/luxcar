@@ -5,36 +5,12 @@ import { Box, Button, Snackbar, Alert, Tooltip, Zoom } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import GridTable from '@/components/Table';
-
-type ColorType = {
-  id: string;
-  name: string;
-};
-
-// Create dummy car data with enhanced properties
-const dummyColor: ColorType[] = [
-  { id: '1', name: 'Red' },
-  { id: '2', name: 'Green' },
-  { id: '3', name: 'Blue' },
-  { id: '4', name: 'Black' },
-  { id: '5', name: 'White' },
-];
+import { useColors } from '@/hooks/useColor';
 
 const ColorListTable = () => {
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success');
-  const [isLoading, setIsLoading] = useState(true);
-  const [colors, setColors] = useState<ColorType[]>([]);
-
-  // Simulate loading data
-  useMemo(() => {
-    const timer = setTimeout(() => {
-      setColors(dummyColor);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: colors, isLoading } = useColors();
 
   const handleDeleteCar = (id: string) => {
     console.log('Deleting car with id:', id);
@@ -44,11 +20,6 @@ const ColorListTable = () => {
 
   const columns: GridColDef[] = useMemo(
     () => [
-      {
-        field: 'id',
-        headerName: 'ID',
-        flex: 0.5,
-      },
       {
         field: 'name',
         headerName: 'Name',
@@ -111,7 +82,7 @@ const ColorListTable = () => {
   return (
     <>
       <GridTable
-        rows={colors}
+        rows={colors || []}
         columns={columns}
         loading={isLoading}
         initialState={{

@@ -46,12 +46,18 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
               bgcolor: '#e0e0e0',
             },
           }}>
-          <Image src={car.images[0]} alt={car.name} fill style={{ objectFit: 'fill' }} quality={100} />
+          <Image
+            src={car.thumbnailImage?.url || '/assets/images/lux-logo.png'}
+            alt={car.name}
+            fill
+            style={{ objectFit: 'fill' }}
+            quality={100}
+          />
         </Box>
         {/* Brand Badge */}
         {car.brand && (
           <Chip
-            label={car.brand}
+            label={car.brand.name}
             size='small'
             sx={{
               position: 'absolute',
@@ -72,7 +78,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
           ${car.price.toLocaleString('en-US')}
         </Typography>
         <Typography variant='body2' sx={{ color: 'gray' }}>
-          Color Code : {car.color}
+          Color Code : {car.color?.name}
         </Typography>
       </CardContent>
     </Card>

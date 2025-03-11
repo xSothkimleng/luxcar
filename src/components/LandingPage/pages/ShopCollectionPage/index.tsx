@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Dialog,
@@ -17,21 +17,28 @@ import {
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
 import { Car } from '@/types/car';
-import { dummyCars } from '@/data/cars';
 import FilterDrawer from '@/components/LandingPage/FilterDrawer';
 import CarCard from '../../CarCard';
+import { useCars } from '@/hooks/useCar';
 
 const ShopCollectionPage = () => {
+  const { data: cars } = useCars();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openCarDialog, setOpenCarDialog] = useState(false);
-  const [filteredCars, setFilteredCars] = useState<Car[]>(dummyCars);
+  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
   const handleViewCar = (car: Car) => {
     setSelectedCar(car);
     setOpenCarDialog(true);
   };
+
+  useEffect(() => {
+    if (cars) {
+      setFilteredCars(cars);
+    }
+  }, [cars]);
 
   return (
     <Container maxWidth='xl' sx={{ py: 4, position: 'relative' }}>
@@ -58,7 +65,7 @@ const ShopCollectionPage = () => {
                 top: '80px',
                 borderRadius: 2,
               }}>
-              <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
+              <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
             </Paper>
           </Grid>
         )}
@@ -93,7 +100,7 @@ const ShopCollectionPage = () => {
       {/* Mobile Filter Drawer - Only on mobile */}
       {isMobile && (
         <Box>
-          <FilterDrawer cars={dummyCars} setFilteredCars={setFilteredCars} />
+          <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
         </Box>
       )}
 

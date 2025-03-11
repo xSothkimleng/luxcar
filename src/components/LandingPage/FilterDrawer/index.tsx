@@ -76,7 +76,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
       filtered = filtered.filter(
         car =>
           car.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          car.brand?.toLowerCase().includes(searchQuery.toLowerCase()),
+          car.brand?.name.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -85,7 +85,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
 
     // Filter by brand
     if (selectedBrand !== 'All Brands') {
-      filtered = filtered.filter(car => car.brand === selectedBrand);
+      filtered = filtered.filter(car => car.brand?.name === selectedBrand);
     }
 
     setFilteredCars(filtered);

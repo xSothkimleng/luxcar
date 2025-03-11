@@ -37,6 +37,7 @@ const MENU_ITEMS = [
     subMenu: [
       { text: 'Product', icon: ContentIcon, path: '/dashboard/inventory-management/product' },
       { text: 'Brand', icon: ContentIcon, path: '/dashboard/inventory-management/brand' },
+      { text: 'Model', icon: ContentIcon, path: '/dashboard/inventory-management/model' },
       { text: 'Color', icon: ContentIcon, path: '/dashboard/inventory-management/color' },
     ],
   },

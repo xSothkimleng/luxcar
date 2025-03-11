@@ -5,13 +5,13 @@ import { Box, Button, Snackbar, Alert, Tooltip, Zoom } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import GridTable from '@/components/Table';
-import { useBrands } from '@/hooks/useBrand';
+import { useModels } from '@/hooks/useModel';
 
-const BrandListTable = () => {
+const ModelListTable = () => {
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success');
 
-  const { data: brands, isLoading } = useBrands();
+  const { data: models, isLoading } = useModels();
 
   const handleDeleteCar = (id: string) => {
     console.log('Deleting car with id:', id);
@@ -88,7 +88,7 @@ const BrandListTable = () => {
   return (
     <>
       <GridTable
-        rows={brands || []}
+        rows={models || []}
         columns={columns}
         loading={isLoading}
         initialState={{
@@ -116,4 +116,4 @@ const BrandListTable = () => {
   );
 };
 
-export default BrandListTable;
+export default ModelListTable;

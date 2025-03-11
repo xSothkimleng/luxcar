@@ -1,17 +1,3 @@
-// export interface Car {
-//   id: string;
-//   name: string;
-//   price: number;
-//   color: string;
-//   description: string;
-//   images: string[];
-//   featured?: boolean;
-//   brand?: string;
-//   type?: string;
-//   status?: string;
-//   dateAdded?: string;
-// }
-
 export interface Car {
   id: string;
   name: string;
@@ -25,7 +11,6 @@ export interface Car {
   createdAt: string;
   updatedAt: string;
 
-  // Related entities (from join queries)
   color?: {
     id: string;
     name: string;
