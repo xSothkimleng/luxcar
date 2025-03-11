@@ -13,6 +13,8 @@ import {
   DialogContent,
   useMediaQuery,
   useTheme,
+  Fab,
+  Link,
 } from '@mui/material';
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,6 +22,7 @@ import { Car } from '@/types/car';
 import FilterDrawer from '@/components/LandingPage/FilterDrawer';
 import CarCard from '../../CarCard';
 import { useCars } from '@/hooks/useCar';
+import TelegramIcon from '@mui/icons-material/Telegram';
 
 const ShopCollectionPage = () => {
   const { data: cars } = useCars();
@@ -42,6 +45,11 @@ const ShopCollectionPage = () => {
 
   return (
     <Container maxWidth='xl' sx={{ py: 4, position: 'relative' }}>
+      <Box sx={{ position: 'fixed', bottom: 20, left: 20, zIndex: '999' }}>
+        <Fab color='primary' aria-label='add' component={Link} href='https://t.me/lkkkk12345' target='_blank'>
+          <TelegramIcon />
+        </Fab>
+      </Box>
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant='h4' fontWeight='bold' gutterBottom component='div'>
@@ -88,7 +96,7 @@ const ShopCollectionPage = () => {
           ) : (
             <Grid container spacing={3}>
               {filteredCars.map(car => (
-                <Grid item xs={12} sm={6} md={4} key={car.id}>
+                <Grid item xs={6} sm={6} md={4} key={car.id}>
                   <CarCard car={car} handleViewCar={handleViewCar} />
                 </Grid>
               ))}

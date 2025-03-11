@@ -10,7 +10,7 @@ const MessageBanner = () => {
         py: 1,
         fontWeight: 'bold',
       }}>
-      Special Offer: Get 25% Off on Selected Luxury Models | Limited Time Offer
+      Free Delivery over 39$
     </Box>
   );
 };

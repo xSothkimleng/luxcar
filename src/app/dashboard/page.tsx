@@ -179,7 +179,7 @@ const Dashboard = () => {
               fontWeight: 'bold',
               color: '#2D3748',
             }}>
-            Newly Added
+            Swiper Dashboard Showcase
           </Typography>
         </Box>
 

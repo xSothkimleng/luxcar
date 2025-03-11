@@ -1,15 +1,21 @@
 'use client';
 import SwiperSlideCarShowCase from '@/components/LandingPage/SwiperSlide';
 import MessageBanner from '../../MessageBanner';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Fab, Link, Typography } from '@mui/material';
 import PopularCar from './PopularCar';
 import { useRouter } from 'next/navigation';
+import TelegramIcon from '@mui/icons-material/Telegram';
 
 const Homepage = () => {
   const router = useRouter();
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f2f2f2' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f2f2f2', position: 'relative' }}>
+      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
+        <Fab color='primary' aria-label='add' component={Link} href='https://t.me/lkkkk12345' target='_blank'>
+          <TelegramIcon />
+        </Fab>
+      </Box>
       {/* Promotional Banner */}
       <MessageBanner />
       {/* Carousel */}

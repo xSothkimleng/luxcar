@@ -10,7 +10,6 @@ import {
   Button,
   Divider,
   Typography,
-  Slider,
   List,
   ListItemButton,
   ListItemText,
@@ -45,6 +44,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
   const minPrice = Math.min(...cars.map(car => car.price));
   const maxPrice = Math.max(...cars.map(car => car.price));
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
   };
@@ -126,7 +126,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
       <Divider sx={{ mb: 3 }} />
 
       {/* Price Range Filter */}
-      <Typography variant='subtitle1' fontWeight='bold' gutterBottom component='div'>
+      {/* <Typography variant='subtitle1' fontWeight='bold' gutterBottom component='div'>
         Price Range
       </Typography>
       <Box sx={{ px: 1, mb: 3 }}>
@@ -142,7 +142,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
           <Typography variant='body2'>${priceRange[0].toLocaleString()}</Typography>
           <Typography variant='body2'>${priceRange[1].toLocaleString()}</Typography>
         </Box>
-      </Box>
+      </Box> */}
 
       <Divider sx={{ my: 3 }} />
 

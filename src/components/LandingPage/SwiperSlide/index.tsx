@@ -48,7 +48,7 @@ const SwiperSlideCarShowCase = () => {
                   width: '100%',
                   height: '100%',
                   opacity: 0.4,
-                  backgroundImage: `linear-gradient(to right, #000 10%, transparent 50%), url(${car.images[0]})`,
+                  backgroundImage: `url(${car.images[0]})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}

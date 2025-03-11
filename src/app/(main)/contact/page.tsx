@@ -54,7 +54,7 @@ const ContactPage: React.FC = () => {
                 <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                   <IconButton
                     component={Link}
-                    href='https://www.facebook.com/profile.php?id=61565751242412'
+                    href='https://t.me/lkkkk12345'
                     target='_blank'
                     sx={{
                       bgcolor: '#1877F2',

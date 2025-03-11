@@ -132,16 +132,31 @@ const Navbar = () => {
   );
 
   return (
-    <AppBar position='sticky' sx={{ backgroundColor: '#2c2c2e' }} elevation={0}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <AppBar position='sticky' sx={{ backgroundColor: '#2c2c2e', height: { xs: '10vh', sm: '100%' } }} elevation={0}>
+      <Toolbar
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: { xs: 'center', md: 'space-between' },
+          alignItems: 'center',
+        }}>
+        {/* Mobile menu button */}
+        <IconButton
+          color='inherit'
+          aria-label='open drawer'
+          edge='end'
+          onClick={handleDrawerToggle}
+          sx={{ display: { md: 'none' }, position: 'absolute', left: '1rem' }}>
+          <MenuIcon />
+        </IconButton>
         {/* Logo container with proper sizing */}
         <Box
           onClick={() => router.push('/')}
           component='div'
           sx={{
             position: 'relative',
-            width: { xs: 110, sm: 140 },
-            height: { xs: 40, sm: 50 },
+            width: { xs: 160, sm: 140 },
+            height: { xs: 70, sm: 50 },
             cursor: 'pointer',
           }}>
           <Image
@@ -169,23 +184,13 @@ const Navbar = () => {
               Contact
             </Button>
           </Box>
-
-          {/* Mobile menu button */}
-          <IconButton
-            color='inherit'
-            aria-label='open drawer'
-            edge='end'
-            onClick={handleDrawerToggle}
-            sx={{ display: { md: 'none' } }}>
-            <MenuIcon />
-          </IconButton>
         </Box>
       </Toolbar>
 
       {/* Mobile Navigation Drawer */}
       <Drawer
         variant='temporary'
-        anchor='right'
+        anchor='left'
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
