@@ -151,10 +151,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
       // Show success message
       setSuccessMessage('Car updated successfully!');
 
-      // Close the form after a delay
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      onClose();
     } catch (err) {
       console.error('Error updating car:', err);
       setError(err instanceof Error ? err.message : 'Failed to update car');

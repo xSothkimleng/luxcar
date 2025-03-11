@@ -4,14 +4,14 @@ import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Typography, Fade } from '@mui/material';
-import CarForm from '@/components/Form/CarForm';
 import BrandListTable from '@/components/Table/Variants/BrandListTable';
+import BrandForm from '@/components/Form/BrandForm';
 
 const BrandManagementPage = () => {
-  const [openAddCarDialog, setOpenAddCarDialog] = useState(false);
+  const [openAddBrandDialog, setOpenAddBrandDialog] = useState(false);
 
-  const handleToggleAddCarDialog = () => {
-    setOpenAddCarDialog(prev => !prev);
+  const handleToggleAddBrandDialog = () => {
+    setOpenAddBrandDialog(prev => !prev);
   };
 
   return (
@@ -33,7 +33,7 @@ const BrandManagementPage = () => {
               WebkitTextFillColor: 'transparent',
               mb: 1,
             }}>
-            Color Category Management
+            Brand Category Management
           </Typography>
           <Typography
             variant='subtitle1'
@@ -41,13 +41,13 @@ const BrandManagementPage = () => {
               color: 'text.secondary',
               fontWeight: 500,
             }}>
-            Manage your Color Category
+            Manage your Brand Categories
           </Typography>
         </Box>
         <Button
           variant='contained'
           startIcon={<AddIcon />}
-          onClick={handleToggleAddCarDialog}
+          onClick={handleToggleAddBrandDialog}
           sx={{
             borderRadius: '30px',
             px: 3,
@@ -61,7 +61,7 @@ const BrandManagementPage = () => {
               boxShadow: '0 6px 20px rgba(96, 91, 255, 0.4)',
             },
           }}>
-          Add New Color
+          Add New Brand
         </Button>
       </Box>
 
@@ -77,12 +77,12 @@ const BrandManagementPage = () => {
         <BrandListTable />
       </Paper>
 
-      {/* Add Car Dialog */}
+      {/* Add Brand Dialog */}
       <Dialog
         fullWidth
         maxWidth='md'
-        open={openAddCarDialog}
-        onClose={handleToggleAddCarDialog}
+        open={openAddBrandDialog}
+        onClose={handleToggleAddBrandDialog}
         TransitionComponent={Fade}
         PaperProps={{
           sx: {
@@ -93,21 +93,19 @@ const BrandManagementPage = () => {
         }}>
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #605BFF 0%, #8A84FF 100%)',
-            color: 'white',
             py: 2,
             px: 3,
           }}>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
             <Typography variant='h6' sx={{ fontWeight: 600 }}>
-              Add New Toy Car
+              Add Brand
             </Typography>
             <IconButton
-              onClick={handleToggleAddCarDialog}
+              onClick={handleToggleAddBrandDialog}
               sx={{
-                color: 'white',
+                color: 'text.secondary',
                 '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  backgroundColor: 'rgba(0,0,0,0.04)',
                 },
               }}>
               <CloseIcon />
@@ -115,7 +113,7 @@ const BrandManagementPage = () => {
           </Box>
         </DialogTitle>
         <DialogContent sx={{ p: 3, mt: 1 }}>
-          <CarForm onClose={handleToggleAddCarDialog} />
+          <BrandForm onClose={handleToggleAddBrandDialog} />
         </DialogContent>
       </Dialog>
     </Box>

@@ -94,10 +94,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
       // Show success message
       setSuccessMessage('Car added successfully!');
 
-      // Close the form after a delay
-      setTimeout(() => {
-        onClose();
-      }, 2000);
+      onClose();
     } catch (err) {
       console.error('Error adding car:', err);
       setError(err instanceof Error ? err.message : 'Failed to add car');

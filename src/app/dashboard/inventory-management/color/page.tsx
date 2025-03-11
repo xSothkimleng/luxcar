@@ -4,14 +4,14 @@ import { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Typography, Fade } from '@mui/material';
-import CarForm from '@/components/Form/CarForm';
 import ColorListTable from '@/components/Table/Variants/ColorListTable';
+import ColorForm from '@/components/Form/ColorForm';
 
 const ColorManagementPage = () => {
-  const [openAddCarDialog, setOpenAddCarDialog] = useState(false);
+  const [openAddColorDialog, setOpenAddColorDialog] = useState(false);
 
-  const handleToggleAddCarDialog = () => {
-    setOpenAddCarDialog(prev => !prev);
+  const handleToggleAddColorDialog = () => {
+    setOpenAddColorDialog(prev => !prev);
   };
 
   return (
@@ -33,7 +33,7 @@ const ColorManagementPage = () => {
               WebkitTextFillColor: 'transparent',
               mb: 1,
             }}>
-            Color Category Management
+            Color Management
           </Typography>
           <Typography
             variant='subtitle1'
@@ -41,13 +41,13 @@ const ColorManagementPage = () => {
               color: 'text.secondary',
               fontWeight: 500,
             }}>
-            Manage your Color Category
+            Manage your color categories
           </Typography>
         </Box>
         <Button
           variant='contained'
           startIcon={<AddIcon />}
-          onClick={handleToggleAddCarDialog}
+          onClick={handleToggleAddColorDialog}
           sx={{
             borderRadius: '30px',
             px: 3,
@@ -77,12 +77,12 @@ const ColorManagementPage = () => {
         <ColorListTable />
       </Paper>
 
-      {/* Add Car Dialog */}
+      {/* Add Color Dialog */}
       <Dialog
         fullWidth
         maxWidth='md'
-        open={openAddCarDialog}
-        onClose={handleToggleAddCarDialog}
+        open={openAddColorDialog}
+        onClose={handleToggleAddColorDialog}
         TransitionComponent={Fade}
         PaperProps={{
           sx: {
@@ -93,21 +93,19 @@ const ColorManagementPage = () => {
         }}>
         <DialogTitle
           sx={{
-            background: 'linear-gradient(135deg, #605BFF 0%, #8A84FF 100%)',
-            color: 'white',
             py: 2,
             px: 3,
           }}>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
             <Typography variant='h6' sx={{ fontWeight: 600 }}>
-              Add New Toy Car
+              Add New Color
             </Typography>
             <IconButton
-              onClick={handleToggleAddCarDialog}
+              onClick={handleToggleAddColorDialog}
               sx={{
-                color: 'white',
+                color: 'text.secondary',
                 '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  backgroundColor: 'rgba(0,0,0,0.04)',
                 },
               }}>
               <CloseIcon />
@@ -115,7 +113,12 @@ const ColorManagementPage = () => {
           </Box>
         </DialogTitle>
         <DialogContent sx={{ p: 3, mt: 1 }}>
-          <CarForm onClose={handleToggleAddCarDialog} />
+          <ColorForm
+            onClose={handleToggleAddColorDialog}
+            onSuccess={() => {
+              // Optional: Do something after successful creation
+            }}
+          />
         </DialogContent>
       </Dialog>
     </Box>
