@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const id = params.id;
+    const id = context.params.id;
 
     // Get the image URL before deleting it
     const variantImage = await prisma.variantImage.findUnique({

@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET a single car by ID
-export async function GET(request: Request, { params }: { params: { carId: string } }) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const carId = params.carId;
+    const carId = context.params.carId;
 
     const car = await prisma.car.findUnique({
       where: {
@@ -31,9 +32,9 @@ export async function GET(request: Request, { params }: { params: { carId: strin
 }
 
 // PATCH - Update a specific car
-export async function PATCH(request: Request, { params }: { params: { carId: string } }) {
+export async function PATCH(request: NextRequest, context: any) {
   try {
-    const carId = params.carId;
+    const carId = context.params.carId;
     const data = await request.json();
 
     // Update the car
@@ -57,9 +58,9 @@ export async function PATCH(request: Request, { params }: { params: { carId: str
 }
 
 // DELETE - Remove a specific car
-export async function DELETE(request: Request, { params }: { params: { carId: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const carId = params.carId;
+    const carId = context.params.carId;
 
     // First, delete related variant images to avoid foreign key constraint violations
     await prisma.variantImage.deleteMany({

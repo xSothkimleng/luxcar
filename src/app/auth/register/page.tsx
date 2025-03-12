@@ -8,7 +8,6 @@ import { IconButton, InputAdornment, Button, Box, Typography, Divider, Alert, Sn
 import theme from '@/theme';
 import CoolButton from '@/components/CustomButton';
 import { StyledFormControl, StyledInputLabel, StyledFilledInput } from '@/components/CustomButton/CoolInputFill';
-import { useRegister } from '@/hooks/useAuth';
 
 interface IFormInput {
   username: string;
@@ -25,7 +24,6 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
   const [showPassword, setShowPassword] = useState(false);
-  const register = useRegister();
 
   const handleClickShowPassword = () => setShowPassword(show => !show);
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -61,15 +59,9 @@ export default function RegisterPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (validateForm()) {
-      try {
-        await register.mutateAsync(formData);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        setErrors(prev => ({
-          ...prev,
-          submit: 'Registration failed. Please try again.',
-        }));
-      }
+      // Do something with the form data
+      console.log(formData);
+      console.log('register is not implemented');
     }
   };
 
@@ -146,8 +138,8 @@ export default function RegisterPage() {
           </StyledFormControl>
           {errors.password && <Typography className='text-red-500'>{errors.password}</Typography>}
 
-          <Button type='submit' variant='contained' fullWidth style={{ marginTop: 5 }} disabled={register.isPending}>
-            {register.isPending ? 'Registering...' : 'Register'}
+          <Button type='submit' variant='contained' fullWidth style={{ marginTop: 5 }} disabled={true}>
+            Register
           </Button>
 
           <Divider sx={{ margin: '1rem 0 1rem 0' }} />
@@ -162,11 +154,7 @@ export default function RegisterPage() {
         </form>
       </div>
 
-      <Snackbar
-        open={register.isSuccess}
-        autoHideDuration={3000}
-        onClose={() => {}}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+      <Snackbar open={false} autoHideDuration={3000} onClose={() => {}} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert severity='success'>User created successfully! Redirecting to login...</Alert>
       </Snackbar>
     </main>

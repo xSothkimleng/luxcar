@@ -125,27 +125,6 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Price Range Filter */}
-      {/* <Typography variant='subtitle1' fontWeight='bold' gutterBottom component='div'>
-        Price Range
-      </Typography>
-      <Box sx={{ px: 1, mb: 3 }}>
-        <Slider
-          value={priceRange}
-          onChange={handlePriceChange}
-          valueLabelDisplay='auto'
-          min={minPrice}
-          max={maxPrice}
-          valueLabelFormat={value => `$${value.toLocaleString()}`}
-        />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-          <Typography variant='body2'>${priceRange[0].toLocaleString()}</Typography>
-          <Typography variant='body2'>${priceRange[1].toLocaleString()}</Typography>
-        </Box>
-      </Box> */}
-
-      <Divider sx={{ my: 3 }} />
-
       {/* Brand Filter */}
       <Typography variant='subtitle1' fontWeight='bold' gutterBottom component='div'>
         Brand
@@ -174,9 +153,9 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
         </ListItemButton>
         {carBrands.map(brand => (
           <ListItemButton
-            key={brand}
-            selected={selectedBrand === brand}
-            onClick={() => handleBrandSelect(brand)}
+            key={brand.id}
+            selected={selectedBrand === brand.name}
+            onClick={() => handleBrandSelect(brand.name)}
             sx={{
               borderRadius: 1,
               mb: 0.5,
@@ -188,9 +167,9 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
               },
             }}>
             <ListItemText
-              primary={brand}
+              primary={brand.name}
               primaryTypographyProps={{
-                fontWeight: selectedBrand === brand ? 'bold' : 'normal',
+                fontWeight: selectedBrand === brand.name ? 'bold' : 'normal',
               }}
             />
           </ListItemButton>

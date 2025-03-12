@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
 
 // GET handler to retrieve all variant images for a car
-export async function GET(request: Request, { params }: { params: { carId: string } }) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const carId = params.carId;
+    const carId = context.params.carId;
 
     const variantImages = await prisma.variantImage.findMany({
       where: {
@@ -25,9 +26,9 @@ export async function GET(request: Request, { params }: { params: { carId: strin
 }
 
 // DELETE handler to remove all variant images for a car
-export async function DELETE(request: Request, { params }: { params: { carId: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const carId = params.carId;
+    const carId = context.params.carId;
 
     // Get all variant images for this car to delete from storage
     const variantImages = await prisma.variantImage.findMany({
