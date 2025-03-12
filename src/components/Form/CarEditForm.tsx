@@ -43,7 +43,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
 
   // Form state
   const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState(0);
   const [scale, setScale] = useState('');
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
@@ -63,9 +63,11 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
 
   // Populate form with car data when it's loaded
   useEffect(() => {
+    console.log('Setup form with data from useCar');
     if (car) {
+      console.log('Car:', car);
       setName(car.name);
-      setPrice(car.price.toString());
+      setPrice(car.price);
       setScale(car.scale);
       setColorId(car.colorId);
       setBrandId(car.brandId);
@@ -181,7 +183,11 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
 
   const handleRemoveVariantImage = async (id: string, index: number) => {
     try {
-      await deleteVariantImage(id);
+      // Get the URL from the existingVariantImages array using the index
+      const imageUrl = existingVariantImages[index].url;
+
+      // Pass both id and url to the deleteVariantImage function
+      await deleteVariantImage(id, imageUrl);
 
       // Update local state
       const updatedImages = [...existingVariantImages];
@@ -249,7 +255,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
             required
             label='Price ($)'
             value={price}
-            onChange={e => setPrice(e.target.value)}
+            onChange={e => setPrice(Number(e.target.value))}
             fullWidth
             variant='filled'
             type='number'
