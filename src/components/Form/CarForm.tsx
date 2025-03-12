@@ -88,10 +88,8 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         thumbnailImageId: thumbnailUpload.id,
       });
 
-      // 3. Upload all variant images associated with this car
       await Promise.all(variantImages.map(file => uploadImage(file, 'variant', newCar.id)));
 
-      // Show success message
       setSuccessMessage('Car added successfully!');
 
       onClose();

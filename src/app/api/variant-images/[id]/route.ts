@@ -1,47 +1,52 @@
-// app/api/variant-images/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
+import { supabase } from '@/lib/supabase';
 
-// DELETE a variant image by ID
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const id = params.id;
 
-    // Find the image to get its URL before deletion
-    const image = await prisma.variantImage.findUnique({
-      where: { id },
+    // Get the image URL before deleting it
+    const variantImage = await prisma.variantImage.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        url: true,
+      },
     });
 
-    if (!image) {
+    if (!variantImage) {
       return NextResponse.json({ error: 'Variant image not found' }, { status: 404 });
     }
 
-    // Delete the image from the database
-    await prisma.variantImage.delete({
-      where: { id },
-    });
+    // Extract storage path from URL
+    let filePath = null;
 
-    // Attempt to delete the physical file
-    // Skip error handling as this shouldn't prevent API success
-    try {
-      // Extract the file path from the URL
-      // URL format is typically "/uploads/variants/filename.jpg"
-      const filePath = image.url.replace(/^\/uploads/, '');
-      const fullPath = join(process.cwd(), 'public', 'uploads', filePath);
-
-      await unlink(fullPath);
-      console.log(`Deleted file: ${fullPath}`);
-    } catch (fileError) {
-      // Log but don't throw error if file deletion fails
-      console.warn(`Could not delete file for image ${id}:`, fileError);
+    if (variantImage.url.includes('storage/v1/object/public/car-images/')) {
+      filePath = variantImage.url.split('storage/v1/object/public/car-images/')[1];
+    } else if (variantImage.url.includes('.supabase.co')) {
+      const pathMatch = variantImage.url.match(/car-images\/(.+)/);
+      filePath = pathMatch ? pathMatch[1] : null;
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Variant image deleted successfully',
+    // Delete file from Supabase storage
+    if (filePath) {
+      const { error } = await supabase.storage.from('car-images').remove([filePath]);
+
+      if (error) {
+        console.error('Error deleting file from Supabase:', error);
+      }
+    }
+
+    // Delete the record from the database
+    await prisma.variantImage.delete({
+      where: {
+        id,
+      },
     });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting variant image:', error);
     return NextResponse.json({ error: 'Failed to delete variant image' }, { status: 500 });

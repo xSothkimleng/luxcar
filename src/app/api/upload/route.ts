@@ -1,11 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { mkdir } from 'fs/promises';
 import { prisma } from '@/lib/prisma';
+import { supabase, getPublicUrl } from '@/lib/supabase';
 
-// Set a size limit for uploads
 export const config = {
   api: {
     bodyParser: false,
@@ -14,8 +10,15 @@ export const config = {
 
 export async function POST(request: Request) {
   try {
+    console.log('Upload request received');
+
     // Parse the multipart form data
     const formData = await request.formData();
+    console.log('Form data parsed', {
+      type: formData.get('type'),
+      hasFile: !!formData.get('file'),
+      carId: formData.get('carId'),
+    });
 
     // Get the type of upload (thumbnail or variant)
     const type = formData.get('type') as string;
@@ -31,6 +34,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
+    console.log('File received', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
@@ -40,56 +49,111 @@ export async function POST(request: Request) {
     // Generate a unique filename
     const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
 
-    // Determine the upload directory based on type
+    // Create the storage path based on type
     const uploadDir = type === 'thumbnail' ? 'thumbnails' : 'variants';
-    const publicDir = join(process.cwd(), 'public', 'uploads', uploadDir);
 
-    // Ensure directory exists
-    try {
-      await mkdir(publicDir, { recursive: true });
-    } catch (err) {
-      console.log('Directory already exists or cannot be created');
-    }
+    // For variant images, we need the carId in the path
+    const carId = formData.get('carId') as string;
+    const filePath = type === 'variant' && carId ? `${uploadDir}/${carId}/${fileName}` : `${uploadDir}/${fileName}`;
 
-    const filePath = join(publicDir, fileName);
+    console.log('Preparing upload to Supabase', {
+      bucket: 'car-images',
+      filePath,
+      fileType: file.type,
+    });
 
-    // Convert the file to an ArrayBuffer and save
+    // Check Supabase client
+    console.log('Supabase client initialized:', {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 10) + '...',
+      hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    });
+
+    // Convert file to buffer for upload
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    console.log('File converted to buffer, size:', buffer.length);
 
-    // Generate the URL for the uploaded file
-    const url = `/uploads/${uploadDir}/${fileName}`;
-
-    // Create a record in the database based on the type
-    let result;
-    if (type === 'thumbnail') {
-      result = await prisma.thumbnailImage.create({
-        data: { url },
+    // Upload to Supabase Storage
+    try {
+      const { data, error } = await supabase.storage.from('car-images').upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
       });
-    } else {
-      // For variant images, we need the carId which should be in the formData
-      const carId = formData.get('carId') as string;
 
-      if (!carId) {
-        return NextResponse.json({ error: 'carId is required for variant images' }, { status: 400 });
+      if (error) {
+        console.error('Supabase upload error:', error);
+        return NextResponse.json(
+          {
+            error: 'Failed to upload to Supabase',
+            details: error,
+          },
+          { status: 500 },
+        );
       }
 
-      result = await prisma.variantImage.create({
-        data: {
-          url,
-          carId,
-        },
-      });
-    }
+      console.log('Supabase upload successful', data);
 
-    return NextResponse.json({
-      success: true,
-      url,
-      id: result.id,
-    });
+      // Get the public URL for the uploaded file
+      const url = getPublicUrl(filePath);
+      console.log('Generated public URL:', url);
+
+      // Create a record in the database based on the type
+      let result;
+      try {
+        if (type === 'thumbnail') {
+          result = await prisma.thumbnailImage.create({
+            data: { url },
+          });
+          console.log('Created thumbnail record in database', result);
+        } else {
+          // For variant images, we need the carId which should be in the formData
+          if (!carId) {
+            return NextResponse.json({ error: 'carId is required for variant images' }, { status: 400 });
+          }
+
+          result = await prisma.variantImage.create({
+            data: {
+              url,
+              carId,
+            },
+          });
+          console.log('Created variant image record in database', result);
+        }
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        return NextResponse.json(
+          {
+            error: 'Database operation failed',
+            details: dbError instanceof Error ? dbError.message : String(dbError),
+          },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        url,
+        id: result.id,
+      });
+    } catch (uploadError) {
+      console.error('Error during Supabase upload:', uploadError);
+      return NextResponse.json(
+        {
+          error: 'Supabase upload operation failed',
+          details: uploadError instanceof Error ? uploadError.message : String(uploadError),
+        },
+        { status: 500 },
+      );
+    }
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
+    console.error('Error in upload API:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to upload file',
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+      { status: 500 },
+    );
   }
 }
