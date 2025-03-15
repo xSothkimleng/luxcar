@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/banner-slides/[id]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET - Get a banner slide by ID
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = context.params.id;
 
     const bannerSlide = await prisma.bannerSlide.findUnique({
       where: { id },
@@ -27,9 +28,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PUT - Update a banner slide
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = context.params.id;
     const body = await request.json();
     const { title, subtitle, mainImageId, bgImageId } = body;
 
@@ -65,9 +66,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // DELETE - Delete a banner slide
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = context.params.id;
 
     // Ensure the slide exists
     const existingSlide = await prisma.bannerSlide.findUnique({

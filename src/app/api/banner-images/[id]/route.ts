@@ -1,11 +1,11 @@
-// app/api/banner-images/[id]/route.ts
-import { NextResponse } from 'next/server';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // DELETE - Delete a banner image
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = params;
+    const id = context.params.id;
 
     // Check if the image exists
     const image = await prisma.bannerImage.findUnique({
