@@ -1,3 +1,4 @@
+// app/api/upload/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase, getPublicUrl } from '@/lib/supabase';
@@ -16,15 +17,28 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     console.log('Form data parsed', {
       type: formData.get('type'),
+      imageCategory: formData.get('imageCategory'),
       hasFile: !!formData.get('file'),
       carId: formData.get('carId'),
     });
 
-    // Get the type of upload (thumbnail or variant)
+    // Get the category of image (car or banner)
+    const imageCategory = (formData.get('imageCategory') as string) || 'car';
+
+    // Get the type of upload based on category
     const type = formData.get('type') as string;
 
-    if (!type || (type !== 'thumbnail' && type !== 'variant')) {
-      return NextResponse.json({ error: 'Invalid upload type. Must be "thumbnail" or "variant"' }, { status: 400 });
+    // Validate type based on category
+    if (imageCategory === 'car') {
+      if (!type || (type !== 'thumbnail' && type !== 'variant')) {
+        return NextResponse.json({ error: 'Invalid upload type for car. Must be "thumbnail" or "variant"' }, { status: 400 });
+      }
+    } else if (imageCategory === 'banner') {
+      if (!type || (type !== 'main' && type !== 'background')) {
+        return NextResponse.json({ error: 'Invalid upload type for banner. Must be "main" or "background"' }, { status: 400 });
+      }
+    } else {
+      return NextResponse.json({ error: 'Invalid image category. Must be "car" or "banner"' }, { status: 400 });
     }
 
     // Get the file from form data
@@ -49,23 +63,29 @@ export async function POST(request: Request) {
     // Generate a unique filename
     const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
 
-    // Create the storage path based on type
-    const uploadDir = type === 'thumbnail' ? 'thumbnails' : 'variants';
+    // Create the storage path based on category and type
+    let uploadDir;
+
+    if (imageCategory === 'car') {
+      uploadDir = type === 'thumbnail' ? 'thumbnails' : 'variants';
+    } else if (imageCategory === 'banner') {
+      uploadDir = type === 'main' ? 'banner/main' : 'banner/background';
+    }
 
     // For variant images, we need the carId in the path
     const carId = formData.get('carId') as string;
-    const filePath = type === 'variant' && carId ? `${uploadDir}/${carId}/${fileName}` : `${uploadDir}/${fileName}`;
+    let filePath;
+
+    if (imageCategory === 'car' && type === 'variant' && carId) {
+      filePath = `${uploadDir}/${carId}/${fileName}`;
+    } else {
+      filePath = `${uploadDir}/${fileName}`;
+    }
 
     console.log('Preparing upload to Supabase', {
       bucket: 'car-images',
       filePath,
       fileType: file.type,
-    });
-
-    // Check Supabase client
-    console.log('Supabase client initialized:', {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 10) + '...',
-      hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     });
 
     // Convert file to buffer for upload
@@ -97,27 +117,40 @@ export async function POST(request: Request) {
       const url = getPublicUrl(filePath);
       console.log('Generated public URL:', url);
 
-      // Create a record in the database based on the type
+      // Create a record in the database based on the image category and type
       let result;
       try {
-        if (type === 'thumbnail') {
-          result = await prisma.thumbnailImage.create({
-            data: { url },
-          });
-          console.log('Created thumbnail record in database', result);
-        } else {
-          // For variant images, we need the carId which should be in the formData
-          if (!carId) {
-            return NextResponse.json({ error: 'carId is required for variant images' }, { status: 400 });
-          }
+        if (imageCategory === 'car') {
+          if (type === 'thumbnail') {
+            result = await prisma.thumbnailImage.create({
+              data: { url },
+            });
+            console.log('Created thumbnail record in database', result);
+          } else {
+            // For variant images, we need the carId which should be in the formData
+            if (!carId) {
+              return NextResponse.json({ error: 'carId is required for variant images' }, { status: 400 });
+            }
 
-          result = await prisma.variantImage.create({
+            result = await prisma.variantImage.create({
+              data: {
+                url,
+                carId,
+              },
+            });
+            console.log('Created variant image record in database', result);
+          }
+        } else if (imageCategory === 'banner') {
+          // For banner images, we create a record in the BannerImage table
+          const bannerImageType = type === 'main' ? 'MAIN' : 'BACKGROUND';
+
+          result = await prisma.bannerImage.create({
             data: {
               url,
-              carId,
+              type: bannerImageType,
             },
           });
-          console.log('Created variant image record in database', result);
+          console.log('Created banner image record in database', result);
         }
       } catch (dbError) {
         console.error('Database error:', dbError);
@@ -133,7 +166,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         url,
-        id: result.id,
+        id: result?.id,
       });
     } catch (uploadError) {
       console.error('Error during Supabase upload:', uploadError);

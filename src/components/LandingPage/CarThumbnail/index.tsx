@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Car } from '@/types/car';
 import CloseIcon from '@mui/icons-material/Close';
 import CarDetail from '@/components/CarDetail';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Dialog, DialogContent, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 interface CarThumbnailProps {
   car: Car;
@@ -27,7 +27,6 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
         position: 'relative',
         overflow: 'hidden',
         cursor: 'pointer',
-        // borderRadius: '8px',
         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -89,7 +88,13 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
               borderRadius: '4px',
               fontWeight: 'bold',
             }}>
-            ${car.price.toLocaleString('en-US')}
+            $
+            {typeof car.price === 'number'
+              ? car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : parseFloat(car.price).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
           </Typography>
         )}
 
@@ -125,23 +130,24 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
             borderTopRightRadius: isMobile ? '1rem' : 0,
           },
         }}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant='subtitle2'>{car.name}</Typography>
-          <IconButton
-            onClick={() => setOpenCarDialog(false)}
-            sx={{
-              zIndex: 1,
-              color: 'black',
-              '&:hover': {
-                bgcolor: 'rgba(0,0,0,0.1)',
-              },
-            }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
           {car ? (
-            <CarDetail car={car} onBack={() => setOpenCarDialog(false)} />
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <IconButton
+                  onClick={() => setOpenCarDialog(false)}
+                  sx={{
+                    zIndex: 1,
+                    color: 'black',
+                    '&:hover': {
+                      bgcolor: 'rgba(0,0,0,0.1)',
+                    },
+                  }}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+              <CarDetail car={car} onBack={() => setOpenCarDialog(false)} />
+            </>
           ) : (
             <Typography p={4}>Something went wrong.</Typography>
           )}

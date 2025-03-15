@@ -8,7 +8,6 @@ import {
   IconButton,
   Paper,
   Typography,
-  DialogTitle,
   DialogContent,
   useMediaQuery,
   useTheme,
@@ -41,7 +40,6 @@ const ShopCollectionPage = () => {
     setSelectedCar(car);
     setIsDetailLoading(true);
     setOpenCarDialog(true);
-    // Simulate loading time for car details
     setIsDetailLoading(false);
   };
 
@@ -203,7 +201,7 @@ const ShopCollectionPage = () => {
       <Dialog
         fullScreen={isMobile}
         fullWidth={!isMobile}
-        maxWidth={isMobile ? false : 'xl'}
+        maxWidth={isMobile ? false : 'lg'}
         open={openCarDialog}
         onClose={() => setOpenCarDialog(false)}
         TransitionProps={{
@@ -211,32 +209,13 @@ const ShopCollectionPage = () => {
         }}
         sx={{
           '& .MuiDialog-paper': {
-            mt: isMobile ? 0 : 2,
             overflow: 'hidden',
-            borderTopLeftRadius: isMobile ? 0 : '1rem',
-            borderTopRightRadius: isMobile ? 0 : '1rem',
+            mt: isMobile ? '2rem' : 0,
+            borderTopLeftRadius: isMobile ? '1rem' : 0,
+            borderTopRightRadius: isMobile ? '1rem' : 0,
           },
         }}>
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            p: isMobile ? 2 : 1,
-          }}>
-          <Typography variant='subtitle2'>{selectedCar?.name}</Typography>
-          <IconButton
-            onClick={() => setOpenCarDialog(false)}
-            sx={{
-              zIndex: 1,
-              color: 'black',
-              '&:hover': {
-                bgcolor: 'rgba(0,0,0,0.7)',
-              },
-            }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
           {isDetailLoading ? (
             <Box
               sx={{
@@ -252,7 +231,22 @@ const ShopCollectionPage = () => {
               </Typography>
             </Box>
           ) : selectedCar ? (
-            <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
+            <>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <IconButton
+                  onClick={() => setOpenCarDialog(false)}
+                  sx={{
+                    zIndex: 1,
+                    color: 'black',
+                    '&:hover': {
+                      bgcolor: 'rgba(0,0,0,0.7)',
+                    },
+                  }}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+              <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
+            </>
           ) : (
             <Typography p={4}>No car selected.</Typography>
           )}

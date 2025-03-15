@@ -1,99 +1,48 @@
 'use client';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import CategoryIcon from '@mui/icons-material/Category';
 import ToysIcon from '@mui/icons-material/Toys';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import StatsCard from '@/components/StatsCard';
 import Grid from '@mui/material/Grid';
-import { Skeleton } from '@mui/material';
-// import RecentCarCard from '@/components/RecentCarCard';
-import { Box, Typography, Button, Paper, Divider } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Skeleton } from '@mui/material';
+import BannerPreviewCard from '@/components/BannerPreviewCard';
+import { Box, Typography, Button, Alert } from '@mui/material';
+import BannerSlideForm from '@/components/Form/BannerForm';
+import { useBannerSlides } from '@/hooks/useBanner';
+import AddIcon from '@mui/icons-material/Add';
+import { BannerSlide } from '@/types/banner';
 
-const dummyData = {
-  data: {
-    recent: {
-      product: [
-        {
-          _id: '1',
-          title: 'McLaren 720S GT3 Evo Pfaff Motorsports 2024 IMSA Daytona 24 Hrs',
-          posterUrl: '/assets/images/sampleCar.jpg',
-          price: '$79.99',
-          isNew: true,
-          scale: '1:64',
-        },
-        {
-          _id: '2',
-          title: 'Nissan Skyline GT-R (R33) Imai Racing V1',
-          posterUrl: '/assets/images/sampleCar.jpg',
-          price: '$64.99',
-          isNew: true,
-          scale: '1:64',
-        },
-        {
-          _id: '3',
-          title: 'Honda NSX (NA1) Kaido WORKS V2',
-          posterUrl: '/assets/images/sampleCar.jpg',
-          price: '$69.99',
-          isNew: false,
-          scale: '1:43',
-        },
-        {
-          _id: '4',
-          title: 'Chevrolet Silverado "Sumatran Rhino" KAIDO x MIZU Diecast',
-          posterUrl: '/assets/images/sampleCar.jpg',
-          price: '$89.99',
-          isNew: true,
-          scale: '1:24',
-        },
-      ],
-    },
+const statsData = [
+  {
+    title: 'Total Products',
+    value: 1254,
+    icon: <ToysIcon sx={{ fontSize: 24, color: 'white' }} />,
+    change: 12,
   },
-};
+  {
+    title: 'Categories',
+    value: 38,
+    icon: <CategoryIcon sx={{ fontSize: 24, color: 'white' }} />,
+    change: 3,
+  },
+  {
+    title: 'Total Sales',
+    value: 84621,
+    icon: <AttachMoneyIcon sx={{ fontSize: 24, color: 'white' }} />,
+    change: 18,
+  },
+];
 
 const Dashboard = () => {
-  const router = useRouter();
-  type DashboardData = typeof dummyData | null;
+  const { data: bannerSlides, isLoading, error, refetch } = useBannerSlides();
+  const [openAddSlideDialog, setOpenAddSlideDialog] = useState(false);
 
-  const [dashboardData, setDashboardData] = useState<DashboardData>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        setDashboardData(dummyData);
-        setIsLoading(false);
-      } catch (err) {
-        setIsLoading(false);
-        setError(err);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const statsData = [
-    {
-      title: 'Total Products',
-      value: 1254,
-      icon: <ToysIcon sx={{ fontSize: 24, color: 'white' }} />,
-      change: 12,
-    },
-    {
-      title: 'Categories',
-      value: 38,
-      icon: <CategoryIcon sx={{ fontSize: 24, color: 'white' }} />,
-      change: 3,
-    },
-    {
-      title: 'Total Sales',
-      value: 84621,
-      icon: <AttachMoneyIcon sx={{ fontSize: 24, color: 'white' }} />,
-      change: 18,
-    },
-  ];
+  const handleAddSlideSuccess = () => {
+    setOpenAddSlideDialog(false);
+    refetch(); // Refresh the banner slides data
+  };
 
   return (
     <Box>
@@ -125,50 +74,15 @@ const Dashboard = () => {
             Welcome back!
           </Typography>
         </Box>
-
-        <Paper
-          component='form'
-          sx={{
-            p: '2px 4px',
-            display: 'flex',
-            alignItems: 'center',
-            width: 300,
-            borderRadius: 8,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
-          }}>
-          <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
-        </Paper>
       </Box>
 
       {/* Stats Cards Grid */}
       <Grid container spacing={2} sx={{ mb: 5 }}>
-        {isLoading ? (
-          [...Array(3)].map((_, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Skeleton
-                variant='rectangular'
-                height={160}
-                sx={{
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(0,0,0,0.05)',
-                }}
-              />
-            </Grid>
-          ))
-        ) : error ? (
-          <Grid item xs={12}>
-            <Typography color='error' align='center'>
-              Failed to load dashboard statistics
-            </Typography>
+        {statsData.map((stat, index) => (
+          <Grid item xs={12} md={4} key={index}>
+            <StatsCard title={stat.title} value={stat.value} icon={stat.icon} change={stat.change} />
           </Grid>
-        ) : (
-          // Show stats cards
-          statsData.map((stat, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <StatsCard title={stat.title} value={stat.value} icon={stat.icon} change={stat.change} />
-            </Grid>
-          ))
-        )}
+        ))}
       </Grid>
 
       <Box sx={{ mb: 3 }}>
@@ -179,9 +93,15 @@ const Dashboard = () => {
               fontWeight: 'bold',
               color: '#2D3748',
             }}>
-            Swiper Dashboard Showcase
+            Banner Slides
           </Typography>
         </Box>
+
+        {error && (
+          <Alert severity='error' sx={{ mb: 2 }}>
+            Failed to load banner slides: {error instanceof Error ? error.message : 'Unknown error'}
+          </Alert>
+        )}
 
         <Grid container spacing={2}>
           {isLoading ? (
@@ -205,52 +125,72 @@ const Dashboard = () => {
                 />
               </Grid>
             ))
-          ) : error ? (
-            <Grid item xs={12}>
-              <Typography color='error' align='center'>
-                Failed to load products
-              </Typography>
-            </Grid>
-          ) : dashboardData?.data.recent.product && dashboardData.data.recent.product.length > 0 ? (
-            dashboardData.data.recent.product.map(item => (
-              <Grid item xs={12} sm={6} md={3} key={item._id}>
-                {/* <RecentCarCard
-                  title={item.title}
-                  posterUrl={item.posterUrl}
-                  price={item.price}
-                  isNew={item.isNew}
-                  scale={item.scale}
-                /> */}
+          ) : bannerSlides && bannerSlides.length > 0 ? (
+            <>
+              {bannerSlides.map((slide: BannerSlide) => (
+                <Grid item xs={12} sm={6} md={3} key={slide.id}>
+                  <Box sx={{ width: '100%', aspectRatio: '1/1' }}>
+                    <BannerPreviewCard slide={slide} onDelete={refetch} onEdit={refetch} />
+                  </Box>
+                </Grid>
+              ))}
+              <Grid item xs={12} sm={6} md={3}>
+                <Box
+                  sx={{
+                    width: '100%',
+                    aspectRatio: '1/1',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: '2px dashed rgba(0,0,0,0.2)',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0,0,0,0.03)',
+                    },
+                  }}
+                  onClick={() => setOpenAddSlideDialog(true)}>
+                  <AddIcon sx={{ fontSize: 40, color: 'rgba(0,0,0,0.3)', mb: 1 }} />
+                  <Typography variant='body1' color='text.secondary'>
+                    Add New Slide
+                  </Typography>
+                </Box>
               </Grid>
-            ))
+            </>
           ) : (
-            <Grid xs={12}>
-              <Typography align='center' color='text.secondary'>
-                No products available
-              </Typography>
-            </Grid>
+            <>
+              <Grid item xs={12}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    py: 8,
+                    bgcolor: 'rgba(0,0,0,0.02)',
+                    borderRadius: 2,
+                  }}>
+                  <Typography align='center' color='text.secondary' gutterBottom>
+                    No banner slides available
+                  </Typography>
+                  <Button variant='contained' startIcon={<AddIcon />} onClick={() => setOpenAddSlideDialog(true)} sx={{ mt: 2 }}>
+                    Add Your First Slide
+                  </Button>
+                </Box>
+              </Grid>
+            </>
           )}
         </Grid>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 2 }}>
-        <Button
-          onClick={() => router.push('/dashboard/inventory-management/product')}
-          variant='contained'
-          sx={{
-            borderRadius: '30px',
-            px: 4,
-            py: 1,
-            background: 'linear-gradient(135deg, #605BFF 0%, #8A84FF 100%)',
-            boxShadow: '0 4px 14px rgba(96, 91, 255, 0.3)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #4F4AD0 0%, #7A74E0 100%)',
-              boxShadow: '0 6px 20px rgba(96, 91, 255, 0.4)',
-            },
-          }}>
-          View All Products
-        </Button>
-      </Box>
+      {/* Add Slide Dialog */}
+      <Dialog fullWidth maxWidth='md' open={openAddSlideDialog} onClose={() => setOpenAddSlideDialog(false)}>
+        <DialogTitle>Add New Slide</DialogTitle>
+        <DialogContent>
+          <BannerSlideForm onClose={() => setOpenAddSlideDialog(false)} onSuccess={handleAddSlideSuccess} />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

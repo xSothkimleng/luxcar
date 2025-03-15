@@ -16,6 +16,8 @@ import {
   Grid,
   CircularProgress,
   IconButton,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CoolButton from '@/components/CustomButton';
@@ -33,6 +35,9 @@ interface CarEditFormProps {
   onClose: () => void;
 }
 
+// Predefined tag options
+const tagOptions = ['IN STOCK', 'RELEASED', 'PRE-ORDERS'];
+
 const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
   // Fetch data from API
   const { data: car, isLoading: carLoading } = useCar(carId);
@@ -45,6 +50,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
   const [scale, setScale] = useState('');
+  const [tag, setTag] = useState('');
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [modelId, setModelId] = useState('');
@@ -69,6 +75,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
       setName(car.name);
       setPrice(car.price);
       setScale(car.scale);
+      setTag(car.tag || '');
       setColorId(car.colorId);
       setBrandId(car.brandId);
       setModelId(car.modelId);
@@ -138,6 +145,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
         name,
         price: Number(price),
         scale,
+        tag,
         description,
         colorId,
         brandId,
@@ -212,6 +220,10 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
     setModelId(event.target.value);
   };
 
+  const handleTagChange = (event: React.SyntheticEvent, newValue: string | null) => {
+    setTag(newValue || '');
+  };
+
   // Show loading state while fetching car data
   if (carLoading) {
     return (
@@ -275,6 +287,21 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
             variant='filled'
             type='text'
             className='mb-4'
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          {/* Tag Field (Autocomplete with free input) */}
+          <Autocomplete
+            freeSolo
+            id='car-tag'
+            options={tagOptions}
+            value={tag}
+            onChange={handleTagChange}
+            onInputChange={(event, newInputValue) => {
+              setTag(newInputValue);
+            }}
+            renderInput={params => <TextField {...params} label='Tag' variant='outlined' fullWidth className='mb-4' />}
           />
         </Grid>
 

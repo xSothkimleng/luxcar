@@ -20,12 +20,29 @@ model User {
   @@map("users")
 }
 
+model BannerSlide {
+  id          String        @id @default(uuid())
+  title       String
+  subtitle    String
+  mainImageId String?       @map("main_image_id")
+  bgImageId   String?       @map("bg_image_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  
+  // Relations
+  mainImage   BannerImage?  @relation("MainImage", fields: [mainImageId], references: [id])
+  bgImage     BannerImage?  @relation("BackgroundImage", fields: [bgImageId], references: [id])
+
+  @@map("banner_slides")
+}
+
 model Car {
   id              String         @id @default(uuid())
   name            String
   price           Decimal        @db.Decimal(10, 2)
   scale           String
   description     String         @db.Text // For richText storage
+  tag             String?
   colorId         String         @map("color_id")
   brandId         String         @map("brand_id")
   modelId         String         @map("model_id")
@@ -97,7 +114,28 @@ model VariantImage {
   @@map("variant_images")
 }
 
+model BannerImage {
+  id                     String        @id @default(uuid())
+  url                    String
+  type                   BannerImageType
+  createdAt              DateTime      @default(now()) @map("created_at")
+  updatedAt              DateTime      @updatedAt @map("updated_at")
+  
+  // Relations - one image can be used as main image for multiple slides
+  mainImageForSlides     BannerSlide[] @relation("MainImage")
+  
+  // Relations - one image can be used as background image for multiple slides
+  bgImageForSlides       BannerSlide[] @relation("BackgroundImage")
+
+  @@map("banner_images")
+}
+
 enum Role {
   USER
   ADMIN
+}
+
+enum BannerImageType {
+  MAIN
+  BACKGROUND
 }

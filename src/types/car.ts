@@ -3,6 +3,7 @@ export interface Car {
   name: string;
   price: number;
   scale: string;
+  tag?: string;
   description: string;
   colorId: string;
   brandId: string;

@@ -43,7 +43,7 @@ const PopularCar = () => {
         </Alert>
       )}
 
-      <Grid container spacing={0}>
+      <Grid container spacing={1}>
         {isLoading ? (
           // Skeleton loading state - show 12 placeholders
           Array.from(new Array(12)).map((_, index) => (

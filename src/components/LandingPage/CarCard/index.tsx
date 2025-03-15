@@ -69,17 +69,44 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
             }}
           />
         )}
+        {car.tag && (
+          <Chip
+            label={car.tag}
+            size='small'
+            sx={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              bgcolor: 'white',
+              color: 'red',
+              fontWeight: 'bolder',
+            }}
+          />
+        )}
       </Box>
       <CardContent sx={{ flexGrow: 1, padding: '0' }}>
         <Typography variant='body1' component='div' noWrap sx={{ fontWeight: 'bold' }}>
           {car.name}
         </Typography>
         <Typography variant='body1' sx={{ fontWeight: 'bold', color: '#D32F2F' }}>
-          ${car.price.toLocaleString('en-US')}
+          ${' '}
+          {typeof car.price === 'number'
+            ? car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : parseFloat(car.price).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
         </Typography>
-        <Typography variant='body2' sx={{ color: 'gray' }}>
-          Color Code : {car.color?.name}
-        </Typography>
+        {car.scale && (
+          <Typography variant='body2' sx={{ color: 'gray' }}>
+            Scale : {car.scale}
+          </Typography>
+        )}
+        {car.color && (
+          <Typography variant='body2' sx={{ color: 'gray' }}>
+            Color Code : {car.color?.name}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );

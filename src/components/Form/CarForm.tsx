@@ -13,6 +13,8 @@ import {
   Select,
   SelectChangeEvent,
   Grid,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 import CoolButton from '@/components/CustomButton';
 import MultiFileUpload from '@/components/MultiFileUpload';
@@ -23,6 +25,9 @@ import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
 import { useCreateCar } from '@/hooks/useCar';
 import { uploadImage } from '@/services/carService';
+
+// Predefined tag options
+const tagOptions = ['IN STOCK', 'RELEASED', 'PRE-ORDERS'];
 
 const CarForm = ({ onClose }: { onClose: () => void }) => {
   // Fetch data from API
@@ -35,6 +40,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [scale, setScale] = useState('');
+  const [tag, setTag] = useState('');
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [modelId, setModelId] = useState('');
@@ -81,6 +87,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         name,
         price: Number(price),
         scale,
+        tag,
         description,
         colorId,
         brandId,
@@ -126,6 +133,10 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
 
   const handleModelChange = (event: SelectChangeEvent) => {
     setModelId(event.target.value);
+  };
+
+  const handleTagChange = (event: React.SyntheticEvent, newValue: string | null) => {
+    setTag(newValue || '');
   };
 
   return (
@@ -177,6 +188,21 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
             variant='filled'
             type='text'
             className='mb-4'
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          {/* Tag Field (Autocomplete with free input) */}
+          <Autocomplete
+            freeSolo
+            id='car-tag'
+            options={tagOptions}
+            value={tag}
+            onChange={handleTagChange}
+            onInputChange={(event, newInputValue) => {
+              setTag(newInputValue);
+            }}
+            renderInput={params => <TextField {...params} label='Tag' variant='outlined' fullWidth className='mb-4' />}
           />
         </Grid>
 

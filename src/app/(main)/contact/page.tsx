@@ -107,7 +107,7 @@ const ContactPage: React.FC = () => {
                       <Typography variant='subtitle2' fontWeight='bold'>
                         Phone
                       </Typography>
-                      <Typography variant='body2'>+855 12 964 520</Typography>
+                      <Typography variant='body2'>+855 77 718 588</Typography>
                     </Box>
                   </Box>
 
@@ -159,9 +159,14 @@ const ContactPage: React.FC = () => {
                   <Typography variant='h6' fontWeight='bold' gutterBottom>
                     What payment methods do you accept?
                   </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    ABA and Cash
-                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                    <Box sx={{ width: 40, height: 60, position: 'relative' }}>
+                      <Image src='/assets/images/aba.png' alt='ABA Bank' fill style={{ objectFit: 'contain' }} />
+                    </Box>
+                    <Box sx={{ width: 80, height: 60, position: 'relative' }}>
+                      <Image src='/assets/images/cash.png' alt='Cash Payment' fill style={{ objectFit: 'contain' }} />
+                    </Box>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>

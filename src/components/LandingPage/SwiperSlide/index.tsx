@@ -18,8 +18,6 @@ import { Car } from '@/types/car';
 const SwiperSlideCarShowCase = () => {
   const [cars] = useState<Car[]>(dummyCars);
 
-  // Filter featured cars - since 'featured' is no longer in the Car type,
-  // we'll display the first 4 cars instead
   const displayCars = cars.slice(0, 4);
 
   return (
