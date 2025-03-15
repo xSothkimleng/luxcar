@@ -8,7 +8,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import StatsCard from '@/components/StatsCard';
 import Grid from '@mui/material/Grid';
 import { Skeleton } from '@mui/material';
-import RecentCarCard from '@/components/RecentCarCard';
+// import RecentCarCard from '@/components/RecentCarCard';
 import { Box, Typography, Button, Paper, Divider } from '@mui/material';
 
 const dummyData = {
@@ -214,13 +214,13 @@ const Dashboard = () => {
           ) : dashboardData?.data.recent.product && dashboardData.data.recent.product.length > 0 ? (
             dashboardData.data.recent.product.map(item => (
               <Grid item xs={12} sm={6} md={3} key={item._id}>
-                <RecentCarCard
+                {/* <RecentCarCard
                   title={item.title}
                   posterUrl={item.posterUrl}
                   price={item.price}
                   isNew={item.isNew}
                   scale={item.scale}
-                />
+                /> */}
               </Grid>
             ))
           ) : (

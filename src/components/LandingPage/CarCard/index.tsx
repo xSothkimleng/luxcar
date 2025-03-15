@@ -17,10 +17,10 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
         flexDirection: 'column',
         borderRadius: 0,
         transition: 'transform 0.2s, box-shadow 0.2s',
+        cursor: 'pointer',
         '&:hover': {
           transform: 'translateY(-4px)',
         },
-        cursor: 'pointer',
       }}
       onClick={() => handleViewCar(car)}>
       <Box

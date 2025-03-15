@@ -1,15 +1,12 @@
+import { Car } from '@/types/car';
 import { Box, Typography, Chip } from '@mui/material';
 import Image from 'next/image';
 
-interface ImageCardProps {
-  title: string;
-  posterUrl: string;
-  price?: string;
-  isNew?: boolean;
-  scale?: string;
+interface RecentCarCardProps {
+  car: Car;
 }
 
-const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$69.99', isNew = true, scale = '1:64' }) => {
+const RecentCarCard: React.FC<RecentCarCardProps> = ({ car }) => {
   return (
     <Box
       sx={{
@@ -39,8 +36,8 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
           transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
         }}>
         <Image
-          src={posterUrl}
-          alt={title}
+          src={car.thumbnailImage?.url || '/assets/images/lux-logo-white.pmg'}
+          alt={car.name}
           fill
           style={{
             objectFit: 'cover',
@@ -57,7 +54,7 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
             left: 0,
             right: 0,
             height: '60%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
+            // background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
             opacity: 0.7,
             transition: 'opacity 0.3s ease-in-out',
             display: 'flex',
@@ -69,7 +66,7 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
 
         {/* Tags */}
         <Box sx={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: 1 }}>
-          {isNew && (
+          {/* {isNew && (
             <Chip
               label='NEW'
               size='small'
@@ -80,9 +77,9 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
                 fontSize: '0.7rem',
               }}
             />
-          )}
+          )} */}
           <Chip
-            label={scale}
+            label={car.scale}
             size='small'
             sx={{
               backgroundColor: 'rgba(0,0,0,0.6)',
@@ -107,7 +104,7 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
             boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             fontSize: '0.9rem',
           }}>
-          {price}
+          {car.price}
         </Box>
       </Box>
 
@@ -127,7 +124,7 @@ const RecentCarCard: React.FC<ImageCardProps> = ({ title, posterUrl, price = '$6
             height: '2.6em',
             transition: 'color 0.3s ease-in-out',
           }}>
-          {title}
+          {car.name}
         </Typography>
       </Box>
     </Box>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Car } from '@/types/car';
 import CloseIcon from '@mui/icons-material/Close';
 import CarDetail from '@/components/CarDetail';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 interface CarThumbnailProps {
   car: Car;
@@ -14,6 +14,8 @@ interface CarThumbnailProps {
 const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [openCarDialog, setOpenCarDialog] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const imageUrl = car.thumbnailImage?.url || '/assets/images/placeholder.jpg';
 
@@ -25,7 +27,7 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
         position: 'relative',
         overflow: 'hidden',
         cursor: 'pointer',
-        borderRadius: '8px',
+        // borderRadius: '8px',
         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       }}
       onMouseEnter={() => setIsHovered(true)}
@@ -60,8 +62,10 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           bottom: 0,
           left: 0,
           width: '100%',
-          padding: '15px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0) 100%)',
+          padding: '10px',
+          paddingTop: '8px',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 90%, rgba(0,0,0,0) 100%)',
+          // background: 'rgba(0,0,0,0.45)',
           transform: isHovered ? 'translateY(0)' : 'translateY(70%)',
           transition: 'transform 0.3s ease-in-out',
           display: 'flex',
@@ -108,16 +112,28 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           View Details
         </Typography>
       </Box>
-      <Dialog fullWidth maxWidth='xl' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Dialog
+        fullScreen={isMobile}
+        maxWidth={isMobile ? false : 'xl'}
+        open={openCarDialog}
+        onClose={() => setOpenCarDialog(false)}
+        sx={{
+          '& .MuiDialog-paper': {
+            overflow: 'hidden',
+            mt: isMobile ? '2rem' : 0,
+            borderTopLeftRadius: isMobile ? '1rem' : 0,
+            borderTopRightRadius: isMobile ? '1rem' : 0,
+          },
+        }}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant='subtitle2'>{car.name}</Typography>
           <IconButton
             onClick={() => setOpenCarDialog(false)}
             sx={{
               zIndex: 1,
-              bgcolor: 'rgba(0,0,0,0.5)',
-              color: 'white',
+              color: 'black',
               '&:hover': {
-                bgcolor: 'rgba(0,0,0,0.7)',
+                bgcolor: 'rgba(0,0,0,0.1)',
               },
             }}>
             <CloseIcon />

@@ -8,33 +8,41 @@ import {
   IconButton,
   Paper,
   Typography,
-  Container,
   DialogTitle,
   DialogContent,
   useMediaQuery,
   useTheme,
   Fab,
   Link,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
 import { Car } from '@/types/car';
 import FilterDrawer from '@/components/LandingPage/FilterDrawer';
 import CarCard from '../../CarCard';
+import CarCardSkeleton from '@/components/skeleton/CarCardSkeleton';
 import { useCars } from '@/hooks/useCar';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 const ShopCollectionPage = () => {
-  const { data: cars } = useCars();
+  const { data: cars, isLoading, error } = useCars();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openCarDialog, setOpenCarDialog] = useState(false);
   const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const handleViewCar = (car: Car) => {
     setSelectedCar(car);
+    setIsDetailLoading(true);
     setOpenCarDialog(true);
+    // Simulate loading time for car details
+    setIsDetailLoading(false);
   };
 
   useEffect(() => {
@@ -43,22 +51,87 @@ const ShopCollectionPage = () => {
     }
   }, [cars]);
 
+  // Handle scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  // Generate skeleton placeholders
+  const renderSkeletons = () => {
+    return Array(6)
+      .fill(0)
+      .map((_, index) => (
+        <Grid item xs={6} sm={6} md={4} key={`skeleton-${index}`}>
+          <CarCardSkeleton />
+        </Grid>
+      ));
+  };
+
   return (
-    <Container maxWidth='xl' sx={{ py: 4, position: 'relative' }}>
-      <Box sx={{ position: 'fixed', bottom: 20, left: 20, zIndex: '999' }}>
-        <Fab color='primary' aria-label='add' component={Link} href='https://t.me/lkkkk12345' target='_blank'>
+    <Box sx={{ p: { xs: 2, md: 4 }, position: 'relative' }}>
+      {/* Telegram Contact Button */}
+      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
+        <Fab
+          color='primary'
+          aria-label='contact'
+          component={Link}
+          href='https://t.me/lkkkk12345'
+          target='_blank'
+          sx={{
+            boxShadow: 3,
+            '&:hover': { transform: 'scale(1.05)' },
+            transition: 'transform 0.2s',
+          }}>
           <TelegramIcon />
         </Fab>
       </Box>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <Box sx={{ position: 'fixed', bottom: { xs: 160, md: 80 }, right: 20, zIndex: '999' }}>
+          <Fab
+            size='small'
+            color='secondary'
+            aria-label='scroll to top'
+            onClick={scrollToTop}
+            sx={{
+              boxShadow: 3,
+              '&:hover': { transform: 'scale(1.2)' },
+              transition: 'transform 0.2s',
+            }}>
+            <ArrowUpwardIcon />
+          </Fab>
+        </Box>
+      )}
+
       {/* Page Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' fontWeight='bold' gutterBottom component='div'>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant='h5' fontWeight='bold' component='div'>
           Our Collection
         </Typography>
-        <Typography variant='body1' color='text.secondary' gutterBottom>
+        <Typography variant='body1' color='text.secondary'>
           Browse all our available cars
         </Typography>
       </Box>
+
+      {/* Error Display */}
+      {error && (
+        <Alert severity='error' sx={{ mb: 3 }}>
+          Failed to load cars. Please try again later.
+        </Alert>
+      )}
 
       {/* Main Content - Filters and Products */}
       <Grid container spacing={3}>
@@ -66,12 +139,14 @@ const ShopCollectionPage = () => {
         {!isMobile && (
           <Grid item xs={12} md={3} lg={2.5}>
             <Paper
-              elevation={1}
+              elevation={0}
               sx={{
                 height: '100%',
                 position: 'sticky',
                 top: '80px',
                 borderRadius: 2,
+                opacity: isLoading ? 0.7 : 1,
+                pointerEvents: isLoading ? 'none' : 'auto',
               }}>
               <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
             </Paper>
@@ -80,7 +155,12 @@ const ShopCollectionPage = () => {
 
         {/* Right Side - Product List - Full width on mobile */}
         <Grid item xs={12} md={9} lg={9.5}>
-          {filteredCars.length === 0 ? (
+          {isLoading ? (
+            // Show skeleton placeholders while loading
+            <Grid container spacing={3}>
+              {renderSkeletons()}
+            </Grid>
+          ) : filteredCars.length === 0 ? (
             <Paper
               elevation={0}
               sx={{
@@ -94,7 +174,7 @@ const ShopCollectionPage = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 1, md: 2 }}>
               {filteredCars.map(car => (
                 <Grid item xs={6} sm={6} md={4} key={car.id}>
                   <CarCard car={car} handleViewCar={handleViewCar} />
@@ -107,20 +187,48 @@ const ShopCollectionPage = () => {
 
       {/* Mobile Filter Drawer - Only on mobile */}
       {isMobile && (
-        <Box>
+        <Box
+          sx={{
+            position: 'sticky',
+            bottom: 0,
+            zIndex: 10,
+            opacity: isLoading ? 0.7 : 1,
+            pointerEvents: isLoading ? 'none' : 'auto',
+          }}>
           <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
         </Box>
       )}
 
       {/* Car Detail Dialog */}
-      <Dialog fullWidth maxWidth='xl' open={openCarDialog} onClose={() => setOpenCarDialog(false)}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Dialog
+        fullScreen={isMobile}
+        fullWidth={!isMobile}
+        maxWidth={isMobile ? false : 'xl'}
+        open={openCarDialog}
+        onClose={() => setOpenCarDialog(false)}
+        TransitionProps={{
+          onExited: () => setSelectedCar(null),
+        }}
+        sx={{
+          '& .MuiDialog-paper': {
+            mt: isMobile ? 0 : 2,
+            overflow: 'hidden',
+            borderTopLeftRadius: isMobile ? 0 : '1rem',
+            borderTopRightRadius: isMobile ? 0 : '1rem',
+          },
+        }}>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            p: isMobile ? 2 : 1,
+          }}>
+          <Typography variant='subtitle2'>{selectedCar?.name}</Typography>
           <IconButton
             onClick={() => setOpenCarDialog(false)}
             sx={{
               zIndex: 1,
-              bgcolor: 'rgba(0,0,0,0.5)',
-              color: 'white',
+              color: 'black',
               '&:hover': {
                 bgcolor: 'rgba(0,0,0,0.7)',
               },
@@ -129,14 +237,28 @@ const ShopCollectionPage = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          {selectedCar ? (
+          {isDetailLoading ? (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '50vh',
+              }}>
+              <CircularProgress size={60} />
+              <Typography variant='body1' sx={{ mt: 2 }}>
+                Loading car details...
+              </Typography>
+            </Box>
+          ) : selectedCar ? (
             <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
           ) : (
             <Typography p={4}>No car selected.</Typography>
           )}
         </DialogContent>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 

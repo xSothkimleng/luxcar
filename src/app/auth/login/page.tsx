@@ -95,8 +95,8 @@ export default function LoginPage() {
       <div className='w-full max-w-md px-4'>
         <form className='bg-white p-8 rounded-lg shadow-sm' onSubmit={handleSubmit} noValidate>
           <Box className='mb-4 text-center'>
-            <Typography variant='h4' style={{ color: theme.palette.primary.main }} className='font-bold'>
-              Anime Dz Ball
+            <Typography variant='h4' style={{ color: theme.palette.primary.main, fontWeight: 600 }}>
+              LUXCAR LOGIN
             </Typography>
           </Box>
 
@@ -156,15 +156,6 @@ export default function LoginPage() {
               {errors.password}
             </Typography>
           )}
-
-          <Box className='mt-2 text-end'>
-            <Link
-              href='/auth/forgot-password'
-              className='no-underline hover:underline'
-              style={{ color: theme.palette.primary.main }}>
-              Forgot Password?
-            </Link>
-          </Box>
 
           <Button fullWidth variant='contained' type='submit' className='mt-4' disabled={isPending}>
             {isPending ? 'Logging in...' : 'Login'}
