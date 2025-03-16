@@ -8,7 +8,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import Image from 'next/image';
-import { Box, Container, Grid, Typography, Button, Skeleton } from '@mui/material';
+import { Box, Container, Grid, Typography, Button, Skeleton, useTheme, useMediaQuery } from '@mui/material';
 import Link from 'next/link';
 import { useBannerSlides } from '@/hooks/useBanner';
 
@@ -58,6 +58,8 @@ const SwiperSkeleton = () => {
 
 const SwiperSlideCarShowCase = () => {
   const { data: bannerSlides, isLoading, error } = useBannerSlides();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Handle error state
   React.useEffect(() => {
@@ -103,15 +105,15 @@ const SwiperSlideCarShowCase = () => {
       spaceBetween={0}
       slidesPerView={1}
       pagination={{ clickable: true }}
-      autoplay={{ delay: 5000 }}
+      autoplay={{ delay: 3000 }}
       modules={[Navigation, Pagination, Autoplay]}
-      style={{ height: '600px' }}>
+      style={{ height: isMobile ? '420px' : '600px' }}>
       {bannerSlides.map(item => (
         <SwiperSlide key={item.id}>
           <Box
             sx={{
               position: 'relative',
-              height: '600px',
+              height: { xs: '420px', md: '600px' },
               bgcolor: '#111',
               display: 'flex',
               alignItems: 'center',

@@ -163,25 +163,25 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           <Typography variant='h6' fontWeight='bold' component='div' gutterBottom>
             Filters
           </Typography>
-
-          <Box
-            sx={{
-              mb: 2,
-            }}>
-            <Stack direction='row' spacing={1}>
-              {selectedColor != 'All Colors' && (
-                <Chip label={selectedColor} variant='filled' onDelete={() => setSelectedColor('All Colors')} />
-              )}
-              {selectedBrand != 'All Brands' && (
-                <Chip label={selectedBrand} variant='filled' onDelete={() => setSelectedBrand('All Brands')} />
-              )}
-              {selectedModel != 'All Models' && (
-                <Chip label={selectedModel} variant='filled' onDelete={() => setSelectedModel('All Models')} />
-              )}
-            </Stack>
-          </Box>
         </>
       )}
+
+      <Box
+        sx={{
+          mb: 2,
+        }}>
+        <Stack direction={'row'} spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+          {selectedColor != 'All Colors' && (
+            <Chip label={selectedColor} variant='filled' onDelete={() => setSelectedColor('All Colors')} />
+          )}
+          {selectedBrand != 'All Brands' && (
+            <Chip label={selectedBrand} variant='filled' onDelete={() => setSelectedBrand('All Brands')} />
+          )}
+          {selectedModel != 'All Models' && (
+            <Chip label={selectedModel} variant='filled' onDelete={() => setSelectedModel('All Models')} />
+          )}
+        </Stack>
+      </Box>
 
       {/* Search Box */}
       <TextField

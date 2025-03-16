@@ -119,6 +119,7 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
       </Box>
       <Dialog
         fullScreen={isMobile}
+        fullWidth={!isMobile}
         maxWidth={isMobile ? false : 'xl'}
         open={openCarDialog}
         onClose={() => setOpenCarDialog(false)}
