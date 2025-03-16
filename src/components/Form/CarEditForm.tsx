@@ -27,20 +27,20 @@ import FileUpload from '../UploadButton';
 import { useBrands } from '@/hooks/useBrand';
 import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
-import { useCar, useUpdateCar } from '@/hooks/useCar';
+import { useUpdateCar } from '@/hooks/useCar';
 import { uploadImage, deleteVariantImage } from '@/services/carService';
+import { Car } from '@/types/car';
 
 interface CarEditFormProps {
-  carId: string;
+  car: Car;
   onClose: () => void;
 }
 
 // Predefined tag options
-const tagOptions = ['IN STOCK', 'RELEASED', 'PRE-ORDERS'];
+const tagOptions = ['IN STOCK', 'RELEASED', 'Pre-Order', 'SOLD OUT', 'COMING SOON'];
 
-const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
+const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
   // Fetch data from API
-  const { data: car, isLoading: carLoading } = useCar(carId);
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: colors, isLoading: colorsLoading } = useColors();
   const { data: models, isLoading: modelsLoading } = useModels();
@@ -141,7 +141,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
       // Update the car basic info
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const updatedCar = await updateCar({
-        id: carId,
+        id: car.id,
         name,
         price: Number(price),
         scale,
@@ -155,7 +155,7 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
 
       // Upload any new variant images
       if (variantImages.length > 0) {
-        await Promise.all(variantImages.map(file => uploadImage(file, 'variant', carId)));
+        await Promise.all(variantImages.map(file => uploadImage(file, 'variant', car.id)));
       }
 
       // Show success message
@@ -225,17 +225,12 @@ const CarEditForm = ({ carId, onClose }: CarEditFormProps) => {
   };
 
   // Show loading state while fetching car data
-  if (carLoading) {
+  if (!car) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
       </Box>
     );
-  }
-
-  // Handle case where car isn't found
-  if (!carLoading && !car) {
-    return <Alert severity='error'>Car not found. The car may have been deleted or you do not have permission to view it.</Alert>;
   }
 
   return (

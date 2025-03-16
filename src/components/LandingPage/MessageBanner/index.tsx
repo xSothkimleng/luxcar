@@ -69,17 +69,15 @@ const MessageBanner = () => {
           }}>
           On Orders Over
           <Box component='span' sx={{ fontWeight: 'bold' }}>
-            $60
+            $55
           </Box>
         </Typography>
 
-        {/* DHL Logo */}
         <Box
           sx={{
             width: 50,
             height: 18,
             position: 'relative',
-            // display: { xs: 'none', sm: 'block' },
           }}>
           <Image src='/assets/images/grab.svg' alt='Grab Logo' fill style={{ objectFit: 'contain' }} />
         </Box>

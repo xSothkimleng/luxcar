@@ -318,7 +318,7 @@ const ProductListTable = () => {
         </DialogTitle>
         <DialogContent>
           {selectedCar ? (
-            <CarEditForm carId={selectedCar.id} onClose={() => setOpenEditCarDialog(false)} />
+            <CarEditForm car={selectedCar} onClose={() => setOpenEditCarDialog(false)} />
           ) : (
             <Typography sx={{ p: 3 }}>No car selected.</Typography>
           )}

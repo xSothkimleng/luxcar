@@ -27,7 +27,7 @@ import { useCreateCar } from '@/hooks/useCar';
 import { uploadImage } from '@/services/carService';
 
 // Predefined tag options
-const tagOptions = ['IN STOCK', 'RELEASED', 'PRE-ORDERS'];
+const tagOptions = ['IN STOCK', 'RELEASED', 'Pre-Order', 'SOLD OUT', 'COMING SOON'];
 
 const CarForm = ({ onClose }: { onClose: () => void }) => {
   // Fetch data from API

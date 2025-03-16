@@ -10,6 +10,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import { info } from '@/data/info';
 
 const ContactPage: React.FC = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -54,7 +55,7 @@ const ContactPage: React.FC = () => {
                 <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                   <IconButton
                     component={Link}
-                    href='https://t.me/lkkkk12345'
+                    href={info.telegram}
                     target='_blank'
                     sx={{
                       bgcolor: '#1877F2',
@@ -65,7 +66,7 @@ const ContactPage: React.FC = () => {
                   </IconButton>
                   <IconButton
                     component={Link}
-                    href='https://www.facebook.com/profile.php?id=61565751242412'
+                    href={info.facebook}
                     target='_blank'
                     sx={{
                       bgcolor: '#1877F2',
@@ -74,10 +75,9 @@ const ContactPage: React.FC = () => {
                     }}>
                     <FacebookIcon />
                   </IconButton>
-
                   <IconButton
                     component={Link}
-                    href='https://www.instagram.com/luxcar_cambodia/'
+                    href={info.instagram}
                     target='_blank'
                     sx={{
                       background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
@@ -107,7 +107,7 @@ const ContactPage: React.FC = () => {
                       <Typography variant='subtitle2' fontWeight='bold'>
                         Phone
                       </Typography>
-                      <Typography variant='body2'>+855 77 718 588</Typography>
+                      <Typography variant='body2'>{info.telephone}</Typography>
                     </Box>
                   </Box>
 
@@ -117,7 +117,7 @@ const ContactPage: React.FC = () => {
                       <Typography variant='subtitle2' fontWeight='bold'>
                         Email
                       </Typography>
-                      <Typography variant='body2'>info@luxcars.com.kh</Typography>
+                      <Typography variant='body2'>{info.email}</Typography>
                     </Box>
                   </Box>
 
@@ -127,7 +127,7 @@ const ContactPage: React.FC = () => {
                       <Typography variant='subtitle2' fontWeight='bold'>
                         Shop Address
                       </Typography>
-                      <Typography variant='body2'>Online Shopping Only</Typography>
+                      <Typography variant='body2'>{info.address}</Typography>
                     </Box>
                   </Box>
 

@@ -60,6 +60,7 @@ const SwiperSlideCarShowCase = () => {
   const { data: bannerSlides, isLoading, error } = useBannerSlides();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const swiperRef = React.useRef(null);
 
   // Handle error state
   React.useEffect(() => {
@@ -100,130 +101,180 @@ const SwiperSlideCarShowCase = () => {
     );
   }
 
+  // Ensure we have enough slides for navigation and autoplay to make sense
+  const shouldEnableFeatures = bannerSlides.length > 1;
+
   return (
-    <Swiper
-      spaceBetween={0}
-      slidesPerView={1}
-      pagination={{ clickable: true }}
-      autoplay={{ delay: 3000 }}
-      modules={[Navigation, Pagination, Autoplay]}
-      style={{ height: isMobile ? '420px' : '600px' }}>
-      {bannerSlides.map(item => (
-        <SwiperSlide key={item.id}>
-          <Box
-            sx={{
-              position: 'relative',
-              height: { xs: '420px', md: '600px' },
-              bgcolor: '#111',
-              display: 'flex',
-              alignItems: 'center',
-              overflow: 'hidden',
-            }}>
-            {/* Background with overlay */}
+    <Box
+      sx={{
+        position: 'relative',
+        '.swiper-button-next, .swiper-button-prev': {
+          color: 'white',
+          '&:after': {
+            fontSize: { xs: '24px', md: '32px' },
+            textShadow: '0 0 5px rgba(0,0,0,0.5)',
+          },
+          display: shouldEnableFeatures ? 'flex' : 'none',
+        },
+        // Pagination dots styling
+        '.swiper-pagination-bullet': {
+          opacity: 0.5,
+          backgroundColor: 'white',
+          width: '10px',
+          height: '10px',
+          transition: 'all 0.3s ease',
+        },
+        '.swiper-pagination-bullet-active': {
+          opacity: 1,
+          backgroundColor: '#C6011F',
+          width: '12px',
+          height: '12px',
+        },
+      }}>
+      <Swiper
+        ref={swiperRef}
+        spaceBetween={0}
+        slidesPerView={1}
+        navigation={shouldEnableFeatures}
+        pagination={{
+          dynamicBullets: true,
+        }}
+        autoplay={
+          shouldEnableFeatures
+            ? {
+                delay: 3000,
+                disableOnInteraction: false,
+              }
+            : false
+        }
+        modules={[Navigation, Pagination, Autoplay]}
+        style={{ height: isMobile ? '420px' : '600px' }}
+        onInit={swiper => {
+          // Ensure navigation and autoplay are initialized
+          if (shouldEnableFeatures && swiper) {
+            setTimeout(() => {
+              swiper.navigation.update();
+              swiper.autoplay.start();
+            }, 100);
+          }
+        }}>
+        {bannerSlides.map(item => (
+          <SwiperSlide key={item.id}>
             <Box
               sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                opacity: 0.4,
-                backgroundImage: `url(${item.bgImage?.url || ''})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-            <Container>
-              <Grid container alignItems='center'>
-                {/* Text content */}
-                <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
-                  <Box sx={{ maxWidth: 500 }}>
-                    <Typography
-                      variant='h2'
-                      color='white'
-                      fontWeight='bold'
-                      gutterBottom
-                      sx={{
-                        textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                        fontSize: { xs: '2.5rem', md: '3.5rem' },
-                      }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant='h5' color='white' sx={{ mb: 3, opacity: 0.9 }}>
-                      {item.subtitle}
-                    </Typography>
+                position: 'relative',
+                height: { xs: '420px', md: '600px' },
+                bgcolor: '#111',
+                display: 'flex',
+                alignItems: 'center',
+                overflow: 'hidden',
+              }}>
+              {/* Background with overlay */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0.5,
+                  backgroundImage: `url(${item.bgImage?.url || ''})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              <Container>
+                <Grid container alignItems='center'>
+                  {/* Text content */}
+                  <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
+                    <Box sx={{ maxWidth: 500 }}>
+                      <Typography
+                        variant='h2'
+                        color='white'
+                        fontWeight='bold'
+                        gutterBottom
+                        sx={{
+                          textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                          fontSize: { xs: '2rem', md: '3.5rem' },
+                        }}>
+                        {item.title}
+                      </Typography>
+                      <Typography variant='h5' color='white' sx={{ mb: 3, opacity: 0.9, fontSize: { xs: '1rem', md: '2rem' } }}>
+                        {item.subtitle}
+                      </Typography>
 
-                    {item.model?.id && (
-                      <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
-                        <Link href={`/shop?model=${item.model.id}`} passHref>
-                          <Button
-                            variant='outlined'
-                            size='large'
-                            sx={{
-                              borderColor: 'white',
-                              color: 'white',
-                              '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
-                              px: 3,
-                            }}>
-                            View Collection
-                          </Button>
-                        </Link>
-                      </Box>
-                    )}
-                  </Box>
-                </Grid>
-
-                {/* Car image */}
-                <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '500px',
-                      position: 'relative',
-                    }}>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: '70%',
-                        position: 'relative',
-                      }}>
-                      {item.mainImage ? (
-                        <Image
-                          src={item.mainImage.url || ''}
-                          alt={item.title}
-                          fill
-                          style={{
-                            objectFit: 'contain',
-                            filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
-                          }}
-                          quality={100}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            bgcolor: 'rgba(255,255,255,0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                          <Typography color='white' variant='body2'>
-                            Image not available
-                          </Typography>
+                      {item.model?.id && (
+                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                          <Link href={`/shop?model=${item.model.id}`} passHref>
+                            <Button
+                              variant='outlined'
+                              size='large'
+                              sx={{
+                                borderColor: 'white',
+                                color: 'white',
+                                '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
+                                px: 3,
+                              }}>
+                              View Collection
+                            </Button>
+                          </Link>
                         </Box>
                       )}
                     </Box>
-                  </Box>
+                  </Grid>
+
+                  {/* Car image */}
+                  <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '500px',
+                        position: 'relative',
+                      }}>
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '70%',
+                          position: 'relative',
+                        }}>
+                        {item.mainImage ? (
+                          <Image
+                            src={item.mainImage.url || ''}
+                            alt={item.title}
+                            fill
+                            style={{
+                              objectFit: 'contain',
+                              filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
+                            }}
+                            quality={100}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              width: '100%',
+                              height: '100%',
+                              bgcolor: 'rgba(255,255,255,0.1)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Typography color='white' variant='body2'>
+                              Image not available
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </Box>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Container>
-          </Box>
-        </SwiperSlide>
-      ))}
-    </Swiper>
+              </Container>
+            </Box>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </Box>
   );
 };
 
