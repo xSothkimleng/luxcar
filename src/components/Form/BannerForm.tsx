@@ -1,26 +1,44 @@
 'use client';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, Button, Typography, Snackbar, Alert, Grid } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  Snackbar,
+  Alert,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  SelectChangeEvent,
+  MenuItem,
+} from '@mui/material';
 import CoolButton from '@/components/CustomButton';
 import FileUpload from '@/components/UploadButton';
 import { uploadBannerImage } from '@/services/bannerService';
 import { useCreateBannerSlide, useUpdateBannerSlide } from '@/hooks/useBanner';
 import { BannerSlideFormData } from '@/types/banner';
+import Image from 'next/image';
+import { useModels } from '@/hooks/useModel';
 
 interface BannerSlideFormProps {
-  slideId?: string; // Optional ID for editing
+  slideId?: string;
   initialData?: BannerSlideFormData;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
 const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSlideFormProps) => {
+  // api call
+  const { data: models, isLoading: modelsLoading } = useModels();
+
   // Form state
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [bgImage, setBgImage] = useState<File | null>(null);
+  const [modelId, setModelId] = useState('');
 
   // For editing: track existing images
   const [existingMainImageId, setExistingMainImageId] = useState<string | null>(null);
@@ -47,6 +65,7 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
     if (initialData) {
       setTitle(initialData.title || '');
       setSubtitle(initialData.subtitle || '');
+      setModelId(initialData.modelId || '');
 
       if (initialData.mainImage) {
         setExistingMainImageId(initialData.mainImage.id);
@@ -105,6 +124,7 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
           id: slideId,
           title,
           subtitle,
+          modelId,
           mainImageId: mainImageId!,
           bgImageId: bgImageId!,
         });
@@ -114,6 +134,7 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
         await createSlide({
           title,
           subtitle,
+          modelId,
           mainImageId: mainImageId!,
           bgImageId: bgImageId!,
         });
@@ -128,6 +149,10 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
       console.error('Error saving banner slide:', err);
       setError(err instanceof Error ? err.message : 'Failed to save banner slide');
     }
+  };
+
+  const handleModelChange = (event: SelectChangeEvent) => {
+    setModelId(event.target.value);
   };
 
   const handleMainImageChange = (file: File | null) => {
@@ -180,14 +205,36 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
         </Grid>
 
         <Grid item xs={12}>
+          {/* Model Dropdown */}
+          <FormControl fullWidth className='mb-4'>
+            <InputLabel id='car-model-label'>Go To Collection Model</InputLabel>
+            <Select
+              labelId='car-model-label'
+              id='car-model'
+              value={modelId}
+              label='Model'
+              onChange={handleModelChange}
+              disabled={modelsLoading || !models?.length}>
+              {models?.map(model => (
+                <MenuItem key={model.id} value={model.id}>
+                  {model.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12}>
           <Typography variant='body1'>Main Image</Typography>
 
           {/* Show existing main image if available and not replacing */}
           {existingMainImageUrl && !replaceMainImage && (
             <Box sx={{ position: 'relative', mb: 2 }}>
-              <img
+              <Image
                 src={existingMainImageUrl}
                 alt='Current main image'
+                width={300} // Add explicit width
+                height={200} // Add explicit height
                 style={{
                   width: '100%',
                   maxHeight: '200px',
@@ -225,9 +272,11 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
           {/* Show existing background image if available and not replacing */}
           {existingBgImageUrl && !replaceBgImage && (
             <Box sx={{ position: 'relative', mb: 2 }}>
-              <img
+              <Image
                 src={existingBgImageUrl}
                 alt='Current background image'
+                width={300} // Add explicit width
+                height={200} // Add explicit height
                 style={{
                   width: '100%',
                   maxHeight: '200px',

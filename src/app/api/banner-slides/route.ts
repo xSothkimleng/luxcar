@@ -9,6 +9,7 @@ export async function GET() {
       include: {
         mainImage: true,
         bgImage: true,
+        model: true,
       },
     });
 
@@ -23,7 +24,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, subtitle, mainImageId, bgImageId } = body;
+    const { title, subtitle, mainImageId, bgImageId, modelId } = body;
 
     // Validate required fields
     if (!title || !subtitle || !mainImageId || !bgImageId) {
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
         subtitle,
         mainImageId,
         bgImageId,
+        modelId,
       },
       include: {
         mainImage: true,

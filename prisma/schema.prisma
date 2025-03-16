@@ -24,12 +24,14 @@ model BannerSlide {
   id          String        @id @default(uuid())
   title       String
   subtitle    String
+  modelId     String?       @map("model_id")
   mainImageId String?       @map("main_image_id")
   bgImageId   String?       @map("bg_image_id")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
   
   // Relations
+  model       Model?        @relation(fields: [modelId], references: [id])
   mainImage   BannerImage?  @relation("MainImage", fields: [mainImageId], references: [id])
   bgImage     BannerImage?  @relation("BackgroundImage", fields: [bgImageId], references: [id])
 
@@ -87,6 +89,7 @@ model Model {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   cars      Car[]
+  bannerSlides BannerSlide[]
 
   @@map("models")
 }

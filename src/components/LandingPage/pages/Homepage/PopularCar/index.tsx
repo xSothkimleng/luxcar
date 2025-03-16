@@ -7,22 +7,29 @@ import { useMemo } from 'react';
 const PopularCar = () => {
   const { data: cars, isLoading, isError } = useCars();
 
-  // Get the 12 most recent cars based on createdAt timestamp
-  const recentCars = useMemo(() => {
+  // Get 12 most recent cars sorted alphabetically by name
+  const recentAlphabeticalCars = useMemo(() => {
     if (!cars) return [];
 
     // Create a copy to avoid mutating the original data
     return (
       [...cars]
-        // Sort by createdAt in descending order (newest first)
+        // First sort by createdAt in descending order (newest first)
         .sort((a, b) => {
           // Handle cases where createdAt might be undefined
           if (!a.createdAt) return 1;
           if (!b.createdAt) return -1;
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         })
-        // Take only the first 12 cars
+        // Take the 12 most recent cars
         .slice(0, 12)
+        // Then sort these 12 cars alphabetically by name
+        .sort((a, b) => {
+          // Handle cases where name might be undefined
+          if (!a.name) return 1;
+          if (!b.name) return -1;
+          return a.name.localeCompare(b.name);
+        })
     );
   }, [cars]);
 
@@ -51,10 +58,10 @@ const PopularCar = () => {
               <Skeleton variant='rectangular' animation='wave' width='100%' height='100%' sx={{ borderRadius: 1 }} />
             </Grid>
           ))
-        ) : recentCars && recentCars.length > 0 ? (
-          // Display recent cars
-          recentCars.map(car => (
-            <Grid item xs={12} sm={6} md={3} key={car.id} sx={{ height: '300px' }}>
+        ) : recentAlphabeticalCars && recentAlphabeticalCars.length > 0 ? (
+          // Display recent cars sorted alphabetically
+          recentAlphabeticalCars.map(car => (
+            <Grid item xs={12} sm={6} md={4} key={car.id} sx={{ height: '300px' }}>
               <CarThumbnail car={car} />
             </Grid>
           ))

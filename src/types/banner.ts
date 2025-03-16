@@ -1,5 +1,7 @@
 // types/banner.ts
 
+import { Model } from '@prisma/client';
+
 export enum BannerImageType {
   MAIN = 'MAIN',
   BACKGROUND = 'BACKGROUND',
@@ -17,12 +19,14 @@ export interface BannerSlide {
   id: string;
   title: string;
   subtitle: string;
+  modelId?: string;
   mainImageId: string;
   bgImageId: string;
   createdAt?: string;
   updatedAt?: string;
 
   // Relations
+  model?: Model;
   mainImage?: BannerImage;
   bgImage?: BannerImage;
 }
@@ -31,6 +35,7 @@ export interface BannerSlide {
 export interface CreateBannerSlideData {
   title: string;
   subtitle: string;
+  modelId?: string;
   mainImageId: string;
   bgImageId: string;
 }
@@ -38,6 +43,7 @@ export interface CreateBannerSlideData {
 export interface UpdateBannerSlideData {
   title?: string;
   subtitle?: string;
+  modelId?: string;
   mainImageId?: string;
   bgImageId?: string;
 }
@@ -46,6 +52,7 @@ export interface UpdateBannerSlideData {
 export interface BannerSlideFormData {
   title: string;
   subtitle: string;
+  modelId?: string;
   mainImage?: {
     id: string;
     url: string;

@@ -1,4 +1,4 @@
-import { Car } from '@prisma/client';
+import { BannerSlide, Car } from '@prisma/client';
 
 export interface Model {
   id: string;
@@ -6,4 +6,5 @@ export interface Model {
   createdAt?: string;
   updatedAt?: string;
   cars?: Car[];
+  bannerSlides?: BannerSlide[];
 }

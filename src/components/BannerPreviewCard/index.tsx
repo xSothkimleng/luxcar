@@ -10,6 +10,10 @@ import {
   IconButton,
   DialogActions,
   CircularProgress,
+  Grid,
+  Chip,
+  Paper,
+  Divider,
 } from '@mui/material';
 import Image from 'next/image';
 import EditIcon from '@mui/icons-material/Edit';
@@ -135,69 +139,141 @@ const BannerPreviewCard = ({ slide, onDelete, onEdit }: BannerPreviewCardProps) 
 
       {/* Detail Dialog */}
       <Dialog open={openDetail} onClose={handleCloseDetail} maxWidth='md' fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant='h6'>Slide Detail</Typography>
-          <IconButton edge='end' onClick={handleCloseDetail}>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid rgba(0,0,0,0.12)',
+            py: 1,
+          }}>
+          <Typography variant='h6' sx={{ fontWeight: 500 }}>
+            Slide Detail
+          </Typography>
+          <IconButton edge='end' onClick={handleCloseDetail} sx={{ color: 'text.secondary' }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant='h5' gutterBottom>
-              {slide.title}
-            </Typography>
-            <Typography variant='subtitle1' color='text.secondary' gutterBottom>
-              {slide.subtitle}
-            </Typography>
 
-            <Typography variant='h6' sx={{ mt: 3, mb: 1 }}>
-              Background Image
-            </Typography>
-            <Box sx={{ position: 'relative', width: '100%', height: 200, borderRadius: 1, overflow: 'hidden', mb: 2 }}>
-              {slide.bgImage ? (
-                <Image src={slide.bgImage.url} alt='Background' fill style={{ objectFit: 'cover' }} />
-              ) : (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: '#f5f5f5',
-                  }}>
-                  <Typography color='text.secondary'>No background image</Typography>
+        <DialogContent>
+          <Box sx={{ mb: 4, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <Grid container spacing={1} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={3}>
+                <Typography variant='body1' color='text.secondary'>
+                  Title
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={9}>
+                <Typography variant='body1' fontWeight={500}>
+                  {slide.title}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} sm={3}>
+                <Typography variant='body1' color='text.secondary'>
+                  Subtitle
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={9}>
+                <Typography variant='body1'>{slide.subtitle}</Typography>
+              </Grid>
+
+              <Grid item xs={12} sm={3}>
+                <Typography variant='body1' color='text.secondary'>
+                  Collection
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={9}>
+                {slide.model ? (
+                  <Chip label={slide.model.name} size='small' color='primary' variant='outlined' />
+                ) : (
+                  <Typography variant='body2' color='text.secondary' fontStyle='italic'>
+                    No Go To Model Collection
+                  </Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 2 }} />
+            <Box>
+              <Typography variant='body1'>Background Image</Typography>
+              <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <Box sx={{ position: 'relative', width: '100%', height: 250, borderRadius: 1, overflow: 'hidden' }}>
+                  {slide.bgImage ? (
+                    <Image src={slide.bgImage.url} alt='Background' fill style={{ objectFit: 'cover' }} />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: '#f5f5f5',
+                      }}>
+                      <Typography color='text.secondary'>No background image</Typography>
+                    </Box>
+                  )}
                 </Box>
-              )}
+              </Paper>
             </Box>
 
-            <Typography variant='h6' sx={{ mt: 3, mb: 1 }}>
-              Main Image
-            </Typography>
-            <Box sx={{ position: 'relative', width: '100%', height: 200, borderRadius: 1, overflow: 'hidden' }}>
-              {slide.mainImage ? (
-                <Image src={slide.mainImage.url} alt='Main' fill style={{ objectFit: 'contain', backgroundColor: '#f5f5f5' }} />
-              ) : (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: '#f5f5f5',
-                  }}>
-                  <Typography color='text.secondary'>No main image</Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant='body1'>Main Image</Typography>
+              <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                <Box sx={{ position: 'relative', width: '100%', height: 250, borderRadius: 1, overflow: 'hidden' }}>
+                  {slide.mainImage ? (
+                    <Image
+                      src={slide.mainImage.url}
+                      alt='Main'
+                      fill
+                      style={{ objectFit: 'contain', backgroundColor: '#f8f9fa' }}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: '#f5f5f5',
+                      }}>
+                      <Typography color='text.secondary'>No main image</Typography>
+                    </Box>
+                  )}
                 </Box>
-              )}
+              </Paper>
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button startIcon={<DeleteIcon />} color='error' variant='outlined' onClick={handleOpenDeleteConfirm}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 2,
+              pt: 2,
+              borderTop: '1px solid rgba(0,0,0,0.08)',
+            }}>
+            <Button
+              startIcon={<DeleteIcon />}
+              color='error'
+              variant='outlined'
+              onClick={handleOpenDeleteConfirm}
+              sx={{
+                borderRadius: 2,
+                '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.04)' },
+              }}>
               Delete
             </Button>
-            <Button startIcon={<EditIcon />} color='primary' variant='contained' onClick={handleOpenEdit}>
+            <Button
+              startIcon={<EditIcon />}
+              color='primary'
+              variant='contained'
+              onClick={handleOpenEdit}
+              sx={{
+                borderRadius: 2,
+                boxShadow: 2,
+              }}>
               Edit
             </Button>
           </Box>

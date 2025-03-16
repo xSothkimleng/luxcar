@@ -25,6 +25,8 @@ import {
   Fab,
   Badge,
   Skeleton,
+  Stack,
+  Chip,
 } from '@mui/material';
 import { useBrands } from '@/hooks/useBrand';
 import { useColors } from '@/hooks/useColor';
@@ -33,9 +35,10 @@ import { useModels } from '@/hooks/useModel';
 interface FilterDrawerProps {
   cars: Car[];
   setFilteredCars: React.Dispatch<React.SetStateAction<Car[]>>;
+  initialModelId?: string | null; // Add this prop
 }
 
-const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) => {
+const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, initialModelId = null }) => {
   // Always use useTheme and useMediaQuery together on client-side
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -102,6 +105,16 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
   }, [selectedColor]);
 
   useEffect(() => {
+    if (initialModelId && models?.length) {
+      // Find the model with matching ID
+      const matchingModel = models.find(model => model.id === initialModelId);
+      if (matchingModel) {
+        setSelectedModel(matchingModel.name);
+      }
+    }
+  }, [initialModelId, models]);
+
+  useEffect(() => {
     if (cars.length === 0) return;
 
     // Apply filters when any filter changes
@@ -147,10 +160,26 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
     <Box>
       {!isMobile && (
         <>
-          <Typography variant='h6' fontWeight='bold' component='div'>
+          <Typography variant='h6' fontWeight='bold' component='div' gutterBottom>
             Filters
           </Typography>
-          <Divider sx={{ my: 1, mb: 1 }} />
+
+          <Box
+            sx={{
+              mb: 2,
+            }}>
+            <Stack direction='row' spacing={1}>
+              {selectedColor != 'All Colors' && (
+                <Chip label={selectedColor} variant='filled' onDelete={() => setSelectedColor('All Colors')} />
+              )}
+              {selectedBrand != 'All Brands' && (
+                <Chip label={selectedBrand} variant='filled' onDelete={() => setSelectedBrand('All Brands')} />
+              )}
+              {selectedModel != 'All Models' && (
+                <Chip label={selectedModel} variant='filled' onDelete={() => setSelectedModel('All Models')} />
+              )}
+            </Stack>
+          </Box>
         </>
       )}
 
@@ -175,6 +204,67 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
           ),
         }}
       />
+
+      {/* Color Filter */}
+      <Divider sx={{ my: 1, mb: 1 }} />
+      <Typography variant='subtitle1' fontWeight='bold' component='div' sx={{ mb: 1 }}>
+        Color
+      </Typography>
+      <Grid container spacing={1}>
+        {colorsLoading
+          ? // Skeleton loaders for colors
+            Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <Grid size={1.2} key={`color-skeleton-${index}`}>
+                  <Skeleton variant='circular' height={100} sx={{ mb: 0.5, borderRadius: 1 }} animation='wave' />
+                </Grid>
+              ))
+          : colors && (
+              <>
+                <Grid size={1.2}>
+                  <Box
+                    onClick={() => handleColorSelect('All Colors')}
+                    sx={{
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      background: 'conic-gradient(red, orange, yellow, green, blue, indigo, violet, red)',
+                      borderRadius: '50%',
+                      margin: '0 auto',
+                      boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                      transform: selectedColor === 'All Colors' ? 'scale(1.3)' : 'scale(1)',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        transform: 'scale(1.3)',
+                      },
+                    }}
+                  />
+                </Grid>
+                {colors.map(color => (
+                  <Grid size={1.2} key={color.id}>
+                    <Box
+                      onClick={() => handleColorSelect(color.name)}
+                      sx={{
+                        width: '100%',
+                        aspectRatio: '1/1',
+                        background: color.rgb ?? 'white',
+                        borderRadius: '50%',
+                        margin: '0 auto',
+                        boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                        transform: selectedColor === color.name ? 'scale(1.3)' : 'scale(1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          transform: 'scale(1.3)',
+                        },
+                      }}
+                    />
+                  </Grid>
+                ))}
+              </>
+            )}
+      </Grid>
 
       {/* Brand Filter */}
       <Divider sx={{ my: 1, mb: 1 }} />
@@ -240,67 +330,6 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars }) =>
               </ListItemButton>
             ))}
       </List>
-
-      {/* Color Filter */}
-      <Divider sx={{ my: 1, mb: 1 }} />
-      <Typography variant='subtitle1' fontWeight='bold' component='div' sx={{ mb: 1 }}>
-        Color
-      </Typography>
-      <Grid container spacing={1}>
-        {colorsLoading
-          ? // Skeleton loaders for colors
-            Array(5)
-              .fill(0)
-              .map((_, index) => (
-                <Grid size={1.2} key={`color-skeleton-${index}`}>
-                  <Skeleton variant='circular' height={100} sx={{ mb: 0.5, borderRadius: 1 }} animation='wave' />
-                </Grid>
-              ))
-          : colors && (
-              <>
-                <Grid size={1.2}>
-                  <Box
-                    onClick={() => handleColorSelect('All Colors')}
-                    sx={{
-                      width: '100%',
-                      aspectRatio: '1/1',
-                      background: 'conic-gradient(red, orange, yellow, green, blue, indigo, violet, red)',
-                      borderRadius: '50%',
-                      margin: '0 auto',
-                      boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                      transform: selectedColor === 'All Colors' ? 'scale(1.3)' : 'scale(1)',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        transform: 'scale(1.3)',
-                      },
-                    }}
-                  />
-                </Grid>
-                {colors.map(color => (
-                  <Grid size={1.2} key={color.id}>
-                    <Box
-                      onClick={() => handleColorSelect(color.name)}
-                      sx={{
-                        width: '100%',
-                        aspectRatio: '1/1',
-                        background: color.rgb ?? 'white',
-                        borderRadius: '50%',
-                        margin: '0 auto',
-                        boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                        transform: selectedColor === color.name ? 'scale(1.3)' : 'scale(1)',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
-                        cursor: 'pointer',
-                        '&:hover': {
-                          transform: 'scale(1.3)',
-                        },
-                      }}
-                    />
-                  </Grid>
-                ))}
-              </>
-            )}
-      </Grid>
 
       {/* Model Filter */}
       <Divider sx={{ my: 1, mt: 2, mb: 1 }} />

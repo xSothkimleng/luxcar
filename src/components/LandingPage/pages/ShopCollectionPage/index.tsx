@@ -25,9 +25,12 @@ import CarCardSkeleton from '@/components/skeleton/CarCardSkeleton';
 import { useCars } from '@/hooks/useCar';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { useSearchParams } from 'next/navigation';
 
 const ShopCollectionPage = () => {
   const { data: cars, isLoading, error } = useCars();
+  const searchParams = useSearchParams();
+  const modelIdFromQuery = searchParams.get('model');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openCarDialog, setOpenCarDialog] = useState(false);
@@ -146,7 +149,11 @@ const ShopCollectionPage = () => {
                 opacity: isLoading ? 0.7 : 1,
                 pointerEvents: isLoading ? 'none' : 'auto',
               }}>
-              <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
+              <FilterDrawer
+                cars={cars || []}
+                setFilteredCars={setFilteredCars}
+                initialModelId={modelIdFromQuery} // Pass this prop
+              />
             </Paper>
           </Grid>
         )}
@@ -193,7 +200,7 @@ const ShopCollectionPage = () => {
             opacity: isLoading ? 0.7 : 1,
             pointerEvents: isLoading ? 'none' : 'auto',
           }}>
-          <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} />
+          <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} initialModelId={modelIdFromQuery} />
         </Box>
       )}
 
