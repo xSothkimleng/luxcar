@@ -31,6 +31,7 @@ import {
 import { useBrands } from '@/hooks/useBrand';
 import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
+import Image from 'next/image';
 
 interface FilterDrawerProps {
   cars: Car[];
@@ -50,6 +51,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
 
   // States - All initialized safely for SSR
   const [openDialog, setOpenDialog] = useState(false);
+  const [openSelectModelDialog, setOpenSelectModelDialog] = useState(false);
+  const [dialogSelectModelShown, setDialogSelectModelShown] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState('All Brands');
   const [selectedColor, setSelectedColor] = useState('All Colors');
   const [selectedModel, setSelectedModel] = useState('All Models');
@@ -73,6 +76,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
 
   const handleModelSelect = (model: string) => {
     setSelectedModel(model);
+    setOpenSelectModelDialog(false);
   };
 
   const resetFilters = () => {
@@ -154,6 +158,15 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
     if (selectedModel !== 'All Models') count++;
     setActiveFiltersCount(count);
   }, [searchQuery, selectedBrand, selectedColor, selectedModel, cars, setFilteredCars]);
+
+  useEffect(() => {
+    // Only open dialog if we're on mobile, no model is selected,
+    // no initialModelId, and dialog hasn't been shown yet
+    if (isMobile && selectedModel === 'All Models' && !initialModelId && !dialogSelectModelShown) {
+      setOpenSelectModelDialog(true);
+      setDialogSelectModelShown(true); // Mark dialog as shown
+    }
+  }, [isMobile, selectedModel, initialModelId, dialogSelectModelShown]);
 
   // Filter content that will be used in both desktop and mobile views
   const filterContent = (
@@ -336,27 +349,27 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
       <Typography variant='subtitle1' fontWeight='bold' component='div'>
         Models
       </Typography>
-      <List dense sx={{ maxHeight: '300px', overflowY: 'auto' }}>
-        <ListItemButton
-          key='all-models'
-          selected={selectedModel === 'All Models'}
+      <Grid container spacing={1} sx={{ mb: 2, mt: 1 }}>
+        <Grid
+          size={4}
           onClick={() => handleModelSelect('All Models')}
           sx={{
-            '&.Mui-selected': {
-              backgroundColor: 'black',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'gray',
-              },
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            aspectRatio: '1/1',
+            boxShadow:
+              selectedModel == 'All Models' ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+            borderRadius: selectedModel == 'All Models' ? '8px' : '0px',
+            transform: 'scale(1)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            cursor: 'pointer',
+            '&:hover': {
+              transform: 'scale(1.1)',
             },
           }}>
-          <ListItemText
-            primary='All Models'
-            primaryTypographyProps={{
-              fontWeight: selectedModel === 'All Models' ? 'bold' : 'normal',
-            }}
-          />
-        </ListItemButton>
+          <Typography>All Models</Typography>
+        </Grid>
 
         {modelsLoading
           ? Array(5)
@@ -364,7 +377,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
               .map((_, index) => (
                 <Skeleton
                   key={`model-skeleton-${index}`}
-                  variant='rectangular'
+                  variant='rounded'
                   height={36}
                   sx={{ mb: 0.5, borderRadius: 1 }}
                   animation='wave'
@@ -372,28 +385,34 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
               ))
           : models &&
             models.map(model => (
-              <ListItemButton
+              <Grid
                 key={model.id}
-                selected={selectedModel === model.name}
+                size={4}
                 onClick={() => handleModelSelect(model.name)}
                 sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: 'black',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: 'gray',
-                    },
+                  position: 'relative',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  aspectRatio: '1/1',
+                  boxShadow:
+                    selectedModel == model.name ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+                  borderRadius: selectedModel == model.name ? '8px' : '0px',
+                  transform: 'scale(1)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.1)',
                   },
                 }}>
-                <ListItemText
-                  primary={model.name}
-                  primaryTypographyProps={{
-                    fontWeight: selectedModel === model.name ? 'bold' : 'normal',
-                  }}
-                />
-              </ListItemButton>
+                {model.imageUrl ? (
+                  <Image src={model.imageUrl} alt={model.name} fill style={{ objectFit: 'contain' }} />
+                ) : (
+                  <Typography sx={{ textAlign: 'center' }}>{model.name}</Typography>
+                )}
+              </Grid>
             ))}
-      </List>
+      </Grid>
 
       {isMobile && (
         <Button
@@ -471,6 +490,101 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>{filterContent}</DialogContent>
+        </Dialog>
+      )}
+
+      {/* display brand categories when loaded in */}
+      {isMobile && brands && (
+        <Dialog
+          open={openSelectModelDialog}
+          onClose={() => setOpenSelectModelDialog(false)}
+          fullScreen
+          sx={{ maxWidth: '82%', height: '75%', margin: 'auto' }}>
+          <DialogTitle sx={{ p: 1, px: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{ textAlign: 'center', fontWeight: 'bold' }}>Select Model Collection</Typography>
+            <IconButton
+              onClick={() => setOpenSelectModelDialog(false)}
+              sx={{
+                zIndex: 1,
+                color: 'black',
+                '&:hover': {
+                  bgcolor: 'rgba(0,0,0,0.7)',
+                },
+              }}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+            <Grid container spacing={1} sx={{ padding: 2 }}>
+              <Grid
+                size={4}
+                onClick={() => handleModelSelect('All Models')}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  aspectRatio: '1/1',
+
+                  boxShadow:
+                    selectedModel == 'All Models'
+                      ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px'
+                      : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+                  borderRadius: selectedModel == 'All Models' ? '8px' : '0px',
+                  transform: 'scale(1)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.1)',
+                  },
+                }}>
+                <Typography>All Models</Typography>
+              </Grid>
+
+              {modelsLoading
+                ? Array(5)
+                    .fill(0)
+                    .map((_, index) => (
+                      <Skeleton
+                        key={`model-skeleton-${index}`}
+                        variant='rounded'
+                        height={36}
+                        sx={{ mb: 0.5, borderRadius: 1 }}
+                        animation='wave'
+                      />
+                    ))
+                : models &&
+                  models.map(model => (
+                    <Grid
+                      key={model.id}
+                      size={4}
+                      onClick={() => handleModelSelect(model.name)}
+                      sx={{
+                        position: 'relative',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        aspectRatio: '1/1',
+                        boxShadow:
+                          selectedModel == model.name
+                            ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px'
+                            : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+                        borderRadius: selectedModel == model.name ? '8px' : '0px',
+                        transform: 'scale(1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          transform: 'scale(1.1)',
+                        },
+                      }}>
+                      {model.imageUrl ? (
+                        <Image src={model.imageUrl} alt={model.name} fill style={{ objectFit: 'contain' }} />
+                      ) : (
+                        <Typography sx={{ textAlign: 'center' }}>{model.name}</Typography>
+                      )}
+                    </Grid>
+                  ))}
+            </Grid>
+          </DialogContent>
         </Dialog>
       )}
     </>
