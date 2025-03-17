@@ -81,7 +81,7 @@ const ShopCollectionPage = () => {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, position: 'relative' }}>
+    <Box sx={{ p: { xs: 1, md: 4 }, position: 'relative' }}>
       {/* Telegram Contact Button */}
       <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
         <Fab

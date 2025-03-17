@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
+import { Box, Card, Chip, Typography } from '@mui/material';
 import { Car } from '@/types/car';
 
 interface CarCardProps {
@@ -84,30 +84,27 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
           />
         )}
       </Box>
-      <CardContent sx={{ flexGrow: 1, padding: '0' }}>
-        <Typography variant='body1' component='div' noWrap sx={{ fontWeight: 'bold' }}>
+      <Box sx={{ flexGrow: 1, mt: { xs: 0.5, md: 1 }, padding: '0', pb: { xs: '0.5rem', md: '2rem' } }}>
+        <Typography variant='body1' component='div' noWrap sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', md: '1rem' } }}>
           {car.name}
         </Typography>
-        <Typography variant='body1' sx={{ fontWeight: 'bold', color: '#D32F2F' }}>
-          ${' '}
-          {typeof car.price === 'number'
-            ? car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-            : parseFloat(car.price).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-        </Typography>
-        {car.scale && (
-          <Typography variant='body2' sx={{ color: 'gray' }}>
-            Scale : {car.scale}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant='body1' sx={{ fontWeight: 'bold', color: '#D32F2F', fontSize: { xs: '0.8rem', md: '1rem' } }}>
+            ${' '}
+            {typeof car.price === 'number'
+              ? car.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : parseFloat(car.price).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
           </Typography>
-        )}
-        {car.color && (
-          <Typography variant='body2' sx={{ color: 'gray' }}>
-            Color Code : {car.color?.name}
-          </Typography>
-        )}
-      </CardContent>
+          {car.scale && (
+            <Typography variant='body2' sx={{ color: 'gray', fontWeight: 'medium', fontSize: { xs: '0.8rem', md: '1rem' } }}>
+              Scale :{car.scale}
+            </Typography>
+          )}
+        </Box>
+      </Box>
     </Card>
   );
 };
