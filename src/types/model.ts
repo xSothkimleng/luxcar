@@ -3,6 +3,7 @@ import { BannerSlide, Car } from '@prisma/client';
 export interface Model {
   id: string;
   name: string;
+  imageUrl?: string;
   createdAt?: string;
   updatedAt?: string;
   cars?: Car[];

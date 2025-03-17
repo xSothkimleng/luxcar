@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Box, Alert, CircularProgress, Snackbar } from '@mui/material';
+import { Grid, Button, Box, Alert, CircularProgress, Snackbar, Typography } from '@mui/material';
 import CoolButton from '@/components/CustomButton';
+import FileUpload from '@/components/UploadButton';
 import { Model } from '@/types/model';
 import { useCreateModel, useUpdateModel } from '@/hooks/useModel';
+import Image from 'next/image';
 
 interface ModelFormProps {
   model?: Model; // Optional model for editing
@@ -16,6 +18,9 @@ interface ModelFormProps {
 const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps) => {
   // Form state
   const [name, setName] = useState('');
+  const [modelImage, setModelImage] = useState<File | null>(null);
+  const [keepExistingImage, setKeepExistingImage] = useState(true);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
   // UI state
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +37,10 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
   useEffect(() => {
     if (isEdit && model) {
       setName(model.name);
+      if (model.imageUrl) {
+        setExistingImageUrl(model.imageUrl);
+        setKeepExistingImage(true);
+      }
     }
   }, [isEdit, model]);
 
@@ -49,12 +58,17 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
         // Update existing model
         await updateModel({
           id: model.id,
-          name,
+          modelData: { name },
+          imageFile: modelImage,
+          deleteCurrentImage: !keepExistingImage,
         });
         setSuccessMessage('Model updated successfully!');
       } else {
         // Create new model
-        await createModel({ name });
+        await createModel({
+          modelData: { name },
+          imageFile: modelImage,
+        });
         setSuccessMessage('Model created successfully!');
       }
 
@@ -66,6 +80,7 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
       // Clear form after success for new model (optional)
       if (!isEdit) {
         setName('');
+        setModelImage(null);
       }
 
       onClose();
@@ -73,6 +88,16 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
       console.error('Error saving model:', err);
       setError(err instanceof Error ? err.message : 'Failed to save model');
     }
+  };
+
+  const handleModelImageChange = (file: File | null) => {
+    setModelImage(file);
+    setKeepExistingImage(false);
+  };
+
+  const handleRemoveExistingImage = () => {
+    setKeepExistingImage(false);
+    setExistingImageUrl(null);
   };
 
   return (
@@ -98,6 +123,48 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
             helperText={!name.trim() && error ? 'Model name is required' : ''}
             disabled={isSubmitting}
           />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant='body1' gutterBottom>
+            Model Logo/Image
+          </Typography>
+
+          {/* Show existing image if available and keeping it */}
+          {keepExistingImage && existingImageUrl && (
+            <Box sx={{ position: 'relative', mb: 2 }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '200px',
+                  position: 'relative',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                }}>
+                <Image src={existingImageUrl} alt='Model Logo' fill style={{ objectFit: 'contain' }} />
+              </Box>
+              <Button
+                variant='contained'
+                color='error'
+                size='small'
+                onClick={handleRemoveExistingImage}
+                sx={{ position: 'absolute', top: 8, right: 8 }}>
+                Change
+              </Button>
+            </Box>
+          )}
+
+          {/* Show file upload if no image or removing existing */}
+          {(!keepExistingImage || !existingImageUrl) && (
+            <Box style={{ border: '1px solid rgba(0, 0, 0, 0.25)', borderRadius: 4 }}>
+              <FileUpload
+                onFilesSelected={handleModelImageChange}
+                maxSize={5 * 1024 * 1024} // 5MB
+                accept='image/jpeg,image/png,image/webp,image/svg+xml'
+              />
+            </Box>
+          )}
         </Grid>
       </Grid>
 

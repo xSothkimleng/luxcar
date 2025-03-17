@@ -21,8 +21,12 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
+    // Create brand with image URL if provided
     const brand = await prisma.brand.create({
-      data,
+      data: {
+        name: data.name,
+        imageUrl: data.imageUrl || null,
+      },
     });
 
     return NextResponse.json(brand, { status: 201 });
@@ -38,7 +42,10 @@ export async function PATCH(request: Request) {
 
     const brand = await prisma.brand.update({
       where: { id },
-      data,
+      data: {
+        name: data.name,
+        imageUrl: data.imageUrl,
+      },
     });
 
     return NextResponse.json(brand);

@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Grid, Button, Box, Alert, CircularProgress, Snackbar } from '@mui/material';
+import { Grid, Button, Box, Alert, CircularProgress, Snackbar, Typography } from '@mui/material';
 import CoolButton from '@/components/CustomButton';
+import FileUpload from '@/components/UploadButton';
 import { Brand } from '@/types/brand';
 import { useCreateBrand, useUpdateBrand } from '@/hooks/useBrand';
+import Image from 'next/image';
 
 interface BrandFormProps {
   brand?: Brand; // Optional brand for editing
@@ -16,6 +18,9 @@ interface BrandFormProps {
 const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps) => {
   // Form state
   const [name, setName] = useState('');
+  const [brandImage, setBrandImage] = useState<File | null>(null);
+  const [keepExistingImage, setKeepExistingImage] = useState(true);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
   // UI state
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +37,10 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
   useEffect(() => {
     if (isEdit && brand) {
       setName(brand.name);
+      if (brand.imageUrl) {
+        setExistingImageUrl(brand.imageUrl);
+        setKeepExistingImage(true);
+      }
     }
   }, [isEdit, brand]);
 
@@ -49,12 +58,17 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
         // Update existing brand
         await updateBrand({
           id: brand.id,
-          name,
+          brandData: { name },
+          imageFile: brandImage,
+          deleteCurrentImage: !keepExistingImage,
         });
         setSuccessMessage('Brand updated successfully!');
       } else {
         // Create new brand
-        await createBrand({ name });
+        await createBrand({
+          brandData: { name },
+          imageFile: brandImage,
+        });
         setSuccessMessage('Brand created successfully!');
       }
 
@@ -66,6 +80,7 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
       // Clear form after success for new brand (optional)
       if (!isEdit) {
         setName('');
+        setBrandImage(null);
       }
 
       onClose();
@@ -73,6 +88,16 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
       console.error('Error saving brand:', err);
       setError(err instanceof Error ? err.message : 'Failed to save brand');
     }
+  };
+
+  const handleBrandImageChange = (file: File | null) => {
+    setBrandImage(file);
+    setKeepExistingImage(false);
+  };
+
+  const handleRemoveExistingImage = () => {
+    setKeepExistingImage(false);
+    setExistingImageUrl(null);
   };
 
   return (
@@ -98,6 +123,48 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
             helperText={!name.trim() && error ? 'Brand name is required' : ''}
             disabled={isSubmitting}
           />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant='body1' gutterBottom>
+            Brand Logo/Image
+          </Typography>
+
+          {/* Show existing image if available and keeping it */}
+          {keepExistingImage && existingImageUrl && (
+            <Box sx={{ position: 'relative', mb: 2 }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '200px',
+                  position: 'relative',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                }}>
+                <Image src={existingImageUrl} alt='Brand Logo' fill style={{ objectFit: 'contain' }} />
+              </Box>
+              <Button
+                variant='contained'
+                color='error'
+                size='small'
+                onClick={handleRemoveExistingImage}
+                sx={{ position: 'absolute', top: 8, right: 8 }}>
+                Change
+              </Button>
+            </Box>
+          )}
+
+          {/* Show file upload if no image or removing existing */}
+          {(!keepExistingImage || !existingImageUrl) && (
+            <Box style={{ border: '1px solid rgba(0, 0, 0, 0.25)', borderRadius: 4 }}>
+              <FileUpload
+                onFilesSelected={handleBrandImageChange}
+                maxSize={5 * 1024 * 1024} // 5MB
+                accept='image/jpeg,image/png,image/webp,image/svg+xml'
+              />
+            </Box>
+          )}
         </Grid>
       </Grid>
 

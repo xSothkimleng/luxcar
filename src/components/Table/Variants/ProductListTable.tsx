@@ -93,14 +93,9 @@ const ProductListTable = () => {
         renderCell: params => (
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 1 }}>
             <Avatar
-              variant='rounded'
-              src='/assets/images/sampleCar.jpg'
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              }}
+              src={params.row.thumbnailImage.url}
+              alt={params.row.name}
+              sx={{ width: 40, height: 40, borderRadius: '8px' }}
             />
             <p style={{ color: '#2D3748', fontWeight: 'bold' }}>{params.value}</p>
           </Box>

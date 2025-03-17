@@ -15,6 +15,7 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Avatar,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -53,7 +54,7 @@ const ModelListTable = () => {
     if (!selectedModel) return;
 
     try {
-      await deleteModel(selectedModel.id);
+      await deleteModel(selectedModel);
       setSnackbarSeverity('success');
       setSnackbarMessage('Model deleted successfully!');
       handleCloseDeleteDialog();
@@ -92,6 +93,7 @@ const ModelListTable = () => {
         flex: 2,
         renderCell: params => (
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 1 }}>
+            <Avatar src={params.row.imageUrl} alt={params.row.name} sx={{ width: 40, height: 40, borderRadius: '8px' }} />
             <p style={{ color: '#2D3748', fontWeight: 'bold' }}>{params.value}</p>
           </Box>
         ),

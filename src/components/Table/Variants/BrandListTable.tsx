@@ -15,6 +15,7 @@ import {
   Typography,
   IconButton,
   CircularProgress,
+  Avatar,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -53,7 +54,7 @@ const BrandListTable = () => {
     if (!selectedBrand) return;
 
     try {
-      await deleteBrand(selectedBrand.id);
+      await deleteBrand(selectedBrand);
       setSnackbarSeverity('success');
       setSnackbarMessage('Brand deleted successfully!');
       handleCloseDeleteDialog();
@@ -83,6 +84,7 @@ const BrandListTable = () => {
         flex: 2,
         renderCell: params => (
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 1 }}>
+            <Avatar src={params.row.imageUrl} alt={params.row.name} sx={{ width: 40, height: 40, borderRadius: '8px' }} />
             <p style={{ color: '#2D3748', fontWeight: 'bold' }}>{params.value}</p>
           </Box>
         ),
