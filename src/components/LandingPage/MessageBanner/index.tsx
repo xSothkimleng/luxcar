@@ -69,7 +69,7 @@ const MessageBanner = () => {
           }}>
           On Orders Over
           <Box component='span' sx={{ fontWeight: 'bold' }}>
-            $55
+            $49
           </Box>
         </Typography>
 
