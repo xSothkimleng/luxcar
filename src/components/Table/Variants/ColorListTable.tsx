@@ -91,8 +91,18 @@ const ColorListTable = () => {
         headerName: 'Name',
         flex: 1,
         renderCell: params => (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
             <p style={{ color: '#2D3748', fontWeight: 'bold' }}>{params.value}</p>
+          </Box>
+        ),
+      },
+      {
+        field: 'order',
+        headerName: 'Order Sequence',
+        flex: 1,
+        renderCell: params => (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+            <p>{params.value === 0 || params.value === null ? 'UNSET' : params.value}</p>
           </Box>
         ),
       },
@@ -189,7 +199,7 @@ const ColorListTable = () => {
         loading={isLoading}
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
-          sorting: { sortModel: [{ field: 'name', sort: 'asc' }] },
+          sorting: { sortModel: [{ field: 'order', sort: 'asc' }] },
         }}
       />
 

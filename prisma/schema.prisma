@@ -39,23 +39,25 @@ model BannerSlide {
 }
 
 model Car {
-  id              String         @id @default(uuid())
-  name            String
-  price           Decimal        @db.Decimal(10, 2)
-  scale           String
-  description     String         @db.Text // For richText storage
-  tag             String?
-  colorId         String         @map("color_id")
-  brandId         String         @map("brand_id")
-  modelId         String         @map("model_id")
-  thumbnailImageId String?       @map("thumbnail_image_id")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
+  id                String          @id @default(uuid())
+  name              String
+  price             Decimal         @db.Decimal(10, 2)
+  scale             String
+  description       String          @db.Text
+  tag               String?
+  colorId           String          @map("color_id")
+  brandId           String          @map("brand_id")
+  modelId           String          @map("model_id")
+  statusId          String?         @map("status_id")
+  thumbnailImageId  String?         @map("thumbnail_image_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
   
   // Relations
   color           Color          @relation(fields: [colorId], references: [id])
   brand           Brand          @relation(fields: [brandId], references: [id])
   model           Model          @relation(fields: [modelId], references: [id])
+  status          Status?         @relation(fields: [statusId], references: [id])
   thumbnailImage  ThumbnailImage? @relation(fields: [thumbnailImageId], references: [id])
   variantImages   VariantImage[] 
 
@@ -64,6 +66,7 @@ model Car {
 
 model Color {
   id        String   @id @default(uuid())
+  order     Int?
   name      String   @unique
   rgb       String
   createdAt DateTime @default(now()) @map("created_at")
@@ -82,6 +85,16 @@ model Brand {
   cars      Car[]
 
   @@map("brands")
+}
+
+model Status {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cars      Car[]
+
+  @@map("statuses")
 }
 
 model Model {

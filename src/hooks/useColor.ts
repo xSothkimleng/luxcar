@@ -15,7 +15,21 @@ export function useColors() {
     queryKey: [colorQueryKeys.colors],
     queryFn: async () => {
       const { data } = await axios.get<Color[]>('/api/colors');
-      return data;
+
+      // Sort colors by their order property
+      return data.sort((a, b) => {
+        // Handle null/undefined order values (place them at the end)
+        const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+        const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+
+        // Sort by order first
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+
+        // If orders are the same or null, sort by name
+        return a.name.localeCompare(b.name);
+      });
     },
   });
 }

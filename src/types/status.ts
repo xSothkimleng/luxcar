@@ -1,10 +1,9 @@
 import { Car } from '@prisma/client';
 
-export interface Color {
+export interface Status {
   id: string;
+  order?: number;
   name: string;
-  order: number;
-  rgb: string;
   createdAt?: string;
   updatedAt?: string;
   cars?: Car[];
