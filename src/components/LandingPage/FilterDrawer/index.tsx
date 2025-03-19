@@ -365,6 +365,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             aria-pressed={filters.model === model.name}>
             {model.imageUrl ? (
               <Image
+                unoptimized
                 src={model.imageUrl}
                 alt={model.name}
                 fill

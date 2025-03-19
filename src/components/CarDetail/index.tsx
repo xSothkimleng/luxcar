@@ -86,6 +86,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     alt={`${car.name} - Image ${activeImage + 1}`}
                     style={{ objectFit: 'cover' }}
                     priority
+                    unoptimized
                   />
                   <Box
                     className='image-overlay'
