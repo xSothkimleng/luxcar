@@ -212,6 +212,8 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     onClick={e => e.stopPropagation()}>
                     <Image
                       fill
+                      priority
+                      unoptimized
                       src={imageUrls[activeImage]}
                       alt={`${car.name} - Image ${activeImage + 1}`}
                       style={{
@@ -220,7 +222,6 @@ const CarDetail = ({ car }: CarDetailProps) => {
                         maxHeight: '100%',
                       }}
                       sizes='100vw'
-                      priority
                     />
                   </Box>
 
@@ -278,7 +279,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                         opacity: 1,
                       },
                     }}>
-                    <Image src={image} alt={`Thumbnail ${index}`} fill sizes='80px' style={{ objectFit: 'cover' }} />
+                    <Image src={image} alt={`Thumbnail ${index}`} fill sizes='80px' style={{ objectFit: 'cover' }} unoptimized />
                   </Box>
                 ))}
               </Box>

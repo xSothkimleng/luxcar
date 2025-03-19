@@ -43,6 +43,7 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
         }}>
         <Image
           priority
+          unoptimized
           src={imageUrl}
           alt={car.name}
           fill
@@ -63,12 +64,11 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           width: '100%',
           padding: '10px',
           paddingTop: '8px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 90%, rgba(0,0,0,0) 100%)',
-          // background: 'rgba(0,0,0,0.45)',
           transform: isHovered ? 'translateY(0)' : 'translateY(70%)',
           transition: 'transform 0.3s ease-in-out',
           display: 'flex',
           flexDirection: 'column',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 90%, rgba(0,0,0,0) 100%)',
           gap: 1,
         }}>
         <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 'bold' }}>
