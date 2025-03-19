@@ -7,12 +7,14 @@ import { useMemo } from 'react';
 const PopularCar = () => {
   const { data: cars, isLoading, isError } = useCars();
 
-  // Get 12 random cars sorted alphabetically by name
   const randomAlphabeticalCars = useMemo(() => {
     if (!cars || cars.length === 0) return [];
 
+    // Filter out Tomica brand cars first
+    const nonTomicaCars = cars.filter(car => car.brand?.name?.toLowerCase() !== 'tomica');
+
     // Create a copy to avoid mutating the original data
-    const carsCopy = [...cars];
+    const carsCopy = [...nonTomicaCars];
 
     // Fisher-Yates (Knuth) Shuffle algorithm to randomize the array
     for (let i = carsCopy.length - 1; i > 0; i--) {

@@ -5,12 +5,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Log initialization details without exposing sensitive data
-console.log('Initializing Supabase client with:', {
-  urlProvided: !!supabaseUrl,
-  keyProvided: !!supabaseKey,
-  urlLength: supabaseUrl.length,
-  keyLength: supabaseKey.length,
-});
+// console.log('Initializing Supabase client with:', {
+//   urlProvided: !!supabaseUrl,
+//   keyProvided: !!supabaseKey,
+//   urlLength: supabaseUrl.length,
+//   keyLength: supabaseKey.length,
+// });
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables!');

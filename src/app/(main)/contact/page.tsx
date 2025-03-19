@@ -184,6 +184,19 @@ const ContactPage: React.FC = () => {
                 </CardContent>
               </Card>
             </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Card elevation={0} sx={{ height: '100%', border: '1px solid rgba(0,0,0,0.05)' }}>
+                <CardContent>
+                  <Typography variant='h6' fontWeight='bold' gutterBottom>
+                    How long is the delivery?
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    The delivery process will take around 10-14 days.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
         </Box>
       </Container>
