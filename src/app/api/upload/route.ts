@@ -1,7 +1,8 @@
 // app/api/upload/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase, getPublicUrl } from '@/lib/supabase';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 export const config = {
   api: {
@@ -9,7 +10,12 @@ export const config = {
   },
 };
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     console.log('Upload request received');
 

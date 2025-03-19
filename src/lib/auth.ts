@@ -96,6 +96,11 @@ const authOptions: NextAuthOptions = {
     signIn: '/auth/login',
     error: '/auth/error',
   },
+  jwt: {
+    // Increase security for JWTs
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 24 * 60 * 60,
+  },
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
 };

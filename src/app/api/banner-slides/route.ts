@@ -1,6 +1,7 @@
 // app/api/banner-slides/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // GET - Get all banner slides
 export async function GET() {
@@ -21,7 +22,11 @@ export async function GET() {
 }
 
 // POST - Create a new banner slide
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const body = await request.json();
     const { title, subtitle, mainImageId, bgImageId, modelId } = body;

@@ -2,6 +2,7 @@
 // app/api/banner-slides/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // GET - Get a banner slide by ID
 export async function GET(request: NextRequest, context: any) {
@@ -29,6 +30,10 @@ export async function GET(request: NextRequest, context: any) {
 
 // PUT - Update a banner slide
 export async function PUT(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const id = context.params.id;
     const body = await request.json();
@@ -67,6 +72,10 @@ export async function PUT(request: NextRequest, context: any) {
 
 // DELETE - Delete a banner slide
 export async function DELETE(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const id = context.params.id;
 

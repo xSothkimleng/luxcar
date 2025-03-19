@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // DELETE - Delete a banner image
 export async function DELETE(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const id = context.params.id;
 

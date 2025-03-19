@@ -2,8 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 export async function DELETE(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const id = context.params.id;
 

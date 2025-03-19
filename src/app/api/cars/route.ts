@@ -1,6 +1,7 @@
 // app/api/cars/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // GET all cars
 export async function GET() {
@@ -23,7 +24,11 @@ export async function GET() {
 }
 
 // POST - Create a new car
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     const body = await request.json();
 
@@ -58,7 +63,11 @@ export async function POST(request: Request) {
 }
 
 // PATCH - Update an existing car
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     const { id, variantImages, ...data } = await request.json();
 
@@ -105,7 +114,12 @@ export async function PATCH(request: Request) {
 }
 
 // DELETE - Remove a car
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     // For DELETE requests, we'll extract the ID from the URL params or request body
     // Here we're assuming it's in the request body

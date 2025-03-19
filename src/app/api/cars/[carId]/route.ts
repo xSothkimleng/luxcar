@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // GET a single car by ID
 export async function GET(request: NextRequest, context: any) {
@@ -33,6 +34,11 @@ export async function GET(request: NextRequest, context: any) {
 
 // PATCH - Update a specific car
 export async function PATCH(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     const carId = context.params.carId;
     const data = await request.json();
@@ -59,6 +65,10 @@ export async function PATCH(request: NextRequest, context: any) {
 
 // DELETE - Remove a specific car
 export async function DELETE(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const carId = context.params.carId;
 

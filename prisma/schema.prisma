@@ -57,7 +57,7 @@ model Car {
   brand           Brand          @relation(fields: [brandId], references: [id])
   model           Model          @relation(fields: [modelId], references: [id])
   thumbnailImage  ThumbnailImage? @relation(fields: [thumbnailImageId], references: [id])
-  variantImages   VariantImage[] // One-to-many relationship
+  variantImages   VariantImage[] 
 
   @@map("cars")
 }

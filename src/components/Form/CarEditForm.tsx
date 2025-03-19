@@ -108,12 +108,6 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
       return;
     }
 
-    // Need either existing variants or new ones
-    if (existingVariantImages.length === 0 && variantImages.length === 0) {
-      setError('Please provide at least one variant image');
-      return;
-    }
-
     // Validate price is a number
     if (isNaN(Number(price)) || Number(price) <= 0) {
       setError('Price must be a valid positive number');
@@ -489,7 +483,6 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
             !brandId ||
             !modelId ||
             !description ||
-            (existingVariantImages.length === 0 && variantImages.length === 0) ||
             (!keepExistingThumbnail && !thumbnailImage && !!car?.thumbnailImageId)
           }>
           {isSubmitting ? 'Updating Car...' : 'Update Car'}

@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // app/api/models/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 export async function GET() {
   try {
@@ -12,12 +12,18 @@ export async function GET() {
     });
 
     return NextResponse.json(models);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch models' }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
+
   try {
     const data = await request.json();
 
@@ -30,13 +36,18 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(model, { status: 201 });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create model' }, { status: 500 });
   }
 }
 
 // For PATCH/PUT and DELETE operations
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const { id, ...data } = await request.json();
 
@@ -49,12 +60,17 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json(model);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update model' }, { status: 500 });
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const { id } = await request.json();
 
@@ -63,6 +79,7 @@ export async function DELETE(request: Request) {
     });
 
     return NextResponse.json({ message: 'Model deleted successfully' });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete model' }, { status: 500 });
   }

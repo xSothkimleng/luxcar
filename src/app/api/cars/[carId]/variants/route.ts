@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { supabase } from '@/lib/supabase';
+import { isAdmin, unauthorized } from '@/lib/apiAuth';
 
 // GET handler to retrieve all variant images for a car
 export async function GET(request: NextRequest, context: any) {
@@ -27,6 +28,10 @@ export async function GET(request: NextRequest, context: any) {
 
 // DELETE handler to remove all variant images for a car
 export async function DELETE(request: NextRequest, context: any) {
+  // Check admin access
+  if (!(await isAdmin(request))) {
+    return unauthorized();
+  }
   try {
     const carId = context.params.carId;
 

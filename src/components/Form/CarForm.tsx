@@ -65,11 +65,6 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    if (variantImages.length === 0) {
-      setError('Please upload at least one variant image');
-      return;
-    }
-
     // Validate price is a number
     if (isNaN(Number(price)) || Number(price) <= 0) {
       setError('Price must be a valid positive number');
@@ -313,16 +308,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
           variant='contained'
           type='submit'
           disabled={
-            isSubmitting ||
-            !name ||
-            !price ||
-            !scale ||
-            !colorId ||
-            !brandId ||
-            !modelId ||
-            !description ||
-            !thumbnailImage ||
-            variantImages.length === 0
+            isSubmitting || !name || !price || !scale || !colorId || !brandId || !modelId || !description || !thumbnailImage
           }>
           {isSubmitting ? 'Adding Car...' : 'Add Car'}
         </Button>
