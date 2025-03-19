@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { useMemo, useState } from 'react';
 import { GridColDef } from '@mui/x-data-grid';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import GridTable from '@/components/Table';
+import { useStatuses, useDeleteStatus } from '@/hooks/useStatus';
+import { Status } from '@/types/status';
+import StatusForm from '@/components/Form/StatusForm';
 import {
   Box,
   Button,
@@ -16,15 +23,8 @@ import {
   IconButton,
   CircularProgress,
 } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import CloseIcon from '@mui/icons-material/Close';
-import GridTable from '@/components/Table';
-import { useColors, useDeleteColor } from '@/hooks/useColor';
-import { Color } from '@/types/color';
-import ColorForm from '@/components/Form/ColorForm';
 
-const ColorListTable = () => {
+const StatusListTable = () => {
   // UI States
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('success');
@@ -32,56 +32,56 @@ const ColorListTable = () => {
   // Dialog States
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
 
   // Data Fetching & Mutations
-  const { data: colors, isLoading } = useColors();
-  const { mutateAsync: deleteColor, isPending: isDeleting } = useDeleteColor();
+  const { data: statuses, isLoading } = useStatuses();
+  const { mutateAsync: deleteStatus, isPending: isDeleting } = useDeleteStatus();
 
   // Delete Handling
-  const handleOpenDeleteDialog = (color: Color) => {
-    setSelectedColor(color);
+  const handleOpenDeleteDialog = (status: Status) => {
+    setSelectedStatus(status);
     setOpenDeleteDialog(true);
   };
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
-    setSelectedColor(null);
+    setSelectedStatus(null);
   };
 
-  const handleDeleteColor = async () => {
-    if (!selectedColor) return;
+  const handleDeleteStatus = async () => {
+    if (!selectedStatus) return;
 
     try {
-      await deleteColor(selectedColor.id);
+      await deleteStatus(selectedStatus.id);
       setSnackbarSeverity('success');
-      setSnackbarMessage('Color deleted successfully!');
+      setSnackbarMessage('Status deleted successfully!');
       handleCloseDeleteDialog();
     } catch (error) {
-      console.error('Error deleting color:', error);
+      console.error('Error deleting status:', error);
 
       // Check if this is a constraint violation error
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (error && (error as any).response?.data?.error === 'Cannot delete color because it has associated cars') {
+      if (error && (error as any).response?.data?.error === 'Cannot delete status because it has associated cars') {
         setSnackbarSeverity('error');
-        setSnackbarMessage(`Cannot delete color "${selectedColor.name}" because it's used by existing cars.`);
+        setSnackbarMessage(`Cannot delete status "${selectedStatus.name}" because it's used by existing cars.`);
       } else {
         setSnackbarSeverity('error');
-        setSnackbarMessage('Failed to delete color. Please try again.');
+        setSnackbarMessage('Failed to delete status. Please try again.');
       }
       handleCloseDeleteDialog();
     }
   };
 
   // Edit Handling
-  const handleOpenEditDialog = (color: Color) => {
-    setSelectedColor(color);
+  const handleOpenEditDialog = (status: Status) => {
+    setSelectedStatus(status);
     setOpenEditDialog(true);
   };
 
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
-    setSelectedColor(null);
+    setSelectedStatus(null);
   };
 
   const columns: GridColDef[] = useMemo(
@@ -89,50 +89,30 @@ const ColorListTable = () => {
       {
         field: 'name',
         headerName: 'Name',
-        flex: 1,
+        flex: 2,
         renderCell: params => (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: 1 }}>
             <p style={{ color: '#2D3748', fontWeight: 'bold' }}>{params.value}</p>
           </Box>
         ),
       },
       {
-        field: 'order',
-        headerName: 'Order Sequence',
+        field: 'carsCount',
+        headerName: 'Cars Using',
         flex: 1,
-        renderCell: params => (
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <p>{params.value === 0 || params.value === null ? 'UNSET' : params.value}</p>
-          </Box>
-        ),
-      },
-      {
-        field: 'rgb',
-        headerName: 'Color',
-        flex: 1,
-        renderCell: params => (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: '100%' }}>
-            <Box
-              sx={{
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                backgroundColor: params.value,
-                border: '1px solid rgba(0,0,0,0.1)',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              }}
-            />
-            <Typography>{params.value}</Typography>
-          </Box>
-        ),
+        renderCell: params => {
+          const status = statuses?.find(s => s.id === params.row.id);
+          const carsCount = status?.cars?.length || 0;
+          return <p>{carsCount}</p>;
+        },
       },
       {
         field: 'action',
         headerName: 'Actions',
         flex: 1,
         renderCell: params => {
-          const color = colors?.find(c => c.id === params.row.id);
-          if (!color) return null;
+          const status = statuses?.find(s => s.id === params.row.id);
+          if (!status) return null;
 
           return (
             <Box display='flex' justifyContent='center' alignItems='center' gap={1} sx={{ height: '100%' }}>
@@ -140,7 +120,7 @@ const ColorListTable = () => {
                 <Button
                   variant='contained'
                   size='small'
-                  onClick={() => handleOpenEditDialog(color)}
+                  onClick={() => handleOpenEditDialog(status)}
                   sx={{
                     minWidth: '36px',
                     width: '36px',
@@ -161,8 +141,8 @@ const ColorListTable = () => {
                 <Button
                   variant='contained'
                   size='small'
-                  onClick={() => handleOpenDeleteDialog(color)}
-                  disabled={isDeleting && selectedColor?.id === color.id}
+                  onClick={() => handleOpenDeleteDialog(status)}
+                  disabled={isDeleting && selectedStatus?.id === status.id}
                   sx={{
                     minWidth: '36px',
                     width: '36px',
@@ -176,7 +156,7 @@ const ColorListTable = () => {
                       boxShadow: '0 4px 10px rgba(231, 76, 60, 0.2)',
                     },
                   }}>
-                  {isDeleting && selectedColor?.id === color.id ? (
+                  {isDeleting && selectedStatus?.id === status.id ? (
                     <CircularProgress size={20} color='inherit' />
                   ) : (
                     <DeleteOutlineIcon fontSize='small' />
@@ -188,18 +168,18 @@ const ColorListTable = () => {
         },
       },
     ],
-    [colors, isDeleting, selectedColor],
+    [statuses, isDeleting, selectedStatus],
   );
 
   return (
     <>
       <GridTable
-        rows={colors || []}
+        rows={statuses || []}
         columns={columns}
         loading={isLoading}
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
-          sorting: { sortModel: [{ field: 'order', sort: 'desc' }] },
+          sorting: { sortModel: [{ field: 'name', sort: 'asc' }] },
         }}
       />
 
@@ -223,7 +203,7 @@ const ColorListTable = () => {
           }}>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
             <Typography variant='h6' sx={{ fontWeight: 600 }}>
-              Edit Color
+              Edit Status
             </Typography>
             <IconButton
               onClick={handleCloseEditDialog}
@@ -238,14 +218,14 @@ const ColorListTable = () => {
           </Box>
         </DialogTitle>
         <DialogContent sx={{ p: 3, mt: 1 }}>
-          {selectedColor && (
-            <ColorForm
-              color={selectedColor}
+          {selectedStatus && (
+            <StatusForm
+              status={selectedStatus}
               isEdit={true}
               onClose={handleCloseEditDialog}
               onSuccess={() => {
                 setSnackbarSeverity('success');
-                setSnackbarMessage('Color updated successfully!');
+                setSnackbarMessage('Status updated successfully!');
               }}
             />
           )}
@@ -267,7 +247,7 @@ const ColorListTable = () => {
         <DialogTitle>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
             <Typography variant='h6' sx={{ fontWeight: 600, color: '#2D3748' }}>
-              Delete Color
+              Delete Status
             </Typography>
             <IconButton onClick={handleCloseDeleteDialog} sx={{ color: '#A0AEC0' }}>
               <CloseIcon />
@@ -276,9 +256,9 @@ const ColorListTable = () => {
         </DialogTitle>
         <DialogContent>
           <Typography variant='body1' sx={{ mb: 2 }}>
-            Are you sure you want to delete the following color?
+            Are you sure you want to delete the following status?
           </Typography>
-          {selectedColor && (
+          {selectedStatus && (
             <Box
               sx={{
                 display: 'flex',
@@ -289,28 +269,13 @@ const ColorListTable = () => {
                 borderRadius: '8px',
                 border: '1px solid rgba(0,0,0,0.05)',
               }}>
-              <Box
-                sx={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: '4px',
-                  backgroundColor: selectedColor.rgb,
-                  border: '1px solid rgba(0,0,0,0.1)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                }}
-              />
-              <Box>
-                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                  {selectedColor.name}
-                </Typography>
-                <Typography variant='caption' color='text.secondary'>
-                  {selectedColor.rgb}
-                </Typography>
-              </Box>
+              <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                {selectedStatus.name}
+              </Typography>
             </Box>
           )}
           <Alert severity='warning' sx={{ mt: 3 }}>
-            This action cannot be undone. Any cars associated with this color may be affected.
+            This action cannot be undone. Any cars associated with this status may be affected.
           </Alert>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
@@ -318,7 +283,7 @@ const ColorListTable = () => {
             Cancel
           </Button>
           <Button
-            onClick={handleDeleteColor}
+            onClick={handleDeleteStatus}
             variant='contained'
             color='error'
             disabled={isDeleting}
@@ -352,4 +317,4 @@ const ColorListTable = () => {
   );
 };
 
-export default ColorListTable;
+export default StatusListTable;

@@ -9,6 +9,7 @@ export interface Car {
   brandId: string;
   modelId: string;
   thumbnailImageId: string | null;
+  statusId: string | null;
   createdAt?: string;
   updatedAt?: string;
 
@@ -22,6 +23,10 @@ export interface Car {
     name: string;
   };
   model?: {
+    id: string;
+    name: string;
+  };
+  status?: {
     id: string;
     name: string;
   };

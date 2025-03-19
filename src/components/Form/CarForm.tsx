@@ -13,8 +13,6 @@ import {
   Select,
   SelectChangeEvent,
   Grid,
-  Autocomplete,
-  TextField,
 } from '@mui/material';
 import CoolButton from '@/components/CustomButton';
 import MultiFileUpload from '@/components/MultiFileUpload';
@@ -25,25 +23,24 @@ import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
 import { useCreateCar } from '@/hooks/useCar';
 import { uploadImage } from '@/services/carService';
-
-// Predefined tag options
-const tagOptions = ['IN STOCK', 'RELEASED', 'Pre-Order', 'SOLD OUT', 'COMING SOON'];
+import { useStatuses } from '@/hooks/useStatus';
 
 const CarForm = ({ onClose }: { onClose: () => void }) => {
   // Fetch data from API
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: colors, isLoading: colorsLoading } = useColors();
   const { data: models, isLoading: modelsLoading } = useModels();
+  const { data: statuses, isLoading: statusesLoading } = useStatuses();
   const { mutateAsync: createCar } = useCreateCar();
 
   // Form state
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [scale, setScale] = useState('');
-  const [tag, setTag] = useState('');
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [modelId, setModelId] = useState('');
+  const [statusId, setStatusId] = useState('');
   const [description, setDescription] = useState('');
   const [thumbnailImage, setThumbnailImage] = useState<File | null>(null);
   const [variantImages, setVariantImages] = useState<File[]>([]);
@@ -82,11 +79,11 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         name,
         price: Number(price),
         scale,
-        tag,
         description,
         colorId,
         brandId,
         modelId,
+        statusId: statusId || null,
         thumbnailImageId: thumbnailUpload.id,
       });
 
@@ -130,8 +127,8 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
     setModelId(event.target.value);
   };
 
-  const handleTagChange = (event: React.SyntheticEvent, newValue: string | null) => {
-    setTag(newValue || '');
+  const handleStatusChange = (event: SelectChangeEvent) => {
+    setStatusId(event.target.value);
   };
 
   return (
@@ -187,18 +184,26 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
         </Grid>
 
         <Grid item xs={12}>
-          {/* Tag Field (Autocomplete with free input) */}
-          <Autocomplete
-            freeSolo
-            id='car-tag'
-            options={tagOptions}
-            value={tag}
-            onChange={handleTagChange}
-            onInputChange={(event, newInputValue) => {
-              setTag(newInputValue);
-            }}
-            renderInput={params => <TextField {...params} label='Tag' variant='outlined' fullWidth className='mb-4' />}
-          />
+          {/* Status Dropdown */}
+          <FormControl fullWidth className='mb-4'>
+            <InputLabel id='car-status-label'>Status</InputLabel>
+            <Select
+              labelId='car-status-label'
+              id='car-status'
+              value={statusId}
+              label='Status'
+              onChange={handleStatusChange}
+              disabled={statusesLoading || !statuses?.length}>
+              <MenuItem value=''>
+                <em>None</em>
+              </MenuItem>
+              {statuses?.map(status => (
+                <MenuItem key={status.id} value={status.id}>
+                  {status.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={12}>

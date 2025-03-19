@@ -5,25 +5,30 @@ import { Grid, Button, Box, Alert, CircularProgress, Snackbar, Typography } from
 import CoolButton from '@/components/CustomButton';
 import FileUpload from '@/components/UploadButton';
 import { Model } from '@/types/model';
-import { useCreateModel, useUpdateModel } from '@/hooks/useModel';
+import { useCreateModel, useModels, useUpdateModel } from '@/hooks/useModel';
 import Image from 'next/image';
 
 interface ModelFormProps {
-  model?: Model; // Optional model for editing
-  isEdit?: boolean; // Flag to determine if it's edit mode
+  model?: Model;
+  isEdit?: boolean;
   onClose: () => void;
-  onSuccess?: () => void; // Optional callback for success
+  onSuccess?: () => void;
 }
 
 const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps) => {
   // Form state
   const [name, setName] = useState('');
+  const [order, setOrder] = useState<number>(0);
   const [modelImage, setModelImage] = useState<File | null>(null);
   const [keepExistingImage, setKeepExistingImage] = useState(true);
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
 
+  // Fetch all colors for validation
+  const { data: models = [] } = useModels();
+
   // UI state
   const [error, setError] = useState<string | null>(null);
+  const [orderError, setOrderError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Hooks for creating and updating
@@ -37,12 +42,44 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
   useEffect(() => {
     if (isEdit && model) {
       setName(model.name);
+      setOrder(model.order || 0);
       if (model.imageUrl) {
         setExistingImageUrl(model.imageUrl);
         setKeepExistingImage(true);
       }
     }
   }, [isEdit, model]);
+
+  useEffect(() => {
+    validateOrderSequence(order);
+  }, [order, models]);
+
+  // Function to validate if the order sequence is unique
+  const validateOrderSequence = (orderValue: number) => {
+    // Clear previous order error
+    setOrderError(null);
+
+    // Skip validation if we're editing and the order hasn't changed
+    if (isEdit && model && orderValue === model.order) {
+      return true;
+    }
+
+    // Check if any existing model has the same order
+    const existingModelWithSameOrder = models.find(m => {
+      // Convert order to number for comparison since it might be coming from API as string
+      const modelOrder = typeof m.order === 'string' ? parseInt(m.order) : m.order;
+
+      // Check if this model has the same order and is not the current model being edited
+      return modelOrder === orderValue && (!isEdit || m.id !== model?.id);
+    });
+
+    if (existingModelWithSameOrder) {
+      setOrderError(`Order ${orderValue} is already assigned to "${existingModelWithSameOrder.name}"`);
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +90,18 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
       return;
     }
 
+    // Validate order sequence one more time before submitting
+    if (!validateOrderSequence(order)) {
+      setError('Please fix the order sequence issue');
+      return;
+    }
+
     try {
       if (isEdit && model) {
         // Update existing model
         await updateModel({
           id: model.id,
-          modelData: { name },
+          modelData: { name, order },
           imageFile: modelImage,
           deleteCurrentImage: !keepExistingImage,
         });
@@ -66,7 +109,7 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
       } else {
         // Create new model
         await createModel({
-          modelData: { name },
+          modelData: { name, order },
           imageFile: modelImage,
         });
         setSuccessMessage('Model created successfully!');
@@ -80,6 +123,7 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
       // Clear form after success for new model (optional)
       if (!isEdit) {
         setName('');
+        setOrder(0);
         setModelImage(null);
       }
 
@@ -98,6 +142,34 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
   const handleRemoveExistingImage = () => {
     setKeepExistingImage(false);
     setExistingImageUrl(null);
+  };
+
+  // Find the next available order number
+  const getNextAvailableOrder = () => {
+    if (models.length === 0) return 1;
+
+    // Get all order numbers
+    const orderNumbers = models
+      .map(m => m.order)
+      .filter((model): model is number => model !== null && model !== undefined)
+      .sort((a, b) => a - b);
+
+    // Find the next available slot
+    let nextOrder = 1;
+    for (const order of orderNumbers) {
+      if (order > nextOrder) {
+        break;
+      }
+      nextOrder = order + 1;
+    }
+
+    return nextOrder;
+  };
+
+  // Handle using suggested order
+  const handleUseNextAvailableOrder = () => {
+    const nextOrder = getNextAvailableOrder();
+    setOrder(nextOrder);
   };
 
   return (
@@ -123,6 +195,32 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
             helperText={!name.trim() && error ? 'Model name is required' : ''}
             disabled={isSubmitting}
           />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            <CoolButton
+              label='Order Sequence'
+              value={order}
+              onChange={e => setOrder(Number(e.target.value))}
+              fullWidth
+              variant='filled'
+              type='number'
+              className='mb-1'
+              error={!!orderError}
+              helperText={orderError || ''}
+              disabled={isSubmitting}
+            />
+            {orderError && (
+              <Button
+                variant='text'
+                color='primary'
+                onClick={handleUseNextAvailableOrder}
+                sx={{ alignSelf: 'flex-end', mt: 0, mb: 2 }}>
+                Use next available order ({getNextAvailableOrder()})
+              </Button>
+            )}
+          </Box>
         </Grid>
 
         <Grid item xs={12}>

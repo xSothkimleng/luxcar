@@ -70,9 +70,9 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
             }}
           />
         )}
-        {car.tag && (
+        {car.status && (
           <Chip
-            label={car.tag}
+            label={car.status.name}
             size='small'
             sx={{
               position: 'absolute',

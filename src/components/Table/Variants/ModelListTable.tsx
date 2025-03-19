@@ -99,6 +99,16 @@ const ModelListTable = () => {
         ),
       },
       {
+        field: 'order',
+        headerName: 'Order Sequence',
+        flex: 1,
+        renderCell: params => (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+            <p>{params.value === 0 || params.value === null ? 'UNSET' : params.value}</p>
+          </Box>
+        ),
+      },
+      {
         field: 'action',
         headerName: 'Actions',
         flex: 1,
@@ -171,7 +181,7 @@ const ModelListTable = () => {
         loading={isLoading}
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
-          sorting: { sortModel: [{ field: 'name', sort: 'asc' }] },
+          sorting: { sortModel: [{ field: 'order', sort: 'desc' }] },
         }}
       />
 

@@ -39,6 +39,7 @@ const MENU_ITEMS = [
       { text: 'Brand', icon: ContentIcon, path: '/dashboard/inventory-management/brand' },
       { text: 'Model', icon: ContentIcon, path: '/dashboard/inventory-management/model' },
       { text: 'Color', icon: ContentIcon, path: '/dashboard/inventory-management/color' },
+      { text: 'Status', icon: ContentIcon, path: '/dashboard/inventory-management/status' },
     ],
   },
   { text: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },

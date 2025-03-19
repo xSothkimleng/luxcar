@@ -16,8 +16,6 @@ import {
   Grid,
   CircularProgress,
   IconButton,
-  Autocomplete,
-  TextField,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CoolButton from '@/components/CustomButton';
@@ -28,6 +26,7 @@ import { useBrands } from '@/hooks/useBrand';
 import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
 import { useUpdateCar } from '@/hooks/useCar';
+import { useStatuses } from '@/hooks/useStatus';
 import { uploadImage, deleteVariantImage } from '@/services/carService';
 import { Car } from '@/types/car';
 
@@ -36,14 +35,12 @@ interface CarEditFormProps {
   onClose: () => void;
 }
 
-// Predefined tag options
-const tagOptions = ['IN STOCK', 'RELEASED', 'Pre-Order', 'SOLD OUT', 'COMING SOON'];
-
 const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
   // Fetch data from API
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: colors, isLoading: colorsLoading } = useColors();
   const { data: models, isLoading: modelsLoading } = useModels();
+  const { data: statuses, isLoading: statusesLoading } = useStatuses();
   const { mutateAsync: updateCar } = useUpdateCar();
 
   // Form state
@@ -54,6 +51,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
   const [modelId, setModelId] = useState('');
+  const [statusId, setStatusId] = useState<string | null>(null);
   const [description, setDescription] = useState('');
 
   // Image handling
@@ -79,6 +77,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
       setColorId(car.colorId);
       setBrandId(car.brandId);
       setModelId(car.modelId);
+      setStatusId(car.statusId || null);
       setDescription(car.description);
 
       // Set existing variant images if available
@@ -144,6 +143,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
         colorId,
         brandId,
         modelId,
+        statusId: statusId || undefined,
         thumbnailImageId,
       });
 
@@ -171,6 +171,10 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
   const handleVariantImagesChange = (files: File[]) => {
     setVariantImages(files);
     setError(null);
+  };
+
+  const handleStatusChange = (event: SelectChangeEvent) => {
+    setStatusId(event.target.value);
   };
 
   const handleThumbnailChange = (file: File | null) => {
@@ -212,10 +216,6 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
 
   const handleModelChange = (event: SelectChangeEvent) => {
     setModelId(event.target.value);
-  };
-
-  const handleTagChange = (event: React.SyntheticEvent, newValue: string | null) => {
-    setTag(newValue || '');
   };
 
   // Show loading state while fetching car data
@@ -280,18 +280,26 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
         </Grid>
 
         <Grid item xs={12}>
-          {/* Tag Field (Autocomplete with free input) */}
-          <Autocomplete
-            freeSolo
-            id='car-tag'
-            options={tagOptions}
-            value={tag}
-            onChange={handleTagChange}
-            onInputChange={(event, newInputValue) => {
-              setTag(newInputValue);
-            }}
-            renderInput={params => <TextField {...params} label='Tag' variant='outlined' fullWidth className='mb-4' />}
-          />
+          {/* Status Dropdown */}
+          <FormControl fullWidth className='mb-4'>
+            <InputLabel id='car-status-label'>Status</InputLabel>
+            <Select
+              labelId='car-status-label'
+              id='car-status'
+              value={statusId || ''}
+              label='Status'
+              onChange={handleStatusChange}
+              disabled={statusesLoading || !statuses?.length}>
+              <MenuItem value=''>
+                <em>None</em>
+              </MenuItem>
+              {statuses?.map(status => (
+                <MenuItem key={status.id} value={status.id}>
+                  {status.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
 
         <Grid item xs={12}>

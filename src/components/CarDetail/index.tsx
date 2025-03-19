@@ -20,6 +20,7 @@ interface CarDetailProps {
 }
 
 const CarDetail = ({ car }: CarDetailProps) => {
+  console.log('CarDetail', car);
   const [activeImage, setActiveImage] = useState(0);
   const [openImageFullScreen, setOpenImageFullScreen] = useState(false);
 
@@ -381,8 +382,8 @@ const CarDetail = ({ car }: CarDetailProps) => {
                 </Box>
               )}
 
-              {/* Tag */}
-              {car.tag && (
+              {/* Status */}
+              {car.status && (
                 <Box
                   sx={{
                     py: 2,
@@ -391,12 +392,12 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
                   }}>
                   <Typography variant='body2' color='text.secondary' sx={{ width: '100px' }}>
-                    Tag:
+                    Status:
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                     <LocalOfferIcon sx={{ fontSize: '1.1rem', color: 'primary.main' }} />
                     <Typography variant='body1' fontWeight='500'>
-                      {car.tag}
+                      {car.status.name}
                     </Typography>
                   </Box>
                 </Box>

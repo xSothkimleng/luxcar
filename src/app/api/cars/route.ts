@@ -11,6 +11,7 @@ export async function GET() {
         color: true,
         brand: true,
         model: true,
+        status: true,
         thumbnailImage: true,
         variantImages: true,
       },

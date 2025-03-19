@@ -32,6 +32,7 @@ import {
 import { useBrands } from '@/hooks/useBrand';
 import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
+import { useStatuses } from '@/hooks/useStatus';
 import Image from 'next/image';
 
 interface FilterDrawerProps {
@@ -46,6 +47,7 @@ type FilterState = {
   color: string;
   model: string;
   search: string;
+  status: string;
 };
 
 // Default filter values
@@ -53,6 +55,7 @@ const DEFAULT_FILTERS: FilterState = {
   brand: 'All Brands',
   color: 'All Colors',
   model: 'All Models',
+  status: 'All Statuses',
   search: '',
 };
 
@@ -65,6 +68,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
   const { data: brands, isLoading: brandsLoading } = useBrands();
   const { data: colors, isLoading: colorsLoading } = useColors();
   const { data: models, isLoading: modelsLoading } = useModels();
+  const { data: statuses, isLoading: statusesLoading } = useStatuses();
 
   // Consolidated filter state
   const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS });
@@ -139,6 +143,11 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
 
       // Brand filter
       if (filters.brand !== 'All Brands' && car.brand?.name !== filters.brand) {
+        return false;
+      }
+
+      // Status filter
+      if (filters.status !== 'All Statuses' && car.status?.name !== filters.status) {
         return false;
       }
 
@@ -233,6 +242,70 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
       </>
     );
   }, [colors, colorsLoading, filters.color, handleFilterChange]);
+
+  const statusList = useMemo(() => {
+    if (statusesLoading) {
+      return Array(5)
+        .fill(0)
+        .map((_, index) => (
+          <Skeleton
+            key={`status-skeleton-${index}`}
+            variant='rectangular'
+            height={36}
+            sx={{ mb: 0.5, borderRadius: 1 }}
+            animation='wave'
+          />
+        ));
+    }
+
+    return (
+      <>
+        <ListItemButton
+          key='all-status'
+          selected={filters.status === 'All Statuses'}
+          onClick={() => handleFilterChange('status', 'All Statuses')}
+          sx={{
+            '&.Mui-selected': {
+              backgroundColor: 'black',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'gray',
+              },
+            },
+          }}>
+          <ListItemText
+            primary='All Statuses'
+            primaryTypographyProps={{
+              fontWeight: filters.status === 'All Statuses' ? 'bold' : 'normal',
+            }}
+          />
+        </ListItemButton>
+
+        {statuses?.map(status => (
+          <ListItemButton
+            key={status.id}
+            selected={filters.status === status.name}
+            onClick={() => handleFilterChange('status', status.name)}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: 'black',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'gray',
+                },
+              },
+            }}>
+            <ListItemText
+              primary={status.name}
+              primaryTypographyProps={{
+                fontWeight: filters.status === status.name ? 'bold' : 'normal',
+              }}
+            />
+          </ListItemButton>
+        ))}
+      </>
+    );
+  }, [filters.status, handleFilterChange, statuses, statusesLoading]);
 
   // Memoize the brand list for better performance
   const brandList = useMemo(() => {
@@ -468,6 +541,15 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           {colorPalette}
         </Grid>
 
+        {/* Status Filter  */}
+        <Divider sx={{ my: 1, mb: 1 }} />
+        <Typography variant='subtitle1' fontWeight='bold' component='div'>
+          Status
+        </Typography>
+        <List dense sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+          {statusList}
+        </List>
+
         {/* Brand Filter */}
         <Divider sx={{ my: 1, mb: 1 }} />
         <Typography variant='subtitle1' fontWeight='bold' component='div'>
@@ -508,14 +590,15 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
     ),
     [
       isMobile,
-      filters.search,
       activeFilterChips,
+      filters.search,
       colorPalette,
+      statusList,
       brandList,
       modelGrid,
-      handleFilterChange,
       handleCloseDialog,
       resetFilters,
+      handleFilterChange,
     ],
   );
 

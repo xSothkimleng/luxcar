@@ -11,12 +11,28 @@ export const modelQueryKeys = {
 };
 
 // Fetch all models
+// Fetch all models
 export function useModels() {
   return useQuery({
     queryKey: [modelQueryKeys.models],
     queryFn: async () => {
       const { data } = await axios.get<Model[]>('/api/models');
-      return data;
+
+      // Sort the data first
+      const sortedData = [...data].sort((a, b) => {
+        // Handle null/undefined order values (place them last)
+        if (a.order === null || a.order === undefined) return 1;
+        if (b.order === null || b.order === undefined) return -1;
+
+        // If both have order values, sort by order
+        return a.order - b.order;
+      });
+
+      // Then ensure all models have a non-null order for TypeScript
+      return sortedData.map(model => ({
+        ...model,
+        order: model.order ?? 0, // Default to 0 if null, but only after sorting
+      }));
     },
   });
 }
@@ -35,13 +51,17 @@ export function useCreateModel() {
         imageUrl = uploadResult.url;
       }
 
-      // Create model with image URL if available
+      // Create model with image URL and ensure order is sent
       const { data } = await axios.post<Model>('/api/models', {
         ...modelData,
         imageUrl,
+        order: modelData.order, // Ensure order is sent
       });
 
-      return data;
+      return {
+        ...data,
+        order: data.order ?? 0, // Fallback to 0 if null
+      };
     },
     onSuccess: () => {
       // Invalidate the models list query to refetch it
@@ -95,9 +115,13 @@ export function useUpdateModel() {
         id,
         ...modelData,
         imageUrl,
+        order: modelData.order,
       });
 
-      return data;
+      return {
+        ...data,
+        order: data.order ?? 0, // Fallback to 0 if null
+      };
     },
     onSuccess: (data, variables) => {
       // Invalidate both the list and the individual model

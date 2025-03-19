@@ -27,11 +27,13 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
-    // Create model with image URL if provided
+    // Create model with image URL and order
+    // Use 0 as default if order is not provided
     const model = await prisma.model.create({
       data: {
         name: data.name,
         imageUrl: data.imageUrl || null,
+        order: data.order !== undefined ? data.order : 0, // Default to 0 if not provided
       },
     });
 
@@ -43,6 +45,7 @@ export async function POST(request: NextRequest) {
 }
 
 // For PATCH/PUT and DELETE operations
+// Update the PATCH method
 export async function PATCH(request: NextRequest) {
   // Check admin access
   if (!(await isAdmin(request))) {
@@ -56,6 +59,7 @@ export async function PATCH(request: NextRequest) {
       data: {
         name: data.name,
         imageUrl: data.imageUrl,
+        order: data.order !== undefined ? data.order : undefined,
       },
     });
 
