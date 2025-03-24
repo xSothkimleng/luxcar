@@ -12,8 +12,13 @@ const Homepage = () => {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f2f2f2', position: 'relative' }}>
       <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
-        <Fab color='primary' aria-label='add' component={Link} href='https://t.me/lkkkk12345' target='_blank'>
-          <TelegramIcon />
+        <Fab
+          aria-label='add'
+          component={Link}
+          href='https://t.me/lkkkk12345'
+          target='_blank'
+          sx={{ background: '#0088cc', color: '#fff', width: '4rem', height: '4rem' }}>
+          <TelegramIcon sx={{ fontSize: '3rem', marginRight: '0.3rem' }} />
         </Fab>
       </Box>
       {/* Promotional Banner */}

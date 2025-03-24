@@ -274,7 +274,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             },
           }}>
           <ListItemText
-            primary='All Statuses'
+            primary='All'
             primaryTypographyProps={{
               fontWeight: filters.status === 'All Statuses' ? 'bold' : 'normal',
             }}
@@ -544,7 +544,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         {/* Status Filter  */}
         <Divider sx={{ my: 1, mb: 1 }} />
         <Typography variant='subtitle1' fontWeight='bold' component='div'>
-          Status
+          Stock Status
         </Typography>
         <List dense sx={{ maxHeight: '300px', overflowY: 'auto' }}>
           {statusList}

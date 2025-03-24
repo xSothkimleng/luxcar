@@ -85,30 +85,31 @@ const ShopCollectionPage = () => {
       {/* Telegram Contact Button */}
       <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
         <Fab
-          color='primary'
-          aria-label='contact'
+          aria-label='add'
           component={Link}
           href='https://t.me/lkkkk12345'
           target='_blank'
           sx={{
-            boxShadow: 3,
-            '&:hover': { transform: 'scale(1.05)' },
-            transition: 'transform 0.2s',
+            background: '#0088cc',
+            color: '#fff',
+            width: { xs: '3.5rem', md: '4rem' },
+            height: { xs: '3.5rem', md: '4rem' },
           }}>
-          <TelegramIcon />
+          <TelegramIcon sx={{ fontSize: { xs: '3rem', md: '3rem' }, marginRight: '0.3rem' }} />
         </Fab>
       </Box>
 
       {/* Scroll to top button */}
       {showScrollTop && (
-        <Box sx={{ position: 'fixed', bottom: { xs: 160, md: 80 }, right: 20, zIndex: '999' }}>
+        <Box sx={{ position: 'fixed', bottom: { xs: 170, md: 90 }, right: 20, zIndex: '999' }}>
           <Fab
             size='small'
-            color='secondary'
             aria-label='scroll to top'
             onClick={scrollToTop}
             sx={{
               boxShadow: 3,
+              color: 'white',
+              background: 'black',
               '&:hover': { transform: 'scale(1.2)' },
               transition: 'transform 0.2s',
             }}>
