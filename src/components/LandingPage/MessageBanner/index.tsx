@@ -29,7 +29,7 @@ const MessageBanner = () => {
             height: 24,
             mr: 2,
             position: 'relative',
-            display: { xs: 'none', sm: 'block' },
+            display: { xs: 'block', sm: 'block' },
           }}>
           <Image src='/assets/images/Flag_of_Cambodia.svg' alt='Cambodia Flag' fill style={{ objectFit: 'contain' }} />
         </Box>
@@ -41,6 +41,7 @@ const MessageBanner = () => {
             mr: 1.5,
             fontWeight: 'bold',
             fontSize: { xs: '12px', sm: '14px' },
+            textAlign: { xs: 'center', sm: 'left' },
           }}>
           FREE SHIPPING
         </Typography>
@@ -64,12 +65,13 @@ const MessageBanner = () => {
             p: 1,
             mr: 2,
             borderRadius: '16px',
-            fontSize: { xs: '12px', sm: '14px' },
+            fontSize: { xs: '14px', sm: '14px' },
             color: 'black',
+            textAlign: { xs: 'center', sm: 'left' },
           }}>
           On Orders Over
           <Box component='span' sx={{ fontWeight: 'bold' }}>
-            $49
+            $35
           </Box>
         </Typography>
 

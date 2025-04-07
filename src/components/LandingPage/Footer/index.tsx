@@ -58,7 +58,7 @@ const Footer = () => {
                 component={Link}
                 href={info.facebook}
                 target='_blank'>
-                Facebook
+                Lux Cars Cambodia
               </Typography>
             </Box>
             <Box component='li' sx={{ mb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
@@ -79,7 +79,7 @@ const Footer = () => {
                 component={Link}
                 href={info.instagram}
                 target='_blank'>
-                Instagram
+                luxcar_cambodia
               </Typography>
             </Box>
             <Box component='li' sx={{ mb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
