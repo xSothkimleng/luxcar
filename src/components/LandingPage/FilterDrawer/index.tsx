@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseIcon from '@mui/icons-material/Close';
-import { Car } from '@/types/car';
 import Grid from '@mui/material/Grid2';
 import {
   Box,
@@ -34,32 +33,15 @@ import { useColors } from '@/hooks/useColor';
 import { useModels } from '@/hooks/useModel';
 import { useStatuses } from '@/hooks/useStatus';
 import Image from 'next/image';
+import { PaginatedCarsParams } from '@/hooks/usePaginatedCars';
 
 interface FilterDrawerProps {
-  cars: Car[];
-  setFilteredCars: React.Dispatch<React.SetStateAction<Car[]>>;
+  onFilterChange: (filters: Partial<PaginatedCarsParams>) => void;
+  initialFilters?: Partial<PaginatedCarsParams>;
   initialModelId?: string | null;
 }
 
-// Define filter types for better type safety
-type FilterState = {
-  brand: string;
-  color: string;
-  model: string;
-  search: string;
-  status: string;
-};
-
-// Default filter values
-const DEFAULT_FILTERS: FilterState = {
-  brand: 'All Brands',
-  color: 'All Colors',
-  model: 'All Models',
-  status: 'All Statuses',
-  search: '',
-};
-
-const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, initialModelId = null }) => {
+const FilterDrawer: React.FC<FilterDrawerProps> = ({ onFilterChange, initialFilters = {}, initialModelId = null }) => {
   // Theme and responsive detection
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -70,9 +52,6 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
   const { data: models, isLoading: modelsLoading } = useModels();
   const { data: statuses, isLoading: statusesLoading } = useStatuses();
 
-  // Consolidated filter state
-  const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS });
-
   // UI state
   const [openDialog, setOpenDialog] = useState(false);
   const [openSelectModelDialog, setOpenSelectModelDialog] = useState(false);
@@ -80,102 +59,130 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
   const [isClient, setIsClient] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
+  // Filter states
+  const [selectedBrandId, setSelectedBrandId] = useState<string | undefined>(initialFilters.brandId);
+  const [selectedColorId, setSelectedColorId] = useState<string | undefined>(initialFilters.colorId);
+  const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
+    initialFilters.modelId || initialModelId || undefined,
+  );
+  const [selectedStatusId, setSelectedStatusId] = useState<string | undefined>(initialFilters.statusId);
+  const [searchTerm, setSearchTerm] = useState<string>(initialFilters.search || '');
+
   // Set isClient to true after hydration
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Handle initialModelId
+  // Initialize filters from props
   useEffect(() => {
     if (initialModelId && models?.length) {
       const matchingModel = models.find(model => model.id === initialModelId);
       if (matchingModel) {
-        setFilters(prev => ({ ...prev, model: matchingModel.name }));
+        setSelectedModelId(matchingModel.id);
+        applyFilters({
+          modelId: matchingModel.id,
+        });
       }
     }
   }, [initialModelId, models]);
 
   // Mobile model dialog on first visit
   useEffect(() => {
-    if (isMobile && filters.model === 'All Models' && !initialModelId && !dialogSelectModelShown) {
+    if (isMobile && !selectedModelId && !initialModelId && !dialogSelectModelShown) {
       setOpenSelectModelDialog(true);
       setDialogSelectModelShown(true);
     }
-  }, [isMobile, filters.model, initialModelId, dialogSelectModelShown]);
+  }, [isMobile, selectedModelId, initialModelId, dialogSelectModelShown]);
 
-  // Filter handlers with useCallback for better performance
-  const handleFilterChange = useCallback((type: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [type]: value }));
-  }, []);
+  // Apply filters function
+  const applyFilters = useCallback(
+    (changedFilters: Partial<PaginatedCarsParams>) => {
+      const newFilters: Partial<PaginatedCarsParams> = {
+        brandId: selectedBrandId,
+        colorId: selectedColorId,
+        modelId: selectedModelId,
+        statusId: selectedStatusId,
+        search: searchTerm,
+        ...changedFilters,
+      };
+
+      // Count active filters
+      const count = Object.entries(newFilters).reduce((acc, [key, value]) => {
+        // Skip 'page', 'limit', 'sort', 'order'
+        if (['page', 'limit', 'sort', 'order'].includes(key)) return acc;
+
+        // Count filter if it has a value
+        return value ? acc + 1 : acc;
+      }, 0);
+
+      setActiveFiltersCount(count);
+
+      // Call the parent component's filter handler
+      onFilterChange(newFilters);
+    },
+    [selectedBrandId, selectedColorId, selectedModelId, selectedStatusId, searchTerm, onFilterChange],
+  );
+
+  // Filter handlers - wrap each in useCallback
+  const handleBrandSelect = useCallback(
+    (brandId: string | undefined) => {
+      setSelectedBrandId(brandId);
+      applyFilters({ brandId });
+    },
+    [applyFilters],
+  );
+
+  const handleColorSelect = useCallback(
+    (colorId: string | undefined) => {
+      setSelectedColorId(colorId);
+      applyFilters({ colorId });
+    },
+    [applyFilters],
+  );
 
   const handleModelSelect = useCallback(
-    (model: string) => {
-      handleFilterChange('model', model);
+    (modelId: string | undefined) => {
+      setSelectedModelId(modelId);
+      applyFilters({ modelId });
       setOpenSelectModelDialog(false);
     },
-    [handleFilterChange],
+    [applyFilters],
+  );
+
+  const handleStatusSelect = useCallback(
+    (statusId: string | undefined) => {
+      setSelectedStatusId(statusId);
+      applyFilters({ statusId });
+    },
+    [applyFilters],
+  );
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+      applyFilters({ search: e.target.value });
+    },
+    [applyFilters],
   );
 
   const resetFilters = useCallback(() => {
-    setFilters({ ...DEFAULT_FILTERS });
-  }, []);
+    setSelectedBrandId(undefined);
+    setSelectedColorId(undefined);
+    setSelectedModelId(undefined);
+    setSelectedStatusId(undefined);
+    setSearchTerm('');
+    applyFilters({
+      brandId: undefined,
+      colorId: undefined,
+      modelId: undefined,
+      statusId: undefined,
+      search: '',
+    });
+  }, [applyFilters]);
 
   // Dialog handlers
   const handleOpenDialog = useCallback(() => setOpenDialog(true), []);
   const handleCloseDialog = useCallback(() => setOpenDialog(false), []);
-
-  // Apply filters with useMemo for performance
-  useEffect(() => {
-    if (cars.length === 0) return;
-
-    // Apply filters
-    const filtered = cars.filter(car => {
-      // Search filter
-      if (
-        filters.search &&
-        !(
-          car.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-          car.brand?.name?.toLowerCase().includes(filters.search.toLowerCase())
-        )
-      ) {
-        return false;
-      }
-
-      // Brand filter
-      if (filters.brand !== 'All Brands' && car.brand?.name !== filters.brand) {
-        return false;
-      }
-
-      // Status filter
-      if (filters.status !== 'All Statuses' && car.status?.name !== filters.status) {
-        return false;
-      }
-
-      // Color filter
-      if (filters.color !== 'All Colors' && car.color?.name !== filters.color) {
-        return false;
-      }
-
-      // Model filter
-      if (filters.model !== 'All Models' && car.model?.name !== filters.model) {
-        return false;
-      }
-
-      return true;
-    });
-
-    setFilteredCars(filtered);
-
-    // Count active filters
-    const count = Object.entries(filters).reduce((acc, [key, value]) => {
-      // Skip 'search' if it's empty
-      if (key === 'search' && !value) return acc;
-      // Count filter if it's not a default value
-      return value !== DEFAULT_FILTERS[key as keyof FilterState] ? acc + 1 : acc;
-    }, 0);
-
-    setActiveFiltersCount(count);
-  }, [filters, cars, setFilteredCars]);
 
   // Memoize the color palette for better performance
   const colorPalette = useMemo(() => {
@@ -194,7 +201,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         <Grid size={1.2}>
           <Tooltip title='All Colors'>
             <Box
-              onClick={() => handleFilterChange('color', 'All Colors')}
+              onClick={() => handleColorSelect(undefined)}
               sx={{
                 width: '100%',
                 aspectRatio: '1/1',
@@ -202,7 +209,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
                 borderRadius: '50%',
                 margin: '0 auto',
                 boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                transform: filters.color === 'All Colors' ? 'scale(1.3)' : 'scale(1)',
+                transform: !selectedColorId ? 'scale(1.3)' : 'scale(1)',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 cursor: 'pointer',
                 '&:hover': {
@@ -218,7 +225,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           <Grid size={1.2} key={color.id}>
             <Tooltip title={color.name}>
               <Box
-                onClick={() => handleFilterChange('color', color.name)}
+                onClick={() => handleColorSelect(color.id)}
                 sx={{
                   width: '100%',
                   aspectRatio: '1/1',
@@ -226,7 +233,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
                   borderRadius: '50%',
                   margin: '0 auto',
                   boxShadow: 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                  transform: filters.color === color.name ? 'scale(1.3)' : 'scale(1)',
+                  transform: selectedColorId === color.id ? 'scale(1.3)' : 'scale(1)',
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   cursor: 'pointer',
                   '&:hover': {
@@ -241,7 +248,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         ))}
       </>
     );
-  }, [colors, colorsLoading, filters.color, handleFilterChange]);
+  }, [colors, colorsLoading, selectedColorId, handleColorSelect]);
 
   const statusList = useMemo(() => {
     if (statusesLoading) {
@@ -262,8 +269,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
       <>
         <ListItemButton
           key='all-status'
-          selected={filters.status === 'All Statuses'}
-          onClick={() => handleFilterChange('status', 'All Statuses')}
+          selected={!selectedStatusId}
+          onClick={() => handleStatusSelect(undefined)}
           sx={{
             '&.Mui-selected': {
               backgroundColor: 'black',
@@ -276,7 +283,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           <ListItemText
             primary='All'
             primaryTypographyProps={{
-              fontWeight: filters.status === 'All Statuses' ? 'bold' : 'normal',
+              fontWeight: !selectedStatusId ? 'bold' : 'normal',
             }}
           />
         </ListItemButton>
@@ -284,8 +291,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         {statuses?.map(status => (
           <ListItemButton
             key={status.id}
-            selected={filters.status === status.name}
-            onClick={() => handleFilterChange('status', status.name)}
+            selected={selectedStatusId === status.id}
+            onClick={() => handleStatusSelect(status.id)}
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'black',
@@ -298,14 +305,14 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             <ListItemText
               primary={status.name}
               primaryTypographyProps={{
-                fontWeight: filters.status === status.name ? 'bold' : 'normal',
+                fontWeight: selectedStatusId === status.id ? 'bold' : 'normal',
               }}
             />
           </ListItemButton>
         ))}
       </>
     );
-  }, [filters.status, handleFilterChange, statuses, statusesLoading]);
+  }, [statuses, statusesLoading, selectedStatusId, handleStatusSelect]);
 
   // Memoize the brand list for better performance
   const brandList = useMemo(() => {
@@ -327,8 +334,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
       <>
         <ListItemButton
           key='all-brands'
-          selected={filters.brand === 'All Brands'}
-          onClick={() => handleFilterChange('brand', 'All Brands')}
+          selected={!selectedBrandId}
+          onClick={() => handleBrandSelect(undefined)}
           sx={{
             '&.Mui-selected': {
               backgroundColor: 'black',
@@ -341,7 +348,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           <ListItemText
             primary='All Brands'
             primaryTypographyProps={{
-              fontWeight: filters.brand === 'All Brands' ? 'bold' : 'normal',
+              fontWeight: !selectedBrandId ? 'bold' : 'normal',
             }}
           />
         </ListItemButton>
@@ -349,8 +356,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         {brands?.map(brand => (
           <ListItemButton
             key={brand.id}
-            selected={filters.brand === brand.name}
-            onClick={() => handleFilterChange('brand', brand.name)}
+            selected={selectedBrandId === brand.id}
+            onClick={() => handleBrandSelect(brand.id)}
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'black',
@@ -363,14 +370,14 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             <ListItemText
               primary={brand.name}
               primaryTypographyProps={{
-                fontWeight: filters.brand === brand.name ? 'bold' : 'normal',
+                fontWeight: selectedBrandId === brand.id ? 'bold' : 'normal',
               }}
             />
           </ListItemButton>
         ))}
       </>
     );
-  }, [brands, brandsLoading, filters.brand, handleFilterChange]);
+  }, [brands, brandsLoading, selectedBrandId, handleBrandSelect]);
 
   // Memoize the model grid for better performance
   const modelGrid = useMemo(() => {
@@ -392,15 +399,14 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
       <>
         <Grid
           size={4}
-          onClick={() => handleModelSelect('All Models')}
+          onClick={() => handleModelSelect(undefined)}
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             aspectRatio: '1/1',
-            boxShadow:
-              filters.model === 'All Models' ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
-            borderRadius: filters.model === 'All Models' ? '8px' : '0px',
+            boxShadow: !selectedModelId ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+            borderRadius: !selectedModelId ? '8px' : '0px',
             transform: 'scale(1)',
             transition: 'transform 0.2s, box-shadow 0.2s',
             cursor: 'pointer',
@@ -409,7 +415,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
             },
           }}
           role='button'
-          aria-pressed={filters.model === 'All Models'}>
+          aria-pressed={!selectedModelId}>
           <Typography>All Models</Typography>
         </Grid>
 
@@ -417,7 +423,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
           <Grid
             key={model.id}
             size={4}
-            onClick={() => handleModelSelect(model.name)}
+            onClick={() => handleModelSelect(model.id)}
             sx={{
               position: 'relative',
               display: 'flex',
@@ -425,8 +431,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
               alignItems: 'center',
               aspectRatio: '1/1',
               boxShadow:
-                filters.model === model.name ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
-              borderRadius: filters.model === model.name ? '8px' : '0px',
+                selectedModelId === model.id ? 'rgba(99, 99, 99, 0.4) 0px 2px 8px 0px' : 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px',
+              borderRadius: selectedModelId === model.id ? '8px' : '0px',
               transform: 'scale(1)',
               transition: 'transform 0.2s, box-shadow 0.2s',
               cursor: 'pointer',
@@ -435,7 +441,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
               },
             }}
             role='button'
-            aria-pressed={filters.model === model.name}>
+            aria-pressed={selectedModelId === model.id}>
             {model.imageUrl ? (
               <Image
                 unoptimized
@@ -452,51 +458,139 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         ))}
       </>
     );
-  }, [models, modelsLoading, filters.model, handleModelSelect]);
+  }, [models, modelsLoading, selectedModelId, handleModelSelect]);
 
   // Active filter chips
   const activeFilterChips = useMemo(() => {
     const chips = [];
 
-    if (filters.color !== 'All Colors') {
-      chips.push(
-        <Chip
-          key='color-chip'
-          label={filters.color}
-          variant='filled'
-          onDelete={() => handleFilterChange('color', 'All Colors')}
-        />,
-      );
+    // Color chip
+    if (selectedColorId) {
+      const selectedColor = colors?.find(c => c.id === selectedColorId);
+      if (selectedColor) {
+        chips.push(
+          <Chip
+            key='color-chip'
+            label={selectedColor.name}
+            variant='filled'
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              color: 'white',
+            }}
+            avatar={
+              <Box
+                component='span'
+                sx={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  backgroundColor: selectedColor.rgb,
+                }}
+              />
+            }
+            onDelete={() => handleColorSelect(undefined)}
+          />,
+        );
+      }
     }
 
-    if (filters.brand !== 'All Brands') {
-      chips.push(
-        <Chip
-          key='brand-chip'
-          label={filters.brand}
-          variant='filled'
-          onDelete={() => handleFilterChange('brand', 'All Brands')}
-        />,
-      );
+    // Brand chip
+    if (selectedBrandId) {
+      const selectedBrand = brands?.find(b => b.id === selectedBrandId);
+      if (selectedBrand) {
+        chips.push(
+          <Chip
+            key='brand-chip'
+            label={selectedBrand.name}
+            variant='filled'
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              color: 'white',
+            }}
+            onDelete={() => handleBrandSelect(undefined)}
+          />,
+        );
+      }
     }
 
-    if (filters.model !== 'All Models') {
+    // Model chip
+    if (selectedModelId) {
+      const selectedModel = models?.find(m => m.id === selectedModelId);
+      if (selectedModel) {
+        chips.push(
+          <Chip
+            key='model-chip'
+            label={selectedModel.name}
+            variant='filled'
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              color: 'white',
+            }}
+            onDelete={() => handleModelSelect(undefined)}
+          />,
+        );
+      }
+    }
+
+    // Status chip
+    if (selectedStatusId) {
+      const selectedStatus = statuses?.find(s => s.id === selectedStatusId);
+      if (selectedStatus) {
+        chips.push(
+          <Chip
+            key='status-chip'
+            label={selectedStatus.name}
+            variant='filled'
+            sx={{
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              color: 'white',
+            }}
+            onDelete={() => handleStatusSelect(undefined)}
+          />,
+        );
+      }
+    }
+
+    // Search term chip
+    if (searchTerm) {
       chips.push(
         <Chip
-          key='model-chip'
-          label={filters.model}
+          key='search-chip'
+          label={`Search: ${searchTerm}`}
           variant='filled'
-          onDelete={() => handleFilterChange('model', 'All Models')}
+          sx={{
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            color: 'white',
+          }}
+          onDelete={() => {
+            setSearchTerm('');
+            applyFilters({ search: '' });
+          }}
         />,
       );
     }
 
     return chips.length > 0 ? (
-      <Stack direction='row' spacing={1} useFlexGap sx={{ flexWrap: 'wrap', mb: 2 }}>
+      <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap' sx={{ mb: 2 }}>
         {chips}
       </Stack>
     ) : null;
-  }, [filters, handleFilterChange]);
+  }, [
+    selectedColorId,
+    selectedBrandId,
+    selectedModelId,
+    selectedStatusId,
+    searchTerm,
+    colors,
+    brands,
+    models,
+    statuses,
+    handleColorSelect,
+    handleBrandSelect,
+    handleModelSelect,
+    handleStatusSelect,
+    applyFilters,
+  ]);
 
   // Main filter content
   const filterContent = useMemo(
@@ -514,8 +608,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
         <TextField
           fullWidth
           placeholder='Search cars...'
-          value={filters.search}
-          onChange={e => handleFilterChange('search', e.target.value)}
+          value={searchTerm}
+          onChange={handleSearchChange}
           variant='outlined'
           size='small'
           sx={{
@@ -591,14 +685,14 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({ cars, setFilteredCars, init
     [
       isMobile,
       activeFilterChips,
-      filters.search,
+      searchTerm,
       colorPalette,
       statusList,
       brandList,
       modelGrid,
       handleCloseDialog,
       resetFilters,
-      handleFilterChange,
+      handleSearchChange,
     ],
   );
 

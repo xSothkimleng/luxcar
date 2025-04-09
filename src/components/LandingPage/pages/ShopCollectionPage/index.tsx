@@ -15,6 +15,8 @@ import {
   Link,
   CircularProgress,
   Alert,
+  Pagination,
+  Stack,
 } from '@mui/material';
 import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
@@ -22,35 +24,107 @@ import { Car } from '@/types/car';
 import FilterDrawer from '@/components/LandingPage/FilterDrawer';
 import CarCard from '../../CarCard';
 import CarCardSkeleton from '@/components/skeleton/CarCardSkeleton';
-import { useCars } from '@/hooks/useCar';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useSearchParams } from 'next/navigation';
+import { usePaginatedCars, PaginatedCarsParams } from '@/hooks/usePaginatedCars';
+
+// Constants
+const ITEMS_PER_PAGE = 12; // Adjust as needed
 
 const ShopCollectionPage = () => {
-  const { data: cars, isLoading, error } = useCars();
   const searchParams = useSearchParams();
   const modelIdFromQuery = searchParams.get('model');
+  const pageFromQuery = searchParams.get('page');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // UI States
   const [openCarDialog, setOpenCarDialog] = useState(false);
-  const [filteredCars, setFilteredCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const handleViewCar = (car: Car) => {
-    setSelectedCar(car);
-    setIsDetailLoading(true);
-    setOpenCarDialog(true);
-    setIsDetailLoading(false);
+  // Pagination and Filter States
+  const [currentPage, setCurrentPage] = useState(pageFromQuery ? parseInt(pageFromQuery) : 1);
+  const [filterParams, setFilterParams] = useState<Omit<PaginatedCarsParams, 'page' | 'limit'>>({
+    sort: 'createdAt',
+    order: 'desc',
+    modelId: modelIdFromQuery || undefined,
+  });
+
+  // Combine pagination and filter params
+  const queryParams: PaginatedCarsParams = {
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
+    ...filterParams,
   };
 
-  useEffect(() => {
-    if (cars) {
-      setFilteredCars(cars);
+  // Fetch paginated and filtered cars
+  const { data: paginatedData, isLoading, error } = usePaginatedCars(queryParams);
+
+  // Handle filter changes
+  const handleFilterChange = (newFilters: Partial<PaginatedCarsParams>) => {
+    setFilterParams(prev => ({
+      ...prev,
+      ...newFilters,
+    }));
+
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
+
+    // Update URL with new parameters
+    updateUrlParams({
+      ...filterParams,
+      ...newFilters,
+      page: 1,
+    });
+  };
+
+  // Handle page change
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+
+    // Scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+
+    // Update URL with new page
+    updateUrlParams({
+      ...filterParams,
+      page,
+    });
+  };
+
+  // Update URL with query parameters
+  const updateUrlParams = (params: Partial<PaginatedCarsParams>) => {
+    const url = new URL(window.location.href);
+    const urlParams = new URLSearchParams(url.search);
+
+    // Set or clear each parameter
+    if (params.page && params.page > 1) {
+      urlParams.set('page', params.page.toString());
+    } else {
+      urlParams.delete('page');
     }
-  }, [cars]);
+
+    if (params.modelId) {
+      urlParams.set('model', params.modelId);
+    } else {
+      urlParams.delete('model');
+    }
+
+    // Replace URL without reloading the page
+    const newUrl = `${url.pathname}?${urlParams.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  };
+
+  // Handle view car details
+  const handleViewCar = (car: Car) => {
+    setSelectedCar(car);
+    setOpenCarDialog(true);
+  };
 
   // Handle scroll to top button visibility
   useEffect(() => {
@@ -71,10 +145,10 @@ const ShopCollectionPage = () => {
 
   // Generate skeleton placeholders
   const renderSkeletons = () => {
-    return Array(6)
+    return Array(ITEMS_PER_PAGE)
       .fill(0)
       .map((_, index) => (
-        <Grid item xs={6} sm={6} md={4} key={`skeleton-${index}`}>
+        <Grid item xs={6} sm={6} md={4} lg={3} key={`skeleton-${index}`}>
           <CarCardSkeleton />
         </Grid>
       ));
@@ -150,11 +224,7 @@ const ShopCollectionPage = () => {
                 opacity: isLoading ? 0.7 : 1,
                 pointerEvents: isLoading ? 'none' : 'auto',
               }}>
-              <FilterDrawer
-                cars={cars || []}
-                setFilteredCars={setFilteredCars}
-                initialModelId={modelIdFromQuery} // Pass this prop
-              />
+              <FilterDrawer onFilterChange={handleFilterChange} initialFilters={filterParams} initialModelId={modelIdFromQuery} />
             </Paper>
           </Grid>
         )}
@@ -166,7 +236,7 @@ const ShopCollectionPage = () => {
             <Grid container spacing={3}>
               {renderSkeletons()}
             </Grid>
-          ) : filteredCars.length === 0 ? (
+          ) : !paginatedData || paginatedData.items.length === 0 ? (
             <Paper
               elevation={0}
               sx={{
@@ -180,13 +250,47 @@ const ShopCollectionPage = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={{ xs: 1, md: 2 }}>
-              {filteredCars.map(car => (
-                <Grid item xs={6} sm={6} md={4} key={car.id}>
-                  <CarCard car={car} handleViewCar={handleViewCar} />
-                </Grid>
-              ))}
-            </Grid>
+            <>
+              {/* Product Grid */}
+              <Grid container spacing={{ xs: 1, md: 2 }}>
+                {paginatedData.items.map(car => (
+                  <Grid item xs={6} sm={6} md={4} lg={3} key={car.id}>
+                    <CarCard car={car} handleViewCar={handleViewCar} />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Pagination Controls */}
+              {paginatedData.meta.totalPages > 1 && (
+                <Stack spacing={2} sx={{ mt: 4, alignItems: 'center' }}>
+                  <Pagination
+                    count={paginatedData.meta.totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color='primary'
+                    size={isMobile ? 'small' : 'medium'}
+                    showFirstButton
+                    showLastButton
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        borderRadius: '8px',
+                      },
+                      '& .Mui-selected': {
+                        fontWeight: 'bold',
+                        backgroundColor: 'black',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        },
+                      },
+                    }}
+                  />
+                  <Typography variant='body2' color='text.secondary'>
+                    Showing {paginatedData.items.length} of {paginatedData.meta.totalItems} items
+                  </Typography>
+                </Stack>
+              )}
+            </>
           )}
         </Grid>
       </Grid>
@@ -201,7 +305,7 @@ const ShopCollectionPage = () => {
             opacity: isLoading ? 0.7 : 1,
             pointerEvents: isLoading ? 'none' : 'auto',
           }}>
-          <FilterDrawer cars={cars || []} setFilteredCars={setFilteredCars} initialModelId={modelIdFromQuery} />
+          <FilterDrawer onFilterChange={handleFilterChange} initialFilters={filterParams} initialModelId={modelIdFromQuery} />
         </Box>
       )}
 
@@ -224,7 +328,7 @@ const ShopCollectionPage = () => {
           },
         }}>
         <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
-          {isDetailLoading ? (
+          {isLoading ? (
             <Box
               sx={{
                 display: 'flex',

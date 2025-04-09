@@ -53,14 +53,12 @@ const PopularCar = () => {
 
       <Grid container spacing={1}>
         {isLoading ? (
-          // Skeleton loading state - show 12 placeholders
           Array.from(new Array(12)).map((_, index) => (
             <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`} sx={{ height: '300px' }}>
               <Skeleton variant='rectangular' animation='wave' width='100%' height='100%' sx={{ borderRadius: 1 }} />
             </Grid>
           ))
         ) : randomAlphabeticalCars && randomAlphabeticalCars.length > 0 ? (
-          // Display recent cars sorted alphabetically
           randomAlphabeticalCars.map(car => (
             <Grid item xs={12} sm={6} md={4} key={car.id} sx={{ height: '300px' }}>
               <CarThumbnail car={car} />
