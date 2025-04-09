@@ -20,6 +20,16 @@ export function useCars() {
   });
 }
 
+export function usePopularCars() {
+  return useQuery({
+    queryKey: ['popularCars'],
+    queryFn: async () => {
+      const { data } = await axios.get<Car[]>('/api/cars/popular');
+      return data;
+    },
+  });
+}
+
 // Fetch a single car by ID
 export function useCar(id: string) {
   return useQuery({
