@@ -53,7 +53,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
             },
           }}>
           <Image
-            // Remove unoptimized flag
+            unoptimized
             src={car.thumbnailImage?.url || '/assets/images/lux-logo.png'}
             alt={car.name}
             fill

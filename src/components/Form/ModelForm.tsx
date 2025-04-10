@@ -240,7 +240,7 @@ const ModelForm = ({ model, isEdit = false, onClose, onSuccess }: ModelFormProps
                   borderRadius: '4px',
                   overflow: 'hidden',
                 }}>
-                <Image src={existingImageUrl} alt='Model Logo' fill style={{ objectFit: 'contain' }} />
+                <Image unoptimized src={existingImageUrl} alt='Model Logo' fill style={{ objectFit: 'contain' }} />
               </Box>
               <Button
                 variant='contained'

@@ -94,6 +94,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
               {imageUrls && imageUrls.length > 0 ? (
                 <>
                   <Image
+                    unoptimized
                     fill
                     sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={imageUrls[activeImage]}
@@ -106,8 +107,6 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     placeholder='blur'
                     blurDataURL={blurPlaceholder}
                     onLoadingComplete={() => handleImageLoaded(activeImage)}
-                    // Remove unoptimized prop
-                    priority={activeImage === 0} // Only prioritize main image
                   />
                   {!imagesLoaded[activeImage] && (
                     <Box
@@ -249,6 +248,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     }}
                     onClick={e => e.stopPropagation()}>
                     <Image
+                      unoptimized
                       fill
                       sizes='95vw'
                       placeholder='blur'
@@ -319,6 +319,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                       },
                     }}>
                     <Image
+                      unoptimized
                       src={image}
                       alt={`Thumbnail ${index}`}
                       fill

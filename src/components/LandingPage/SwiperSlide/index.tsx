@@ -218,11 +218,11 @@ const SwiperSlideCarShowCase = () => {
                     opacity: 0.5,
                   }}>
                   <Image
+                    unoptimized
                     src={item.bgImage.url}
                     alt=''
                     fill
                     style={{ objectFit: 'cover' }}
-                    priority={index === 0}
                     loading={index === 0 ? 'eager' : 'lazy'}
                     quality={75}
                     sizes='100vw'
@@ -292,6 +292,7 @@ const SwiperSlideCarShowCase = () => {
                         }}>
                         {item.mainImage?.url ? (
                           <Image
+                            unoptimized
                             src={item.mainImage.url}
                             alt={item.title}
                             fill
@@ -299,7 +300,6 @@ const SwiperSlideCarShowCase = () => {
                               objectFit: 'contain',
                               filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
                             }}
-                            priority={index === 0}
                             loading={index === 0 ? 'eager' : 'lazy'}
                             quality={85}
                             sizes='(max-width: 768px) 100vw, 50vw'

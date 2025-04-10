@@ -136,7 +136,7 @@ const ProfilePage = () => {
                   boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                   border: '4px solid white',
                 }}>
-                <Image src='/assets/images/logo.png' alt='Profile' fill style={{ objectFit: 'contain' }} />
+                <Image unoptimized src='/assets/images/logo.png' alt='Profile' fill style={{ objectFit: 'contain' }} />
               </Box>
               <Typography
                 variant='h4'

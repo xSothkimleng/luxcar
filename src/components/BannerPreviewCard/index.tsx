@@ -106,7 +106,7 @@ const BannerPreviewCard = ({ slide, onDelete, onEdit }: BannerPreviewCardProps) 
         onClick={handleOpenDetail}>
         {/* Background image */}
         {slide.bgImage ? (
-          <Image src={slide.bgImage.url} alt={slide.title} fill style={{ objectFit: 'cover' }} quality={80} />
+          <Image unoptimized src={slide.bgImage.url} alt={slide.title} fill style={{ objectFit: 'cover' }} quality={80} />
         ) : (
           <Box sx={{ p: 2, height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography variant='body2' color='text.secondary' align='center'>
@@ -199,7 +199,7 @@ const BannerPreviewCard = ({ slide, onDelete, onEdit }: BannerPreviewCardProps) 
               <Paper elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Box sx={{ position: 'relative', width: '100%', height: 250, borderRadius: 1, overflow: 'hidden' }}>
                   {slide.bgImage ? (
-                    <Image src={slide.bgImage.url} alt='Background' fill style={{ objectFit: 'cover' }} />
+                    <Image unoptimized src={slide.bgImage.url} alt='Background' fill style={{ objectFit: 'cover' }} />
                   ) : (
                     <Box
                       sx={{
@@ -223,6 +223,7 @@ const BannerPreviewCard = ({ slide, onDelete, onEdit }: BannerPreviewCardProps) 
                 <Box sx={{ position: 'relative', width: '100%', height: 250, borderRadius: 1, overflow: 'hidden' }}>
                   {slide.mainImage ? (
                     <Image
+                      unoptimized
                       src={slide.mainImage.url}
                       alt='Main'
                       fill

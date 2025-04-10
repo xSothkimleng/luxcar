@@ -44,6 +44,7 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           transform: isHovered ? 'scale(1.05)' : 'scale(1)',
         }}>
         <Image
+          unoptimized
           src={imageUrl}
           alt={car.name}
           fill

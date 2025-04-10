@@ -21,6 +21,7 @@ const Footer = () => {
                 cursor: 'pointer',
               }}>
               <Image
+                unoptimized
                 src='/assets/images/lux-logo-white.png'
                 alt='LuxCar Logo'
                 fill

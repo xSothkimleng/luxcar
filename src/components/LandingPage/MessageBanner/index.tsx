@@ -31,7 +31,13 @@ const MessageBanner = () => {
             position: 'relative',
             display: { xs: 'block', sm: 'block' },
           }}>
-          <Image src='/assets/images/Flag_of_Cambodia.svg' alt='Cambodia Flag' fill style={{ objectFit: 'contain' }} />
+          <Image
+            unoptimized
+            src='/assets/images/Flag_of_Cambodia.svg'
+            alt='Cambodia Flag'
+            fill
+            style={{ objectFit: 'contain' }}
+          />
         </Box>
 
         {/* Free Shipping Text */}
@@ -81,7 +87,7 @@ const MessageBanner = () => {
             height: 18,
             position: 'relative',
           }}>
-          <Image src='/assets/images/grab.svg' alt='Grab Logo' fill style={{ objectFit: 'contain' }} />
+          <Image unoptimized src='/assets/images/grab.svg' alt='Grab Logo' fill style={{ objectFit: 'contain' }} />
         </Box>
       </Box>
     </Box>

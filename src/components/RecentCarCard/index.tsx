@@ -36,6 +36,7 @@ const RecentCarCard: React.FC<RecentCarCardProps> = ({ car }) => {
           transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
         }}>
         <Image
+          unoptimized
           src={car.thumbnailImage?.url || '/assets/images/lux-logo-white.pmg'}
           alt={car.name}
           fill

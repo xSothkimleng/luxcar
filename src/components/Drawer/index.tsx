@@ -134,7 +134,14 @@ const DashboardDrawer: React.FC<MiniDrawerProps> = ({ children }) => {
               mt: 2,
               transition: 'all 0.3s ease',
             }}>
-            <Image src='/assets/images/lux-logo.png' alt='logo' width={100} height={80} style={{ marginRight: '0.5rem' }} />
+            <Image
+              unoptimized
+              src='/assets/images/lux-logo.png'
+              alt='logo'
+              width={100}
+              height={80}
+              style={{ marginRight: '0.5rem' }}
+            />
             <Typography
               variant='h6'
               sx={{

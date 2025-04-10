@@ -142,7 +142,7 @@ const BrandForm = ({ brand, isEdit = false, onClose, onSuccess }: BrandFormProps
                   borderRadius: '4px',
                   overflow: 'hidden',
                 }}>
-                <Image src={existingImageUrl} alt='Brand Logo' fill style={{ objectFit: 'contain' }} />
+                <Image unoptimized src={existingImageUrl} alt='Brand Logo' fill style={{ objectFit: 'contain' }} />
               </Box>
               <Button
                 variant='contained'

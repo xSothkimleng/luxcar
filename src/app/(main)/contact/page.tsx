@@ -45,7 +45,7 @@ const ContactPage: React.FC = () => {
                   textAlign: 'center',
                 }}>
                 <Box sx={{ width: 200, height: 100, position: 'relative', mb: 2 }}>
-                  <Image src='/assets/images/lux-logo.png' alt='LuxCars Logo' fill style={{ objectFit: 'contain' }} />
+                  <Image unoptimized src='/assets/images/lux-logo.png' alt='LuxCars Logo' fill style={{ objectFit: 'contain' }} />
                 </Box>
 
                 <Typography variant='body1' paragraph>
@@ -161,10 +161,10 @@ const ContactPage: React.FC = () => {
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                     <Box sx={{ width: 40, height: 60, position: 'relative' }}>
-                      <Image src='/assets/images/aba.png' alt='ABA Bank' fill style={{ objectFit: 'contain' }} />
+                      <Image unoptimized src='/assets/images/aba.png' alt='ABA Bank' fill style={{ objectFit: 'contain' }} />
                     </Box>
                     <Box sx={{ width: 80, height: 60, position: 'relative' }}>
-                      <Image src='/assets/images/cash.png' alt='Cash Payment' fill style={{ objectFit: 'contain' }} />
+                      <Image unoptimized src='/assets/images/cash.png' alt='Cash Payment' fill style={{ objectFit: 'contain' }} />
                     </Box>
                   </Box>
                 </CardContent>

@@ -231,6 +231,7 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
           {existingMainImageUrl && !replaceMainImage && (
             <Box sx={{ position: 'relative', mb: 2 }}>
               <Image
+                unoptimized
                 src={existingMainImageUrl}
                 alt='Current main image'
                 width={300} // Add explicit width
@@ -273,6 +274,7 @@ const BannerSlideForm = ({ slideId, initialData, onClose, onSuccess }: BannerSli
           {existingBgImageUrl && !replaceBgImage && (
             <Box sx={{ position: 'relative', mb: 2 }}>
               <Image
+                unoptimized
                 src={existingBgImageUrl}
                 alt='Current background image'
                 width={300} // Add explicit width

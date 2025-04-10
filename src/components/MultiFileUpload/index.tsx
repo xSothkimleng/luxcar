@@ -160,12 +160,12 @@ export default function MultiFileUpload({
                 <ImagePreview>
                   {previews[index] ? (
                     <Image
+                      unoptimized
                       src={previews[index]}
                       alt={`Preview ${index}`}
                       fill
                       sizes='(max-width: 768px) 100vw, 33vw'
                       style={{ objectFit: 'cover' }}
-                      priority={index < 4}
                     />
                   ) : (
                     <Box
