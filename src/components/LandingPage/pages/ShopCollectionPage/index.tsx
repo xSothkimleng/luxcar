@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   Box,
   Dialog,
@@ -18,7 +18,6 @@ import {
   Pagination,
   Stack,
 } from '@mui/material';
-import CarDetail from '@/components/CarDetail';
 import CloseIcon from '@mui/icons-material/Close';
 import { Car } from '@/types/car';
 import FilterDrawer from '@/components/LandingPage/FilterDrawer';
@@ -29,8 +28,11 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useSearchParams } from 'next/navigation';
 import { usePaginatedCars, PaginatedCarsParams } from '@/hooks/usePaginatedCars';
 
+// Lazy load the CarDetail component
+const CarDetail = lazy(() => import('@/components/CarDetail'));
+
 // Constants
-const ITEMS_PER_PAGE = 12; // Adjust as needed
+const ITEMS_PER_PAGE = 12;
 
 const ShopCollectionPage = () => {
   const searchParams = useSearchParams();
@@ -59,7 +61,7 @@ const ShopCollectionPage = () => {
     ...filterParams,
   };
 
-  // Fetch paginated and filtered cars
+  // Fetch paginated and filtered cars with added caching options
   const { data: paginatedData, isLoading, error } = usePaginatedCars(queryParams);
 
   // Handle filter changes
@@ -309,7 +311,7 @@ const ShopCollectionPage = () => {
         </Box>
       )}
 
-      {/* Car Detail Dialog */}
+      {/* Car Detail Dialog - Now with Lazy Loading */}
       <Dialog
         fullScreen={isMobile}
         fullWidth={!isMobile}
@@ -328,21 +330,8 @@ const ShopCollectionPage = () => {
           },
         }}>
         <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
-          {isLoading ? (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '50vh',
-              }}>
-              <CircularProgress size={60} />
-              <Typography variant='body1' sx={{ mt: 2 }}>
-                Loading car details...
-              </Typography>
-            </Box>
-          ) : selectedCar ? (
+          {/* Lazy load the car detail component */}
+          {selectedCar ? (
             <>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                 <IconButton
@@ -357,7 +346,24 @@ const ShopCollectionPage = () => {
                   <CloseIcon />
                 </IconButton>
               </Box>
-              <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
+              <Suspense
+                fallback={
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: '50vh',
+                    }}>
+                    <CircularProgress size={60} />
+                    <Typography variant='body1' sx={{ mt: 2 }}>
+                      Loading car details...
+                    </Typography>
+                  </Box>
+                }>
+                <CarDetail car={selectedCar} onBack={() => setOpenCarDialog(false)} />
+              </Suspense>
             </>
           ) : (
             <Typography p={4}>No car selected.</Typography>

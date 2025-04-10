@@ -41,7 +41,7 @@ export const paginatedCarsQueryKeys = {
   paginated: (params: PaginatedCarsParams) => [...paginatedCarsQueryKeys.all, params] as const,
 };
 
-// The main hook for fetching paginated cars
+// The main hook for fetching paginated cars with enhanced caching
 export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<PaginatedResponse<Car>, Error> {
   return useQuery({
     queryKey: paginatedCarsQueryKeys.paginated(params),
@@ -82,10 +82,30 @@ export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<Pa
         queryParams.append('statusId', params.statusId);
       }
 
-      // Fetch the data
+      // Fetch the data with caching headers respected
       const { data } = await axios.get<PaginatedResponse<Car>>(`/api/cars/paginated?${queryParams.toString()}`);
 
       return data;
     },
+    // Add caching strategies to React Query
+    staleTime: determineStaleTime(params), // Time until query is considered stale
+    placeholderData: previousData => previousData, // Show previous data while fetching new page
+    refetchOnWindowFocus: !params.search, // Don't refetch searches on window focus
   });
+}
+
+// Helper function to determine appropriate stale time based on parameters
+function determineStaleTime(params: PaginatedCarsParams): number {
+  // Search queries should be fresher
+  if (params.search) {
+    return 1000 * 60 * 1; // 1 minute
+  }
+
+  // First page with default sorting is cached longer
+  if (params.page === 1 && params.sort === 'createdAt' && params.order === 'desc') {
+    return 1000 * 60 * 5; // 5 minutes
+  }
+
+  // Default stale time
+  return 1000 * 60 * 3; // 3 minutes
 }

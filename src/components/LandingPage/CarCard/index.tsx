@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Box, Card, Chip, Typography } from '@mui/material';
 import { Car } from '@/types/car';
+import { useState } from 'react';
 
 interface CarCardProps {
   car: Car;
@@ -8,6 +9,11 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const blurDataURL =
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmNWY1ZjUiLz48L3N2Zz4=';
+
   return (
     <Card
       elevation={0}
@@ -30,7 +36,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
           bgcolor: '#f5f5f5',
           overflow: 'hidden',
         }}>
-        {/* Car image */}
+        {/* Car image - Optimized */}
         <Box
           sx={{
             position: 'absolute',
@@ -47,14 +53,41 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
             },
           }}>
           <Image
-            unoptimized
+            // Remove unoptimized flag
             src={car.thumbnailImage?.url || '/assets/images/lux-logo.png'}
             alt={car.name}
             fill
-            style={{ objectFit: 'fill' }}
-            quality={100}
+            sizes='(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw'
+            placeholder='blur'
+            blurDataURL={blurDataURL}
+            style={{
+              objectFit: 'fill',
+              opacity: imageLoaded ? 1 : 0,
+              transition: 'opacity 0.2s ease-in-out',
+            }}
+            quality={75} // Good balance between quality and size
+            onLoadingComplete={() => setImageLoaded(true)}
           />
+
+          {/* Show loading state until image is loaded */}
+          {!imageLoaded && (
+            <Box
+              sx={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f5f5f5',
+              }}>
+              <Typography variant='body2' color='text.secondary'>
+                Loading...
+              </Typography>
+            </Box>
+          )}
         </Box>
+
         {/* Brand Badge */}
         {car.brand && (
           <Chip
@@ -101,7 +134,7 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
           </Typography>
           {car.scale && (
             <Typography variant='body2' sx={{ color: 'gray', fontWeight: 'medium', fontSize: { xs: '0.8rem', md: '1rem' } }}>
-              Scale :{car.scale}
+              Scale: {car.scale}
             </Typography>
           )}
         </Box>

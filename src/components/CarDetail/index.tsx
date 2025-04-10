@@ -19,10 +19,15 @@ interface CarDetailProps {
   onBack?: () => void;
 }
 
+// Simple blur placeholder SVG
+const blurPlaceholder =
+  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmNWY1ZjUiLz48L3N2Zz4=';
+
 const CarDetail = ({ car }: CarDetailProps) => {
-  console.log('CarDetail', car);
   const [activeImage, setActiveImage] = useState(0);
   const [openImageFullScreen, setOpenImageFullScreen] = useState(false);
+  // Add loading state for images
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
   const handleOpenImageFullScreen = () => {
     setOpenImageFullScreen(true);
@@ -44,6 +49,14 @@ const CarDetail = ({ car }: CarDetailProps) => {
     if (imageUrls && imageUrls.length > 1) {
       setActiveImage(prev => (prev === imageUrls.length - 1 ? 0 : prev + 1));
     }
+  };
+
+  // Handle image loading state
+  const handleImageLoaded = (index: number) => {
+    setImagesLoaded(prev => ({
+      ...prev,
+      [index]: true,
+    }));
   };
 
   if (!car) {
@@ -85,10 +98,33 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={imageUrls[activeImage]}
                     alt={`${car.name} - Image ${activeImage + 1}`}
-                    style={{ objectFit: 'cover' }}
-                    priority
-                    unoptimized
+                    style={{
+                      objectFit: 'cover',
+                      opacity: imagesLoaded[activeImage] ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                    placeholder='blur'
+                    blurDataURL={blurPlaceholder}
+                    onLoadingComplete={() => handleImageLoaded(activeImage)}
+                    // Remove unoptimized prop
+                    priority={activeImage === 0} // Only prioritize main image
                   />
+                  {!imagesLoaded[activeImage] && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f5f5f5',
+                      }}>
+                      <DirectionsCarIcon sx={{ fontSize: 60, color: '#ccc' }} />
+                    </Box>
+                  )}
                   <Box
                     className='image-overlay'
                     sx={{
@@ -214,8 +250,9 @@ const CarDetail = ({ car }: CarDetailProps) => {
                     onClick={e => e.stopPropagation()}>
                     <Image
                       fill
-                      priority
-                      unoptimized
+                      sizes='95vw'
+                      placeholder='blur'
+                      blurDataURL={blurPlaceholder}
                       src={imageUrls[activeImage]}
                       alt={`${car.name} - Image ${activeImage + 1}`}
                       style={{
@@ -223,7 +260,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
                         maxWidth: '100%',
                         maxHeight: '100%',
                       }}
-                      sizes='100vw'
+                      loading='lazy' // Lazy load modal images
                     />
                   </Box>
 
@@ -248,7 +285,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
               </Fade>
             </Modal>
 
-            {/* Thumbnail Gallery */}
+            {/* Thumbnail Gallery - Optimized */}
             {imageUrls && imageUrls.length > 0 && (
               <Box
                 sx={{
@@ -281,7 +318,16 @@ const CarDetail = ({ car }: CarDetailProps) => {
                         opacity: 1,
                       },
                     }}>
-                    <Image src={image} alt={`Thumbnail ${index}`} fill sizes='80px' style={{ objectFit: 'cover' }} unoptimized />
+                    <Image
+                      src={image}
+                      alt={`Thumbnail ${index}`}
+                      fill
+                      sizes='80px'
+                      style={{ objectFit: 'cover' }}
+                      loading='lazy'
+                      placeholder='blur'
+                      blurDataURL={blurPlaceholder}
+                    />
                   </Box>
                 ))}
               </Box>
@@ -456,7 +502,7 @@ const CarDetail = ({ car }: CarDetailProps) => {
               </Box>
             </Box>
 
-            {/* Description Section */}
+            {/* Description Section - Lazy loaded */}
             <Box sx={{ flexGrow: 1 }}>
               <Typography
                 variant='subtitle1'
@@ -479,7 +525,6 @@ const CarDetail = ({ car }: CarDetailProps) => {
                   overflow: 'auto',
                   p: 2,
                   border: '1px solid #f0f0f0',
-
                   '&::-webkit-scrollbar': {
                     width: '8px',
                   },

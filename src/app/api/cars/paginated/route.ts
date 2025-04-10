@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
+// Define cache duration
+const CACHE_SHORT = 60; // 1 minute (for frequently changing data)
+const CACHE_MEDIUM = 60 * 10; // 10 minutes
+
 export async function GET(request: NextRequest) {
   try {
     // Extract query parameters with defaults
@@ -18,6 +22,13 @@ export async function GET(request: NextRequest) {
     const colorId = searchParams.get('colorId');
     const modelId = searchParams.get('modelId');
     const statusId = searchParams.get('statusId');
+
+    // Determine cache duration based on query type
+    let cacheDuration = CACHE_MEDIUM;
+    if (search || page > 1) {
+      // Shorter cache for searches and paginated results
+      cacheDuration = CACHE_SHORT;
+    }
 
     // Validate pagination inputs
     if (page < 1 || limit < 1 || limit > 50) {
@@ -55,31 +66,37 @@ export async function GET(request: NextRequest) {
     // Calculate pagination values
     const skip = (page - 1) * limit;
 
-    // Get total count of filtered cars for pagination metadata
-    const totalCount = await prisma.car.count({
-      where: filterConditions,
-    });
+    // Performance optimization: Split queries and run in parallel
+    const [totalCount, cars] = await Promise.all([
+      // Get total count of filtered cars for pagination metadata
+      prisma.car.count({
+        where: filterConditions,
+      }),
 
-    // Fetch paginated cars with filters
-    const cars = await prisma.car.findMany({
-      where: filterConditions,
-      skip,
-      take: limit,
-      orderBy: {
-        [sort]: order.toLowerCase() === 'asc' ? 'asc' : 'desc',
-      },
-      include: {
-        color: true,
-        brand: true,
-        model: true,
-        status: true,
-        thumbnailImage: true,
-        variantImages: true,
-      },
-    });
+      // Fetch paginated cars with filters
+      prisma.car.findMany({
+        where: filterConditions,
+        skip,
+        take: limit,
+        orderBy: {
+          [sort]: order.toLowerCase() === 'asc' ? 'asc' : 'desc',
+        },
+        // Only select what's needed for the grid view (optimize payload size)
+        include: {
+          color: true,
+          brand: true,
+          model: true,
+          status: true,
+          thumbnailImage: true,
+          // Only load variant images when explicitly requested
+          // This reduces payload size significantly
+          variantImages: search ? true : false,
+        },
+      }),
+    ]);
 
-    // Return data with pagination metadata
-    return NextResponse.json({
+    // Create response
+    const response = NextResponse.json({
       items: cars,
       meta: {
         currentPage: page,
@@ -89,6 +106,11 @@ export async function GET(request: NextRequest) {
         filteredCount: totalCount,
       },
     });
+
+    // Add cache headers
+    response.headers.set('Cache-Control', `public, s-maxage=${cacheDuration}, stale-while-revalidate=${cacheDuration * 2}`);
+
+    return response;
   } catch (error) {
     console.error('Error fetching paginated cars:', error);
     return NextResponse.json({ error: 'Failed to fetch cars' }, { status: 500 });
