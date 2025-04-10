@@ -46,6 +46,7 @@ export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<Pa
   return useQuery({
     queryKey: paginatedCarsQueryKeys.paginated(params),
     queryFn: async () => {
+      console.log('Fetching start...');
       // Build the query string
       const queryParams = new URLSearchParams();
 
