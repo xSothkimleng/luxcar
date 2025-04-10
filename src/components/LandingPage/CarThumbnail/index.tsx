@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Image from 'next/image';
 import { Car } from '@/types/car';
 import CloseIcon from '@mui/icons-material/Close';
-import CarDetail from '@/components/CarDetail';
 import { Box, Dialog, DialogContent, IconButton, Typography, useMediaQuery, useTheme } from '@mui/material';
+
+// Lazy load the CarDetail component
+const CarDetail = lazy(() => import('@/components/CarDetail'));
 
 interface CarThumbnailProps {
   car: Car;
@@ -42,8 +44,6 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           transform: isHovered ? 'scale(1.05)' : 'scale(1)',
         }}>
         <Image
-          priority
-          unoptimized
           src={imageUrl}
           alt={car.name}
           fill
@@ -51,7 +51,8 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           style={{
             objectFit: 'cover',
           }}
-          quality={100}
+          quality={80}
+          loading='lazy'
         />
       </Box>
 
@@ -117,43 +118,49 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           View Details
         </Typography>
       </Box>
-      <Dialog
-        fullScreen={isMobile}
-        fullWidth={!isMobile}
-        maxWidth={isMobile ? false : 'xl'}
-        open={openCarDialog}
-        onClose={() => setOpenCarDialog(false)}
-        sx={{
-          '& .MuiDialog-paper': {
-            overflow: 'hidden',
-            mt: isMobile ? '2rem' : 0,
-            borderTopLeftRadius: isMobile ? '1rem' : 0,
-            borderTopRightRadius: isMobile ? '1rem' : 0,
-          },
-        }}>
-        <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
-          {car ? (
-            <>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                <IconButton
-                  onClick={() => setOpenCarDialog(false)}
-                  sx={{
-                    zIndex: 1,
-                    color: 'black',
-                    '&:hover': {
-                      bgcolor: 'rgba(0,0,0,0.1)',
-                    },
-                  }}>
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-              <CarDetail car={car} onBack={() => setOpenCarDialog(false)} />
-            </>
-          ) : (
-            <Typography p={4}>Something went wrong.</Typography>
-          )}
-        </DialogContent>
-      </Dialog>
+
+      {/* Only render Dialog and its contents when it's actually open */}
+      {openCarDialog && (
+        <Dialog
+          fullScreen={isMobile}
+          fullWidth={!isMobile}
+          maxWidth={isMobile ? false : 'xl'}
+          open={openCarDialog}
+          onClose={() => setOpenCarDialog(false)}
+          sx={{
+            '& .MuiDialog-paper': {
+              overflow: 'hidden',
+              mt: isMobile ? '2rem' : 0,
+              borderTopLeftRadius: isMobile ? '1rem' : 0,
+              borderTopRightRadius: isMobile ? '1rem' : 0,
+            },
+          }}>
+          <DialogContent sx={{ paddingTop: isMobile ? 0 : 1 }}>
+            {car ? (
+              <>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                  <IconButton
+                    onClick={() => setOpenCarDialog(false)}
+                    sx={{
+                      zIndex: 1,
+                      color: 'black',
+                      '&:hover': {
+                        bgcolor: 'rgba(0,0,0,0.1)',
+                      },
+                    }}>
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+                <Suspense fallback={<Box p={4}>Loading car details...</Box>}>
+                  <CarDetail car={car} onBack={() => setOpenCarDialog(false)} />
+                </Suspense>
+              </>
+            ) : (
+              <Typography p={4}>Something went wrong.</Typography>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </Box>
   );
 };

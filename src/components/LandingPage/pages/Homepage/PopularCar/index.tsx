@@ -2,8 +2,21 @@
 import CarThumbnail from '@/components/LandingPage/CarThumbnail';
 import { Box, Grid, Typography, Skeleton, Alert } from '@mui/material';
 import { usePopularCars } from '@/hooks/useCar';
+import { useQueryClient } from '@tanstack/react-query';
+import { Car } from '@/types/car';
+import { useEffect } from 'react';
 
-const PopularCar = () => {
+interface PopularCarProps {
+  initialData?: Car[];
+}
+
+const PopularCar = ({ initialData }: PopularCarProps) => {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (initialData) {
+      queryClient.setQueryData(['popularCars'], initialData);
+    }
+  }, [initialData, queryClient]);
   const { data: cars, isLoading, isError } = usePopularCars();
 
   return (
@@ -25,7 +38,7 @@ const PopularCar = () => {
 
       <Grid container spacing={1}>
         {isLoading ? (
-          Array.from(new Array(12)).map((_, index) => (
+          Array.from(new Array(6)).map((_, index) => (
             <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`} sx={{ height: '300px' }}>
               <Skeleton variant='rectangular' animation='wave' width='100%' height='100%' sx={{ borderRadius: 1 }} />
             </Grid>

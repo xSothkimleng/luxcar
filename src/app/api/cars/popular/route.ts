@@ -1,33 +1,42 @@
-// src/app/api/cars/paginated/route.ts
+// src/app/api/cars/popular/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const randomCars = await prisma.$queryRaw<{ id: string }[]>`
-    SELECT id FROM "cars"
-    ORDER BY RANDOM()
-    LIMIT 12
-  `;
-
-    console.log('Random Cars:', randomCars);
-
-    const ids = randomCars.map(car => car.id);
-
+    // Fetch only what you need in a single query
     const cars = await prisma.car.findMany({
-      where: { id: { in: ids } },
-      include: {
-        color: true,
-        brand: true,
-        model: true,
-        status: true,
-        thumbnailImage: true,
-        variantImages: true,
+      take: 12,
+      orderBy: {
+        id: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+
+        thumbnailImage: {
+          select: {
+            url: true,
+          },
+        },
+
+        brand: {
+          select: {
+            name: true,
+          },
+        },
+        model: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
     return NextResponse.json(cars);
-  } catch {
+  } catch (error) {
+    console.error('Error fetching popular cars:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

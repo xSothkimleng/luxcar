@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
+import { Swiper as SwiperClass } from 'swiper'; // Import Swiper class type
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { useEffect, useRef, useState } from 'react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -12,13 +14,14 @@ import { Box, Container, Grid, Typography, Button, Skeleton, useTheme, useMediaQ
 import Link from 'next/link';
 import { useBannerSlides } from '@/hooks/useBanner';
 
-// Loading Skeleton Component
+// Loading Skeleton Component - Simplified for faster rendering
 const SwiperSkeleton = () => {
+  // Same as before
   return (
     <Box
       sx={{
         position: 'relative',
-        height: '600px',
+        height: { xs: '420px', md: '600px' },
         bgcolor: '#222',
         display: 'flex',
         alignItems: 'center',
@@ -26,27 +29,17 @@ const SwiperSkeleton = () => {
       }}>
       <Container>
         <Grid container alignItems='center'>
-          {/* Text content skeleton */}
           <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
             <Box sx={{ maxWidth: 500 }}>
-              <Skeleton variant='text' width='80%' height={80} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
-              <Skeleton variant='text' width='60%' height={40} sx={{ bgcolor: 'rgba(255,255,255,0.1)', mt: 1 }} />
-              <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+              <Skeleton variant='text' width='80%' height={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
+              <Skeleton variant='text' width='60%' height={30} sx={{ bgcolor: 'rgba(255,255,255,0.1)', mt: 1 }} />
+              <Box sx={{ mt: 4 }}>
                 <Skeleton variant='rectangular' width={150} height={50} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
               </Box>
             </Box>
           </Grid>
-
-          {/* Image skeleton */}
           <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '500px',
-                position: 'relative',
-              }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', height: '400px' }}>
               <Skeleton variant='rectangular' width='80%' height='70%' sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
             </Box>
           </Grid>
@@ -60,35 +53,79 @@ const SwiperSlideCarShowCase = () => {
   const { data: bannerSlides, isLoading, error } = useBannerSlides();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const swiperRef = React.useRef(null);
 
-  // Handle error state
-  React.useEffect(() => {
+  // Fix the TypeScript error by properly typing the ref
+  const swiperRef = useRef<{ swiper: SwiperClass } | null>(null);
+
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Check if component is visible in the viewport to pause autoplay when not visible
+  useEffect(() => {
+    // Skip if SSR
+    if (typeof window === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          setIsVisible(entry.isIntersecting);
+
+          // Now TypeScript knows swiperRef.current.swiper exists and has autoplay methods
+          if (swiperRef.current && swiperRef.current.swiper) {
+            if (entry.isIntersecting) {
+              swiperRef.current.swiper.autoplay.start();
+            } else {
+              swiperRef.current.swiper.autoplay.stop();
+            }
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
+  // Log errors but don't re-render
+  useEffect(() => {
     if (error) {
       console.error('Error loading banner slides:', error);
     }
   }, [error]);
 
-  // If loading, show skeleton
+  // Memory cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (swiperRef.current && swiperRef.current.swiper) {
+        swiperRef.current.swiper.destroy(true, true);
+      }
+    };
+  }, []);
+
+  // If loading, show only one skeleton instead of multiple
   if (isLoading) {
     return (
-      <Swiper spaceBetween={0} slidesPerView={1} modules={[Pagination]} style={{ height: '600px' }}>
-        {[1, 2].map(item => (
-          <SwiperSlide key={`skeleton-${item}`}>
-            <SwiperSkeleton />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      <Box ref={containerRef} sx={{ height: { xs: '420px', md: '600px' } }}>
+        <SwiperSkeleton />
+      </Box>
     );
   }
 
-  // If no data, show a fallback slide
+  // If no data, show a simple fallback
   if (!bannerSlides || bannerSlides.length === 0) {
     return (
       <Box
+        ref={containerRef}
         sx={{
-          position: 'relative',
-          height: '600px',
+          height: { xs: '420px', md: '600px' },
           bgcolor: '#111',
           display: 'flex',
           alignItems: 'center',
@@ -101,11 +138,12 @@ const SwiperSlideCarShowCase = () => {
     );
   }
 
-  // Ensure we have enough slides for navigation and autoplay to make sense
+  // Check if we have enough slides for features
   const shouldEnableFeatures = bannerSlides.length > 1;
 
   return (
     <Box
+      ref={containerRef}
       sx={{
         position: 'relative',
         '.swiper-button-next, .swiper-button-prev': {
@@ -116,7 +154,6 @@ const SwiperSlideCarShowCase = () => {
           },
           display: shouldEnableFeatures ? 'flex' : 'none',
         },
-        // Pagination dots styling
         '.swiper-pagination-bullet': {
           opacity: 0.5,
           backgroundColor: 'white',
@@ -140,7 +177,7 @@ const SwiperSlideCarShowCase = () => {
           dynamicBullets: true,
         }}
         autoplay={
-          shouldEnableFeatures
+          shouldEnableFeatures && isVisible
             ? {
                 delay: 3000,
                 disableOnInteraction: false,
@@ -150,16 +187,17 @@ const SwiperSlideCarShowCase = () => {
         modules={[Navigation, Pagination, Autoplay]}
         style={{ height: isMobile ? '420px' : '600px' }}
         onInit={swiper => {
-          // Ensure navigation and autoplay are initialized
-          if (shouldEnableFeatures && swiper) {
+          if (shouldEnableFeatures && swiper && isVisible) {
             setTimeout(() => {
               swiper.navigation.update();
               swiper.autoplay.start();
             }, 100);
           }
         }}>
-        {bannerSlides.map(item => (
+        {/* Rest of your component remains the same */}
+        {bannerSlides.map((item, index) => (
           <SwiperSlide key={item.id}>
+            {/* Slide content remains the same */}
             <Box
               sx={{
                 position: 'relative',
@@ -169,23 +207,30 @@ const SwiperSlideCarShowCase = () => {
                 alignItems: 'center',
                 overflow: 'hidden',
               }}>
-              {/* Background with overlay */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0.5,
-                  backgroundImage: `url(${item.bgImage?.url || ''})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
+              {item.bgImage?.url && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0.5,
+                  }}>
+                  <Image
+                    src={item.bgImage.url}
+                    alt=''
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    quality={75}
+                    sizes='100vw'
+                  />
+                </Box>
+              )}
               <Container>
                 <Grid container alignItems='center'>
-                  {/* Text content */}
                   <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
                     <Box sx={{ maxWidth: 500 }}>
                       <Typography
@@ -199,7 +244,14 @@ const SwiperSlideCarShowCase = () => {
                         }}>
                         {item.title}
                       </Typography>
-                      <Typography variant='h5' color='white' sx={{ mb: 3, opacity: 0.9, fontSize: { xs: '1rem', md: '2rem' } }}>
+                      <Typography
+                        variant='h5'
+                        color='white'
+                        sx={{
+                          mb: 3,
+                          opacity: 0.9,
+                          fontSize: { xs: '1rem', md: '2rem' },
+                        }}>
                         {item.subtitle}
                       </Typography>
 
@@ -223,7 +275,6 @@ const SwiperSlideCarShowCase = () => {
                     </Box>
                   </Grid>
 
-                  {/* Car image */}
                   <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
                     <Box
                       sx={{
@@ -239,16 +290,19 @@ const SwiperSlideCarShowCase = () => {
                           height: '70%',
                           position: 'relative',
                         }}>
-                        {item.mainImage ? (
+                        {item.mainImage?.url ? (
                           <Image
-                            src={item.mainImage.url || ''}
+                            src={item.mainImage.url}
                             alt={item.title}
                             fill
                             style={{
                               objectFit: 'contain',
                               filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
                             }}
-                            quality={100}
+                            priority={index === 0}
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            quality={85}
+                            sizes='(max-width: 768px) 100vw, 50vw'
                           />
                         ) : (
                           <Box
