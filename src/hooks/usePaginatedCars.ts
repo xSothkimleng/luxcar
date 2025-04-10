@@ -1,9 +1,7 @@
-// src/hooks/usePaginatedCars.ts
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { Car } from '@/types/car';
 
-// Define the pagination parameters interface
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -11,7 +9,6 @@ export interface PaginationParams {
   order?: 'asc' | 'desc';
 }
 
-// Define the filter parameters interface
 export interface FilterParams {
   search?: string;
   brandId?: string;
@@ -20,10 +17,8 @@ export interface FilterParams {
   statusId?: string;
 }
 
-// Combined parameters type
 export type PaginatedCarsParams = PaginationParams & FilterParams;
 
-// Define the paginated response type
 export interface PaginatedResponse<T> {
   items: T[];
   meta: {
@@ -35,22 +30,19 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Define the cars query key for better cache management
 export const paginatedCarsQueryKeys = {
   all: ['paginatedCars'] as const,
   paginated: (params: PaginatedCarsParams) => [...paginatedCarsQueryKeys.all, params] as const,
 };
 
-// The main hook for fetching paginated cars with enhanced caching
 export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<PaginatedResponse<Car>, Error> {
   return useQuery({
     queryKey: paginatedCarsQueryKeys.paginated(params),
     queryFn: async () => {
       console.log('Fetching start...');
-      // Build the query string
+
       const queryParams = new URLSearchParams();
 
-      // Add pagination params
       queryParams.append('page', params.page.toString());
       queryParams.append('limit', params.limit.toString());
 
@@ -62,7 +54,6 @@ export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<Pa
         queryParams.append('order', params.order);
       }
 
-      // Add filter params
       if (params.search) {
         queryParams.append('search', params.search);
       }
@@ -83,30 +74,25 @@ export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<Pa
         queryParams.append('statusId', params.statusId);
       }
 
-      // Fetch the data with caching headers respected
       const { data } = await axios.get<PaginatedResponse<Car>>(`/api/cars/paginated?${queryParams.toString()}`);
       console.log('Fetched data:', data);
       return data;
     },
-    // Add caching strategies to React Query
-    staleTime: determineStaleTime(params), // Time until query is considered stale
-    placeholderData: previousData => previousData, // Show previous data while fetching new page
-    refetchOnWindowFocus: !params.search, // Don't refetch searches on window focus
+
+    staleTime: determineStaleTime(params),
+    placeholderData: previousData => previousData,
+    refetchOnWindowFocus: !params.search,
   });
 }
 
-// Helper function to determine appropriate stale time based on parameters
 function determineStaleTime(params: PaginatedCarsParams): number {
-  // Search queries should be fresher
   if (params.search) {
-    return 1000 * 60 * 1; // 1 minute
+    return 1000 * 60 * 1;
   }
 
-  // First page with default sorting is cached longer
   if (params.page === 1 && params.sort === 'createdAt' && params.order === 'desc') {
-    return 1000 * 60 * 5; // 5 minutes
+    return 1000 * 60 * 5;
   }
 
-  // Default stale time
-  return 1000 * 60 * 3; // 3 minutes
+  return 1000 * 60 * 3;
 }

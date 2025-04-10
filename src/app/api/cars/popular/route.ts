@@ -14,13 +14,12 @@ export async function GET() {
         id: true,
         name: true,
         price: true,
-
+        variantImages: true,
         thumbnailImage: {
           select: {
             url: true,
           },
         },
-
         brand: {
           select: {
             name: true,

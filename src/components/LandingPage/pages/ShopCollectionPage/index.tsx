@@ -32,7 +32,7 @@ import { usePaginatedCars, PaginatedCarsParams } from '@/hooks/usePaginatedCars'
 const CarDetail = lazy(() => import('@/components/CarDetail'));
 
 // Constants
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 24;
 
 const ShopCollectionPage = () => {
   const searchParams = useSearchParams();
@@ -45,6 +45,7 @@ const ShopCollectionPage = () => {
   const [openCarDialog, setOpenCarDialog] = useState(false);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Pagination and Filter States
   const [currentPage, setCurrentPage] = useState(pageFromQuery ? parseInt(pageFromQuery) : 1);
@@ -62,7 +63,14 @@ const ShopCollectionPage = () => {
   };
 
   // Fetch paginated and filtered cars with added caching options
-  const { data: paginatedData, isLoading, error } = usePaginatedCars(queryParams);
+  const { data: paginatedData, isLoading, error, isFetching } = usePaginatedCars(queryParams);
+
+  // Set first load state after initial data fetch
+  useEffect(() => {
+    if (paginatedData && isFirstLoad) {
+      setIsFirstLoad(false);
+    }
+  }, [paginatedData, isFirstLoad]);
 
   // Handle filter changes
   const handleFilterChange = (newFilters: Partial<PaginatedCarsParams>) => {
@@ -156,8 +164,34 @@ const ShopCollectionPage = () => {
       ));
   };
 
+  // Determine if we should show loading state
+  const showFullPageLoading = isLoading && isFirstLoad;
+  const showOverlayLoading = !isFirstLoad && isFetching;
+
   return (
     <Box sx={{ p: { xs: 1, md: 4 }, position: 'relative' }}>
+      {/* Show lightweight loading indicator for subsequent fetches */}
+      {showOverlayLoading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '4rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            bgcolor: 'black',
+            color: 'white',
+            py: 1,
+            px: 3,
+            borderRadius: '1rem',
+            boxShadow: 3,
+          }}>
+          <Typography variant='body2' display='flex' alignItems='center' gap={1}>
+            <CircularProgress size={16} sx={{ color: 'white' }} /> Updating...
+          </Typography>
+        </Box>
+      )}
+
       {/* Telegram Contact Button */}
       <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: '999' }}>
         <Fab
@@ -223,8 +257,8 @@ const ShopCollectionPage = () => {
                 position: 'sticky',
                 top: '80px',
                 borderRadius: 2,
-                opacity: isLoading ? 0.7 : 1,
-                pointerEvents: isLoading ? 'none' : 'auto',
+                opacity: showFullPageLoading ? 0.7 : 1,
+                pointerEvents: showFullPageLoading ? 'none' : 'auto',
               }}>
               <FilterDrawer onFilterChange={handleFilterChange} initialFilters={filterParams} initialModelId={modelIdFromQuery} />
             </Paper>
@@ -233,7 +267,7 @@ const ShopCollectionPage = () => {
 
         {/* Right Side - Product List - Full width on mobile */}
         <Grid item xs={12} md={9} lg={9.5}>
-          {isLoading ? (
+          {showFullPageLoading ? (
             // Show skeleton placeholders while loading
             <Grid container spacing={3}>
               {renderSkeletons()}
@@ -304,8 +338,8 @@ const ShopCollectionPage = () => {
             position: 'sticky',
             bottom: 0,
             zIndex: 10,
-            opacity: isLoading ? 0.7 : 1,
-            pointerEvents: isLoading ? 'none' : 'auto',
+            opacity: showFullPageLoading ? 0.7 : 1,
+            pointerEvents: showFullPageLoading ? 'none' : 'auto',
           }}>
           <FilterDrawer onFilterChange={handleFilterChange} initialFilters={filterParams} initialModelId={modelIdFromQuery} />
         </Box>

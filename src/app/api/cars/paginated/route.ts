@@ -88,13 +88,10 @@ export async function GET(request: NextRequest) {
           model: true,
           status: true,
           thumbnailImage: true,
-          // Only load variant images when explicitly requested
-          // This reduces payload size significantly
-          variantImages: search ? true : false,
+          variantImages: true,
         },
       }),
     ]);
-
     // Create response
     const response = NextResponse.json({
       items: cars,
