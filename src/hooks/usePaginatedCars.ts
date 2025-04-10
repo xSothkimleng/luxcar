@@ -84,7 +84,7 @@ export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<Pa
 
       // Fetch the data with caching headers respected
       const { data } = await axios.get<PaginatedResponse<Car>>(`/api/cars/paginated?${queryParams.toString()}`);
-
+      console.log('Fetched data:', data);
       return data;
     },
     // Add caching strategies to React Query

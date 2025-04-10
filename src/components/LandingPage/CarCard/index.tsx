@@ -65,8 +65,8 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
               opacity: imageLoaded ? 1 : 0,
               transition: 'opacity 0.2s ease-in-out',
             }}
-            quality={75} // Good balance between quality and size
-            onLoadingComplete={() => setImageLoaded(true)}
+            quality={75}
+            onLoad={() => setImageLoaded(true)}
           />
 
           {/* Show loading state until image is loaded */}
