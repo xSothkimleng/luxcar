@@ -63,17 +63,13 @@ export async function GET(request: NextRequest) {
       filterConditions.statusId = statusId;
     }
 
-    // Calculate pagination values
     const skip = (page - 1) * limit;
 
-    // Performance optimization: Split queries and run in parallel
     const [totalCount, cars] = await Promise.all([
-      // Get total count of filtered cars for pagination metadata
       prisma.car.count({
         where: filterConditions,
       }),
 
-      // Fetch paginated cars with filters
       prisma.car.findMany({
         where: filterConditions,
         skip,
@@ -81,7 +77,6 @@ export async function GET(request: NextRequest) {
         orderBy: {
           [sort]: order.toLowerCase() === 'asc' ? 'asc' : 'desc',
         },
-        // Only select what's needed for the grid view (optimize payload size)
         include: {
           color: true,
           brand: true,
@@ -92,7 +87,7 @@ export async function GET(request: NextRequest) {
         },
       }),
     ]);
-    // Create response
+
     const response = NextResponse.json({
       items: cars,
       meta: {
@@ -104,7 +99,6 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Add cache headers
     response.headers.set('Cache-Control', `public, s-maxage=${cacheDuration}, stale-while-revalidate=${cacheDuration * 2}`);
 
     return response;

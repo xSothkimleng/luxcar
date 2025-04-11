@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Fetch only what you need in a single query
     const cars = await prisma.car.findMany({
       take: 12,
       orderBy: {
@@ -18,6 +17,19 @@ export async function GET() {
         thumbnailImage: {
           select: {
             url: true,
+          },
+        },
+        status: {
+          select: {
+            name: true,
+          },
+        },
+        scale: true,
+        description: true,
+        color: {
+          select: {
+            name: true,
+            rgb: true,
           },
         },
         brand: {
