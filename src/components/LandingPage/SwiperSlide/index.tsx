@@ -138,7 +138,6 @@ const SwiperSlideCarShowCase = () => {
     );
   }
 
-  // Check if we have enough slides for features
   const shouldEnableFeatures = bannerSlides.length > 1;
 
   return (

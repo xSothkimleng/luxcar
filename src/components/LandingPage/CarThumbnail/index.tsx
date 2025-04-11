@@ -33,7 +33,6 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}>
-      {/* Car Image */}
       <Box
         onClick={() => setOpenCarDialog(true)}
         sx={{
@@ -41,23 +40,21 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           height: '100%',
           position: 'relative',
           transition: 'transform 0.4s ease-in-out',
-          transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+          transform: isHovered ? 'scale(1.25)' : 'scale(1)',
         }}>
         <Image
+          fill
           unoptimized
           src={imageUrl}
           alt={car.name}
-          fill
+          quality={80}
+          loading='lazy'
           sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
           style={{
             objectFit: 'cover',
           }}
-          quality={80}
-          loading='lazy'
         />
       </Box>
-
-      {/* Overlay information that slides up on hover */}
       <Box
         sx={{
           position: 'absolute',
@@ -66,11 +63,10 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
           width: '100%',
           padding: '10px',
           paddingTop: '8px',
-          transform: isHovered ? 'translateY(0)' : 'translateY(70%)',
-          transition: 'transform 0.3s ease-in-out',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 90%, rgba(0,0,0,0) 100%)',
+          background: 'rgba(0, 0, 0, 0.3)',
+          transition: 'transform 0.3s ease-in-out',
           gap: 1,
         }}>
         <Typography variant='subtitle1' sx={{ color: 'white', fontWeight: 'bold' }}>
@@ -99,28 +95,8 @@ const CarThumbnail: React.FC<CarThumbnailProps> = ({ car }) => {
                 })}
           </Typography>
         )}
-
-        <Typography
-          variant='body2'
-          onClick={() => setOpenCarDialog(true)}
-          sx={{
-            color: 'white',
-            opacity: 0.8,
-            display: 'inline-block',
-            alignSelf: 'flex-start',
-            px: 1,
-            py: 0.5,
-            borderRadius: '4px',
-            fontWeight: 'medium',
-            bgcolor: 'rgba(255,255,255,0.1)',
-            transform: isHovered ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'transform 0.4s ease-in-out 0.1s, opacity 0.4s ease-in-out 0.1s',
-          }}>
-          View Details
-        </Typography>
       </Box>
 
-      {/* Only render Dialog and its contents when it's actually open */}
       {openCarDialog && (
         <Dialog
           fullScreen={isMobile}

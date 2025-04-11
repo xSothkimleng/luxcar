@@ -21,9 +21,7 @@ const Homepage = () => {
           <TelegramIcon sx={{ fontSize: '3rem', marginRight: '0.3rem' }} />
         </Fab>
       </Box>
-      {/* Promotional Banner */}
       <MessageBanner />
-      {/* Carousel */}
       <Box sx={{ mt: 0 }}>
         <SwiperSlideCarShowCase />
       </Box>
