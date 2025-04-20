@@ -27,6 +27,7 @@ import TelegramIcon from '@mui/icons-material/Telegram';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useSearchParams } from 'next/navigation';
 import { usePaginatedCars, PaginatedCarsParams } from '@/hooks/usePaginatedCars';
+import { info } from '@/data/info';
 
 // Lazy load the CarDetail component
 const CarDetail = lazy(() => import('@/components/CarDetail'));
@@ -197,7 +198,7 @@ const ShopCollectionPage = () => {
         <Fab
           aria-label='add'
           component={Link}
-          href='https://t.me/lkkkk12345'
+          href={info.telegram}
           target='_blank'
           sx={{
             background: '#0088cc',

@@ -59,7 +59,7 @@ const Footer = () => {
                 component={Link}
                 href={info.facebook}
                 target='_blank'>
-                Lux Cars Cambodia
+                LUX Cars Cambodia
               </Typography>
             </Box>
             <Box component='li' sx={{ mb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
@@ -103,6 +103,28 @@ const Footer = () => {
                 href={info.telegram}
                 target='_blank'>
                 Telegram
+              </Typography>
+            </Box>
+            <Box component='li' sx={{ mb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
+              <IconButton
+                component={Link}
+                href={info.telegram}
+                target='_blank'
+                sx={{
+                  padding: '0',
+                  bgcolor: '#1877F2',
+                  color: 'white',
+                  '&:hover': { bgcolor: '#0d65d9' },
+                }}>
+                <TelegramIcon sx={{ fontSize: '1.5rem', padding: '2px' }} />
+              </IconButton>
+              <Typography
+                variant='body2'
+                sx={{ cursor: 'pointer', textDecoration: 'none', color: 'white', '&:hover': { color: 'gray' } }}
+                component={Link}
+                href={info.telegram}
+                target='_blank'>
+                Telegram Group
               </Typography>
             </Box>
           </Box>

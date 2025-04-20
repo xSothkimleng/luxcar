@@ -5,6 +5,7 @@ import { Box, Button, Divider, Fab, Link, Typography } from '@mui/material';
 import PopularCar from './PopularCar';
 import { useRouter } from 'next/navigation';
 import TelegramIcon from '@mui/icons-material/Telegram';
+import { info } from '@/data/info';
 
 const Homepage = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const Homepage = () => {
         <Fab
           aria-label='add'
           component={Link}
-          href='https://t.me/lkkkk12345'
+          href={info.telegram}
           target='_blank'
           sx={{ background: '#0088cc', color: '#fff', width: '4rem', height: '4rem' }}>
           <TelegramIcon sx={{ fontSize: '3rem', marginRight: '0.3rem' }} />
