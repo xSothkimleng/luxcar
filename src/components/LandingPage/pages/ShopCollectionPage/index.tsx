@@ -51,8 +51,8 @@ const ShopCollectionPage = () => {
   // Pagination and Filter States
   const [currentPage, setCurrentPage] = useState(pageFromQuery ? parseInt(pageFromQuery) : 1);
   const [filterParams, setFilterParams] = useState<Omit<PaginatedCarsParams, 'page' | 'limit'>>({
-    sort: 'createdAt',
-    order: 'desc',
+    sort: 'price',
+    order: 'asc',
     modelId: modelIdFromQuery || undefined,
   });
 

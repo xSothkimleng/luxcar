@@ -122,9 +122,9 @@ const Footer = () => {
                 variant='body2'
                 sx={{ cursor: 'pointer', textDecoration: 'none', color: 'white', '&:hover': { color: 'gray' } }}
                 component={Link}
-                href={info.telegram}
+                href={info.telegramGroup}
                 target='_blank'>
-                Telegram Group
+                Telegram Channel
               </Typography>
             </Box>
           </Box>

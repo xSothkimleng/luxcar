@@ -1,4 +1,3 @@
-// src/app/api/cars/paginated/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
@@ -13,8 +12,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const sort = searchParams.get('sort') || 'createdAt';
-    const order = searchParams.get('order') || 'desc';
+
+    // Change default sort to price and default order to ascending
+    const sort = searchParams.get('sort') || 'price';
+    const order = searchParams.get('order') || 'asc';
 
     // Extract filter parameters
     const search = searchParams.get('search') || '';
@@ -65,12 +66,39 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const [totalCount, cars] = await Promise.all([
+    const [totalCount, allCars] = await Promise.all([
       prisma.car.count({
         where: filterConditions,
       }),
 
       prisma.car.findMany({
+        where: filterConditions,
+        include: {
+          color: true,
+          brand: true,
+          model: true,
+          status: true,
+          thumbnailImage: true,
+          variantImages: true,
+        },
+      }),
+    ]);
+
+    // Handle sorting manually if sorting by price
+    let cars;
+    if (sort === 'price') {
+      // Convert from BigInt or Decimal to number for sorting
+      const sortedCars = [...allCars].sort((a, b) => {
+        const priceA = parseFloat(a.price.toString());
+        const priceB = parseFloat(b.price.toString());
+        return order.toLowerCase() === 'asc' ? priceA - priceB : priceB - priceA;
+      });
+
+      // Apply pagination manually after sorting
+      cars = sortedCars.slice(skip, skip + limit);
+    } else {
+      // For other fields, use Prisma's built-in sorting
+      cars = await prisma.car.findMany({
         where: filterConditions,
         skip,
         take: limit,
@@ -85,8 +113,18 @@ export async function GET(request: NextRequest) {
           thumbnailImage: true,
           variantImages: true,
         },
-      }),
-    ]);
+      });
+    }
+
+    // Add debug info
+    console.log(`Sorting by ${sort} in ${order} order`);
+    console.log(
+      'First few cars prices:',
+      cars.slice(0, 5).map(car => ({
+        name: car.name,
+        price: car.price.toString(),
+      })),
+    );
 
     const response = NextResponse.json({
       items: cars,
@@ -96,6 +134,8 @@ export async function GET(request: NextRequest) {
         totalItems: totalCount,
         itemsPerPage: limit,
         filteredCount: totalCount,
+        sortedBy: sort,
+        sortOrder: order,
       },
     });
 

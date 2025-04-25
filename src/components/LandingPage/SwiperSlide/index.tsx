@@ -228,7 +228,7 @@ const SwiperSlideCarShowCase = () => {
                   />
                 </Box>
               )}
-              <Container>
+              <Container maxWidth='xl'>
                 <Grid container alignItems='center'>
                   <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
                     <Box sx={{ maxWidth: 500 }}>
@@ -239,7 +239,7 @@ const SwiperSlideCarShowCase = () => {
                         gutterBottom
                         sx={{
                           textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-                          fontSize: { xs: '2rem', md: '3.5rem' },
+                          fontSize: { xs: '1.5rem', md: '3.5rem' },
                         }}>
                         {item.title}
                       </Typography>
@@ -247,15 +247,61 @@ const SwiperSlideCarShowCase = () => {
                         variant='h5'
                         color='white'
                         sx={{
-                          mb: 3,
+                          mb: { xs: 1, md: 3 },
                           opacity: 0.9,
                           fontSize: { xs: '1rem', md: '2rem' },
                         }}>
                         {item.subtitle}
                       </Typography>
 
+                      <Box
+                        sx={{
+                          display: { xs: 'flex', sm: 'none' },
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          height: '200px',
+                          position: 'relative',
+                        }}>
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            position: 'relative',
+                          }}>
+                          {item.mainImage?.url ? (
+                            <Image
+                              unoptimized
+                              src={item.mainImage.url}
+                              alt={item.title}
+                              fill
+                              style={{
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
+                              }}
+                              loading={index === 0 ? 'eager' : 'lazy'}
+                              quality={85}
+                              sizes='(max-width: 768px) 100vw, 50vw'
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                width: '100%',
+                                height: '100%',
+                                bgcolor: 'rgba(255,255,255,0.1)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}>
+                              <Typography color='white' variant='body2'>
+                                Image not available
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
+
                       {item.model?.id && (
-                        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                        <Box sx={{ display: 'flex', mt: { xs: 1, sm: 4 } }}>
                           <Link href={`/shop?model=${item.model.id}`} passHref>
                             <Button
                               variant='outlined'
@@ -264,7 +310,7 @@ const SwiperSlideCarShowCase = () => {
                                 borderColor: 'white',
                                 color: 'white',
                                 '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
-                                px: 3,
+                                px: { xs: 1, md: 3 },
                               }}>
                               View Collection
                             </Button>
@@ -273,7 +319,6 @@ const SwiperSlideCarShowCase = () => {
                       )}
                     </Box>
                   </Grid>
-
                   <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
                     <Box
                       sx={{

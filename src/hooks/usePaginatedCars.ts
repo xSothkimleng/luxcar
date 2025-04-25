@@ -36,63 +36,80 @@ export const paginatedCarsQueryKeys = {
 };
 
 export function usePaginatedCars(params: PaginatedCarsParams): UseQueryResult<PaginatedResponse<Car>, Error> {
+  // Create a clean params object with default values
+  const queryParams: PaginatedCarsParams = {
+    page: params.page ?? 1,
+    limit: params.limit ?? 10,
+    sort: params.sort ?? 'price',
+    order: (params.order ?? 'asc') as 'asc' | 'desc',
+    search: params.search,
+    brandId: params.brandId,
+    colorId: params.colorId,
+    modelId: params.modelId,
+    statusId: params.statusId,
+  };
+
   return useQuery({
-    queryKey: paginatedCarsQueryKeys.paginated(params),
+    queryKey: paginatedCarsQueryKeys.paginated(queryParams),
     queryFn: async () => {
       console.log('Fetching start...');
 
-      const queryParams = new URLSearchParams();
+      const urlParams = new URLSearchParams();
 
-      queryParams.append('page', params.page.toString());
-      queryParams.append('limit', params.limit.toString());
+      urlParams.append('page', queryParams.page.toString());
+      urlParams.append('limit', queryParams.limit.toString());
 
-      if (params.sort) {
-        queryParams.append('sort', params.sort);
+      if (queryParams.sort) {
+        urlParams.append('sort', queryParams.sort);
       }
 
-      if (params.order) {
-        queryParams.append('order', params.order);
+      if (queryParams.order) {
+        urlParams.append('order', queryParams.order);
       }
 
-      if (params.search) {
-        queryParams.append('search', params.search);
+      if (queryParams.search) {
+        urlParams.append('search', queryParams.search);
       }
 
-      if (params.brandId) {
-        queryParams.append('brandId', params.brandId);
+      if (queryParams.brandId) {
+        urlParams.append('brandId', queryParams.brandId);
       }
 
-      if (params.colorId) {
-        queryParams.append('colorId', params.colorId);
+      if (queryParams.colorId) {
+        urlParams.append('colorId', queryParams.colorId);
       }
 
-      if (params.modelId) {
-        queryParams.append('modelId', params.modelId);
+      if (queryParams.modelId) {
+        urlParams.append('modelId', queryParams.modelId);
       }
 
-      if (params.statusId) {
-        queryParams.append('statusId', params.statusId);
+      if (queryParams.statusId) {
+        urlParams.append('statusId', queryParams.statusId);
       }
 
-      const { data } = await axios.get<PaginatedResponse<Car>>(`/api/cars/paginated?${queryParams.toString()}`);
+      const { data } = await axios.get<PaginatedResponse<Car>>(`/api/cars/paginated?${urlParams.toString()}`);
       console.log('Fetched data:', data);
       return data;
     },
 
-    staleTime: determineStaleTime(params),
+    staleTime: determineStaleTime(queryParams),
     placeholderData: previousData => previousData,
-    refetchOnWindowFocus: !params.search,
+    refetchOnWindowFocus: !queryParams.search,
   });
 }
 
 function determineStaleTime(params: PaginatedCarsParams): number {
   if (params.search) {
-    return 1000 * 60 * 1;
+    return 1000 * 60 * 1; // 1 minute for search results
   }
 
-  if (params.page === 1 && params.sort === 'createdAt' && params.order === 'desc') {
-    return 1000 * 60 * 5;
+  if (
+    (params.page === 1 || params.page === undefined) &&
+    (params.sort === 'price' || params.sort === undefined) &&
+    (params.order === 'asc' || params.order === undefined)
+  ) {
+    return 1000 * 60 * 5; // 5 minutes for default sorting (price ascending)
   }
 
-  return 1000 * 60 * 3;
+  return 1000 * 60 * 3; // 3 minutes for other queries
 }

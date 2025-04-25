@@ -5,5 +5,5 @@ export const info = {
   facebook: 'https://www.facebook.com/profile.php?id=61565751242412',
   instagram: 'https://www.instagram.com/luxcar_cambodia/',
   telegram: 'https://t.me/LUX_Cars_Cambodia',
-  TelegramGroup: 'https://t.me/luxcars_channel',
+  telegramGroup: 'https://t.me/luxcars_channel',
 };
