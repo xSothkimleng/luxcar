@@ -203,7 +203,8 @@ const SwiperSlideCarShowCase = () => {
                 height: { xs: '420px', md: '600px' },
                 bgcolor: '#111',
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: { xs: 'center', md: 'center' },
+                justifyContent: 'center',
                 overflow: 'hidden',
               }}>
               {item.bgImage?.url && (
@@ -230,7 +231,7 @@ const SwiperSlideCarShowCase = () => {
               )}
               <Container maxWidth='xl'>
                 <Grid container alignItems='center'>
-                  <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4 }}>
+                  <Grid item xs={12} md={6} sx={{ zIndex: 2, p: 4, py: 0 }}>
                     <Box sx={{ maxWidth: 500 }}>
                       <Typography
                         variant='h2'
@@ -254,52 +255,6 @@ const SwiperSlideCarShowCase = () => {
                         {item.subtitle}
                       </Typography>
 
-                      <Box
-                        sx={{
-                          display: { xs: 'flex', sm: 'none' },
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          height: '200px',
-                          position: 'relative',
-                        }}>
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'relative',
-                          }}>
-                          {item.mainImage?.url ? (
-                            <Image
-                              unoptimized
-                              src={item.mainImage.url}
-                              alt={item.title}
-                              fill
-                              style={{
-                                objectFit: 'contain',
-                                filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.5))',
-                              }}
-                              loading={index === 0 ? 'eager' : 'lazy'}
-                              quality={85}
-                              sizes='(max-width: 768px) 100vw, 50vw'
-                            />
-                          ) : (
-                            <Box
-                              sx={{
-                                width: '100%',
-                                height: '100%',
-                                bgcolor: 'rgba(255,255,255,0.1)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}>
-                              <Typography color='white' variant='body2'>
-                                Image not available
-                              </Typography>
-                            </Box>
-                          )}
-                        </Box>
-                      </Box>
-
                       {item.model?.id && (
                         <Box sx={{ display: 'flex', mt: { xs: 1, sm: 4 } }}>
                           <Link href={`/shop?model=${item.model.id}`} passHref>
@@ -310,7 +265,8 @@ const SwiperSlideCarShowCase = () => {
                                 borderColor: 'white',
                                 color: 'white',
                                 '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' },
-                                px: { xs: 1, md: 3 },
+                                px: { xs: 0.5, md: 3 },
+                                fontSize: { xs: '0.8rem', md: '2rem' },
                               }}>
                               View Collection
                             </Button>
@@ -319,19 +275,20 @@ const SwiperSlideCarShowCase = () => {
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'none', md: 'block' } }}>
+                  <Grid item xs={12} md={6} sx={{ zIndex: 2, position: 'relative', display: { xs: 'block', md: 'block' } }}>
                     <Box
                       sx={{
                         display: 'flex',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-end',
                         alignItems: 'center',
-                        height: '500px',
+                        height: { xs: '150px', md: '500px' },
                         position: 'relative',
+                        paddingBottom: { xs: 0, md: 0 },
                       }}>
                       <Box
                         sx={{
-                          width: '100%',
-                          height: '70%',
+                          width: { xs: '60%', sm: '100%' },
+                          height: { xs: '80%', sm: '70%' },
                           position: 'relative',
                         }}>
                         {item.mainImage?.url ? (
