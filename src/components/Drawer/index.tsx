@@ -42,6 +42,15 @@ const MENU_ITEMS = [
       { text: 'Status', icon: ContentIcon, path: '/dashboard/inventory-management/status' },
     ],
   },
+  {
+    text: 'Content Management',
+    icon: ContentIcon,
+    path: '/dashboard/content-management',
+    subMenu: [
+      { text: 'Banner Slide', icon: ContentIcon, path: '/dashboard/content-management/banner-slide' },
+      { text: 'Homepage Content', icon: ContentIcon, path: '/dashboard/content-management/homepage-content' },
+    ],
+  },
   { text: 'Profile', icon: ProfileIcon, path: '/dashboard/profile' },
 ];
 
