@@ -103,6 +103,20 @@ const CarCard: React.FC<CarCardProps> = ({ car, handleViewCar }) => {
             }}
           />
         )}
+        {car.discount != null && car.discount !== '' && (
+          <Chip
+            label={car.discount}
+            size='small'
+            sx={{
+              position: 'absolute',
+              top: 40,
+              right: 10,
+              bgcolor: 'red',
+              color: 'white',
+              fontWeight: 'bolder',
+            }}
+          />
+        )}
         {car.status && (
           <Chip
             label={car.status.name}

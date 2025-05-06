@@ -501,6 +501,27 @@ const CarDetail = ({ car }: CarDetailProps) => {
                   </Typography>
                 </Box>
               </Box>
+
+              {/* Discount */}
+              {car.discount != null && car.discount !== '' && (
+                <Box
+                  sx={{
+                    py: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+                  }}>
+                  <Typography variant='body2' color='text.secondary' sx={{ width: '100px' }}>
+                    Discount:
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                    <AttachMoneyIcon sx={{ fontSize: '1.5rem', color: '#D32F2F' }} />
+                    <Typography variant='h6' fontWeight='700' color='#D32F2F'>
+                      {car.discount}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             {/* Description Section - Lazy loaded */}

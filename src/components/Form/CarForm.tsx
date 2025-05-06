@@ -36,6 +36,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
   // Form state
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
+  const [discount, setDiscount] = useState('');
   const [scale, setScale] = useState('');
   const [colorId, setColorId] = useState('');
   const [brandId, setBrandId] = useState('');
@@ -78,6 +79,7 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
       const newCar = await createCar({
         name,
         price: Number(price),
+        discount,
         scale,
         description,
         colorId,
@@ -165,6 +167,19 @@ const CarForm = ({ onClose }: { onClose: () => void }) => {
             variant='filled'
             type='number'
             inputProps={{ min: 0, step: 0.01 }}
+            className='mb-4'
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          {/* Discount */}
+          <CoolButton
+            label='Discount (optional)'
+            value={discount}
+            onChange={e => setDiscount(e.target.value)}
+            fullWidth
+            variant='filled'
+            type='text'
             className='mb-4'
           />
         </Grid>

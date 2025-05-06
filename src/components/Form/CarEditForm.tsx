@@ -46,6 +46,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
   // Form state
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
+  const [discount, setDiscount] = useState('');
   const [scale, setScale] = useState('');
   const [tag, setTag] = useState('');
   const [colorId, setColorId] = useState('');
@@ -72,6 +73,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
       console.log('Car:', car);
       setName(car.name);
       setPrice(car.price);
+      setDiscount(car.discount || '');
       setScale(car.scale);
       setTag(car.tag || '');
       setColorId(car.colorId);
@@ -137,6 +139,7 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
         id: car.id,
         name,
         price: Number(price),
+        discount,
         scale,
         tag,
         description,
@@ -261,6 +264,19 @@ const CarEditForm = ({ car, onClose }: CarEditFormProps) => {
             variant='filled'
             type='number'
             inputProps={{ min: 0, step: 0.01 }}
+            className='mb-4'
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          {/* Discount */}
+          <CoolButton
+            label='Discount (optional)'
+            value={discount}
+            onChange={e => setDiscount(e.target.value)}
+            fullWidth
+            variant='filled'
+            type='text'
             className='mb-4'
           />
         </Grid>
