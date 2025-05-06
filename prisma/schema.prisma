@@ -62,6 +62,21 @@ model Car {
   variantImages   VariantImage[] 
 
   @@map("cars")
+  homepageFeature HomepageCar?
+}
+
+model HomepageCar {
+  id        String   @id @default(uuid())
+  order     Int
+  carId     String   @map("car_id") @unique  // Add @unique here
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  car       Car      @relation(fields: [carId], references: [id])
+
+  @@map("homepage_cars")
+  @@unique([order]) 
 }
 
 model Color {
